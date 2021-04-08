@@ -1,0 +1,31 @@
+body {
+  background: #04010D;
+}
+
+.content {
+  position: absolute;
+  left: 20%;
+  top: 20%;
+  border-color: #080000;
+  border-width: 3px;
+  align-items: center;
+}
+
+.toc-item {
+  color: #fff;
+  text-decoration: none;
+  font-size: 25px;
+  font-family: sans-serif;
+}
+
+li {
+  line-height: 30px;
+  list-style-type: none;
+}
+
+li::before {
+  content: "\00BB\0020";
+  color: #fff;
+  font-size: 25px;
+  font-family: sans-serif;
+}
