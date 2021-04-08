@@ -1,5 +1,22 @@
 body {
   background: #04010D;
+  font-family: sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  line-height: 30px;
+  list-style-type: none;
+}
+
+li::before {
+  content: "\00BB\0020";
+  color: #fff;
+  font-size: 25px;
+  font-family: sans-serif;
 }
 
 .content {
@@ -13,19 +30,22 @@ body {
 
 .toc-item {
   color: #fff;
-  text-decoration: none;
   font-size: 25px;
-  font-family: sans-serif;
 }
 
-li {
-  line-height: 30px;
-  list-style-type: none;
+.header {
+  font-size: 50px;
+  color: #00FF2A;
+  position: fixed;#absolute;
+  left: 70%;
+  top: 20px;
 }
 
-li::before {
-  content: "\00BB\0020";
-  color: #fff;
-  font-size: 25px;
-  font-family: sans-serif;
+.back-to-top {
+  font-weight: bold;
+  color: #00FF2A;
+  position: fixed;
+  top: 95%;
+  left: 90%;
+  visibility: hidden;
 }
