@@ -36,7 +36,7 @@ li::before {
 .header {
   font-size: 50px;
   color: #00FF2A;
-  position: fixed;#absolute;
+  position: fixed;
   left: 70%;
   top: 20px;
 }
