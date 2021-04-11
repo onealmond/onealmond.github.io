@@ -12,11 +12,25 @@ li {
   list-style-type: none;
 }
 
-li::before {
+li.event-item::before,li.puzzle-item::before {
   content: "\00BB\0020";
   color: #fff;
   font-size: 25px;
   font-family: sans-serif;
+}
+
+li.category-item::after {
+  content: "\0020\00AB";
+  color: #fff;
+  font-size: 25px;
+  font-family: sans-serif;
+}
+
+.category-item {
+  color: #fff;
+  font-size: 25px;
+  font-family: sans-serif;
+  text-align: right;
 }
 
 .content {
@@ -28,9 +42,21 @@ li::before {
   align-items: center;
 }
 
+li.event-item .toc-item {
+  margin-right: 30px;
+}
+
 .toc-item {
   color: #fff;
+  font-size: 20px;
+}
+
+.toc-title {
+  color: #fff;
+  font-weight: bold;
   font-size: 25px;
+  text-align: right;
+  text-decoration: underline;
 }
 
 .header {
