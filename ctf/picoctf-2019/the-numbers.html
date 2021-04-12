@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>The Numbers</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">The Numbers</h1>
+</header>
+<p>List all the numbers</p>
+<pre><code>flag = [16, 9, 3, 15, 3, 20, 6, 20, 8, 5, 14, 21, 13, 2, 5, 18, 19, 13, 1, 19, 15, 14]</code></pre>
+<p>The numbers look like index, the first 7 could be “picoCTF”, could it be alphbet order?</p>
+<pre><code>chr(ord(&#39;a&#39;)+16) =&gt; q
+chr(ord(&#39;a&#39;)+9) =&gt; j</code></pre>
+<p>but</p>
+<pre><code>p = chr(ord(&#39;a&#39;)+15)
+i = chr(ord(&#39;a&#39;)+8)</code></pre>
+<p>We need to minus one for each of them.</p>
+<pre><code>chr(ord(&#39;a&#39;)+16-1) =&gt; p
+chr(ord(&#39;a&#39;)+9-1) =&gt; i
+chr(ord(&#39;a&#39;)+3-1) =&gt; c
+chr(ord(&#39;a&#39;)+15-1) =&gt; o
+chr(ord(&#39;a&#39;)+3-1) =&gt; c
+chr(ord(&#39;a&#39;)+20-1) =&gt; t
+chr(ord(&#39;a&#39;)+6-1) =&gt; f</code></pre>
+<p>But we don’t know should it be uppercase or lowercase. for uppercase flag we only need to change ‘a’ to ‘A’ and try out both flags. It sais the uppercase one is correct.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

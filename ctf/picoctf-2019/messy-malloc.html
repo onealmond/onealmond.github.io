@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Messy Malloc</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Messy Malloc</h1>
+</header>
+<p>We can get the flag using <code>print-flag</code> command. Before the <code>print_flag</code> function actualy print the flag, it needs to validate access information.</p>
+<pre><code>  unsigned long ac1 = ((unsigned long *)u-&gt;access_code)[0];
+  unsigned long ac2 = ((unsigned long *)u-&gt;access_code)[1];
+  if (ac1 != 0x4343415f544f4f52 || ac2 != 0x45444f435f535345) {
+    fprintf(stdout, &quot;Incorrect Access Code: \&quot;&quot;);
+    for (int i = 0; i &lt; ACCESS_CODE_LEN; i++) {
+      putchar(u-&gt;access_code[i]);
+    }
+    fprintf(stdout, &quot;\&quot;\n&quot;);
+    return;
+  }
+</code></pre>
+<pre><code>&gt;&gt;&gt; pwn.p64(0x4343415f544f4f52)
+b&#39;ROOT_ACC&#39;
+&gt;&gt;&gt; pwn.p64(0x45444f435f535345)
+b&#39;ESS_CODE&#39;</code></pre>
+<p>Which means the <code>access_code</code> needs to be <code>ROOT_ACCESS_CODE</code>.</p>
+<p>So how do we set the correct code to <code>access_code</code>?</p>
+<p>Take a look at <code>login</code>, it’s using <code>malloc</code> to allocate memory for user struct and username, as <code>malloc</code> simply allocate chunks of memory without initialization, information previously written there will still exists.</p>
+<p>In <code>logout</code>, the user struct is being freed first, and then, the username. The deallocated pointers are stored like a stack, when it needs to allocate again, as in <code>login</code>, the old pointer to username is being used to create user struct.</p>
+<pre><code>| username    | 
+| user struct |
+| ----------- |
+</code></pre>
+<p>Now, we need to store the <code>user</code> struct in username, so that the <code>access_code</code> can be the expected one.</p>
+<pre><code>&gt;&gt;&gt; len(&#39;A&#39;*8+&#39;ROOT_ACCESS_CODE&#39;+&#39;A&#39;*8)
+32</code></pre>
+<p>Login with username <code>'A'*8+'ROOT_ACCESS_CODE'+'A'*8</code>, logout, and then, login again with a shorter name to get flag with command <code>print_flag</code>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

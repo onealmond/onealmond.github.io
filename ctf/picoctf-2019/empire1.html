@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Empire1</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Empire1</h1>
+</header>
+<ul>
+<li>Register a new user and sign in, now we are allowed to create a todo, list todos and list employee.</li>
+<li>In the todo creation page we have an input box to some text.</li>
+<li>Try to create a todo. It result in internal error with <code>'</code>, but <code>''</code> works.</li>
+<li>There may be tables <code>todo</code>, <code>user</code> in databases.</li>
+</ul>
+<p>The todo creation is to insert a record into the <code>todo</code> table, the SQL would be like <code>INSERT INTO todo VALUES (userid, 'content')</code>.</p>
+<p>Tried out the following line</p>
+<pre><code>&#39;||(select secret from user where secret like &#39;pico%&#39; limit 1)||&#39;</code></pre>
+<p>The insert SQL becomes</p>
+<pre><code>INSERT INTO todos VALUES (userid, &#39;&#39;||(select secret from user where secret like &#39;pico%&#39; limit 1)||&#39;&#39;</code></pre>
+<p>Now go to <code>Your Todos</code>, the flag is displayed.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

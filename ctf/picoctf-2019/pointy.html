@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Pointy</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Pointy</h1>
+</header>
+<ul>
+<li>The program allow user to input student name, professor name and score for professor.</li>
+<li>It store the pointers to student and professor data in an array with maximum length 1000 contiguously.</li>
+</ul>
+<p><code>s</code> for student, and <code>p</code> for professor, then we have the following structure</p>
+<p>|s1.name|s1.score_func_ptr|p1.name|p1.score|s2.name|s2.score_func_ptr|p2.name|p2.score|…|</p>
+<p>Notice that, when it needs to input name of student to give the score, it will look up the student by name in <code>ADDRESSES</code> array one by one. So if we input a professor with the same name as a student, it will interpret it as studen when it try to retrive student with the given name. Student and professor have similar structure, when a professor’s data is interpreted as a student one, the score becomes the address that pointed to by the function pointer. We can change the score to address of <code>win</code>, when the student’s <code>scoreProfessor</code> got called, the flag is printed.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

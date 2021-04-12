@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>c0rrupt</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">c0rrupt</h1>
+</header>
+<p>Command <code>file</code> doesn’t know what <code>mystery</code> is, saids <code>data</code>, analysing with <code>xxd</code> found an ending flag <code>IEND</code>, looks like this is a corrupted png file.</p>
+<p>Try to correct the header first. we have img.png with PNG header.</p>
+<pre><code>pngcheck c0rrupt/img.png</code></pre>
+<p><code>pngcheck</code> saids ‘CRC error in chunk pHYs’, now we need to fix pHYs chunk.</p>
+<pre><code>$ pngcheck -v c0rrupt/img.png
+
+  chunk pHYs at offset 0x00042, length 9: 2852132389x5669 pixels/meter</code></pre>
+<p>Found problem with width x height.</p>
+<p>With pngcheck we still have chunk length problem invalid chunk length (too large)</p>
+<p>The following line doesn’t look right, 0xabDET is not a valid type.</p>
+<pre><code>00000050: 5224 f0aa aaff a5ab 4445 5478 5eec bd3f  R$......DETx^..?</code></pre>
+<p>Change it to IDAT</p>
+<pre><code>00000050: 5224 f0aa aaff a549 4441 5478 5eec bd3f  R$.....IDATx^..?</code></pre>
+<pre><code>binwalk -R IDAT c0rrupt/img.png
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+87            0x57            IDAT
+65544         0x10008         IDAT
+131080        0x20008         IDAT
+196616        0x30008         IDAT
+202951        0x318C7         IDAT</code></pre>
+<p>Since we have 0xaaaaffa5 already, only need to change 0xaaaa to 0000. Try to check again with pngcheck we got no more error. Open the fixed image img.png found one flag.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

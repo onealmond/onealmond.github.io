@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Don't Bump Your Head(er)</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Don't Bump Your Head(er)</h1>
+</header>
+<p>The challenge gives a url named <code>/header.php</code>, we got blocked whiling access the page</p>
+<pre><code>Sorry, it seems as if your user agent is not correct, in order to access this website. The one you supplied is: chrome 
+&lt;!-- Sup3rS3cr3tAg3nt  --&gt;</code></pre>
+<p>Changed the user agent to <code>Sup3rS3cr3tAg3nt</code> and visit again, we got a new hint</p>
+<pre><code>Sorry, it seems as if you did not just come from the site, &quot;awesomesauce.com&quot;.                  
+&lt;!-- Sup3rS3cr3tAg3nt  --&gt;</code></pre>
+<p>Now we change the referrer to <code>awesomesauce.com</code> and try again</p>
+<pre><code>curl -v -H &#39;User-Agent: Sup3rS3cr3tAg3nt&#39; --referrer awesomesauce.com http://165.227.106.113/header.php</code></pre>
+<p>The flag is in the response.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

