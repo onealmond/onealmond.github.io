@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OTP Implementation</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">OTP Implementation</h1>
+</header>
+<p>Disassemble the program with <code>ghidra</code>, looks like the program take a string as parameter on startup and does some calculation with it, at the end, compares the result with string <code>lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl</code>, if match the given string is the key, we need to <code>xor</code> the key with the string in <code>flag.txt</code> to get the flag.</p>
+<pre><code>...
+// calculate with the given string
+while( true ) {
+  iVar3 = valid_char((ulong)(uint)(int)param[i]);
+  if (iVar3 == 0) break;
+  if (i == 0) {
+    cVar1 = jumble();
+    bVar2 = (byte)(cVar1 &gt;&gt; 7) &gt;&gt; 4;
+    buf[0] = (cVar1 + bVar2 &amp; 0xf) - bVar2;
+  }
+  else {
+    cVar1 = jumble();
+    bVar2 = (byte)((int)cVar1 + (int)buf[i + -1] &gt;&gt; 0x37);
+    buf[i] = ((char)((int)cVar1 + (int)buf[i + -1]) + (bVar2 &gt;&gt; 4) &amp; 0xf) - (bVar2 &gt;&gt; 4);
+  }
+  i = i + 1;
+}
+j = 0;
+while (j &lt; i) {
+  buf[j] = buf[j] + &#39;a&#39;;
+  j = j + 1;
+}
+// check whether input is the key
+if (i == 100) {
+  iVar3 = strncmp(buf,
+                  &quot;lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl&quot;
+                  ,100);
+  if (iVar3 == 0) {
+    puts(&quot;You got the key, congrats! Now xor it with the flag!&quot;);
+    uVar4 = 0;
+    goto LAB_001009ea;
+  }
+}
+...</code></pre>
+<p>From <code>valid_char</code> we know that the string should be composed with <code>0123456789abcdef</code>. So we need to guess a 100 bytes string with <code>0123456789abcdef</code>.</p>
+<pre><code>undefined8 valid_char(char param_1)
+{
+  undefined8 valid;
+  
+  if ((param_1 &lt; &#39;0&#39;) || (&#39;9&#39; &lt; param_1)) {
+    if ((param_1 &lt; &#39;a&#39;) || (&#39;f&#39; &lt; param_1)) {
+      valid = 0;
+    }
+    else {
+      valid = 1;
+    }
+  }
+  else {
+    valid = 1;
+  }
+  return valid;
+}</code></pre>
+<p>Each byte is calculated based on the one before it, except the first one. We could generate possible strings and check if the first <em>n</em> bytes matchs the first <em>n</em> bytes of the target string. Trace the system call of <code>strncmp</code> we could get the result string.</p>
+<pre><code>$ ltrace -s 1000 ./otp aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+strncpy(0x7ffe7018cfb0, &quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;, 100) = 0x7ffe7018cfb0
+strncmp(&quot;fkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpe\376\177&quot;, &quot;lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl&quot;, 100) = -6
+puts(&quot;Invalid key!&quot;Invalid key!
+)                                                                                    = 13
++++ exited (status 1) +++</code></pre>
+<p>Now we need to parse the output of <code>ltrace</code> to get the result string, then we compare it with the target string.</p>
+<pre><code>for i in range(target_len):
+    for x in sample:
+        key[i] = x
+        p = Popen([&#39;ltrace&#39;, &#39;-s&#39;, &#39;1000&#39;, &#39;./otp&#39;, &#39;&#39;.join(key)], stderr=PIPE, stdout=DEVNULL)
+        output = p.stderr.read().decode()
+        res = re.search(&#39;strncmp\(\&quot;(.+)\&quot;.+\)&#39;, output).group(1)[:100]
+        if target[i] == res[i]:
+            break</code></pre>
+<p>Finally, <code>xor</code> the key with <code>flag.txt</code> to decode the flag.</p>
+<pre><code>&#39;&#39;.join([chr(x^y) for x, y in zip(bytes.fromhex(&#39;&#39;.join(key)), bytes.fromhex(flag))])</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

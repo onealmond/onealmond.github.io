@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Child Rev</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Child Rev</h1>
+</header>
+<p>Run <code>strings</code> on <code>childrev</code>, it shows an interesting message.</p>
+<pre><code>...
+$Info: This file is packed with the UPX executable packer http://upx.sf.net $
+...</code></pre>
+<p>UPX is an open source executable packer, unpack it with <code>upx</code>, now we can get on the real job.</p>
+<p>Decompile the program in <code>ghidra</code>, it takes user input and the four characters as parameters of <code>XOR</code> function, if XOR return non-zero result, the input is correct.</p>
+<pre><code>undefined8 main(void)
+{
+  undefined local_38 [40];
+  int local_10;
+  char local_c;
+  char local_b;
+  char local_a;
+  char local_9;
+  
+  printf(&quot;ENTER THE FLAG : &quot;);
+  __isoc99_scanf(&amp;DAT_0049e182,local_38);
+  local_9 = &#39;G&#39;;
+  local_a = &#39;L&#39;;
+  local_b = &#39;U&#39;;
+  local_c = &#39;G&#39;;
+  local_10 = XOR(local_38,0x47,0x4c,0x55,0x47);
+  if (local_10 == 0) {
+    puts(&quot;USE GHIDRA CUTTER OR IDA , THEN IT WILL BE EASY\n&quot;);
+  }
+  else {
+    printf(&quot;YAY U MADE IT \n%c%c%c%c{%s}\n&quot;,(ulong)(uint)(int)local_9,(ulong)(uint)(int)local_a,
+           (ulong)(uint)(int)local_b,(ulong)(uint)(int)local_c,local_38);
+  }
+  return 0;
+}</code></pre>
+<p>Take a look into <code>XOR</code> function, it calls <code>gen_key</code>to generate a key from the last four parameters, then <code>xor</code> the key with the first parameter byte by byte, finally it check whether the result match array <code>DAT_0049e060</code>.</p>
+<pre><code>ulong XOR(long param_1,char param_2,char param_3,char param_4,char param_5)
+{
+  ulong key;
+  long j;
+  ulong *puVar1;
+  ulong *puVar2;
+  byte bVar3;
+  ulong local_248 [34];
+  ulong auStack312 [36];
+  int k;
+  uint ret;
+  int i;
+  
+  bVar3 = 0;
+  key = gen_key((ulong)(uint)(int)param_2,(ulong)(uint)(int)param_3,(ulong)(uint)(int)param_4,
+                (ulong)(uint)(int)param_5);
+  i = 0;
+  while (i &lt; 0x22) {
+    auStack312[i] = (long)*(char *)(param_1 + i) ^ key;
+    i = i + 1;
+  }
+  j = 0x22;
+  puVar1 = &amp;DAT_0049e060;
+  puVar2 = local_248;
+  while (j != 0) {
+    j = j + -1;
+    *puVar2 = *puVar1;
+    puVar1 = puVar1 + (ulong)bVar3 * 0x1ffffffffffffffe + 1;
+    puVar2 = puVar2 + (ulong)bVar3 * 0x1ffffffffffffffe + 1;
+  }
+  ret = 0;
+  k = 0;
+  do {
+    if (0x21 &lt; k) {
+LAB_00401e3c:
+      return (ulong)ret;
+    }
+    if (auStack312[k] != local_248[k]) {
+      ret = 0;
+      goto LAB_00401e3c;
+    }
+    ret = 1;
+    k = k + 1;
+  } while( true );
+}
+</code></pre>
+<p>The key is generated from “G”, “L”, “U”, “G”, so it’s constant, by debugging it with <code>r2</code> we can find out the key is <code>0x00012f00</code>.</p>
+<pre><code>...
+0x00401d70      0fbe8da8fdff.  movsx ecx, byte [rbp - 0x258]
+0x00401d77      0fbe95acfdff.  movsx edx, byte [rbp - 0x254]
+0x00401d7e      0fbeb5b0fdff.  movsx esi, byte [rbp - 0x250]
+0x00401d85      0fbe85b4fdff.  movsx eax, byte [rbp - 0x24c]
+0x00401d8c      89c7           mov edi, eax
+0x00401d8e      e81affffff     call sym.gen_key
+0x00401d93      488945e8       mov qword [rbp - 0x18], rax
+...</code></pre>
+<pre><code>[0x00401cad]&gt; dc
+hit breakpoint at: 0x401d97
+[0x00401d97]&gt; dr rax
+0x00012f00</code></pre>
+<p>Dump <code>DAT_0049e060</code> block into <code>dat</code>, convert it to int array.</p>
+<pre><code>dat = dat.split()
+arr = []
+
+for i in range(0, len(dat), 8):
+  arr.append(int(&#39;&#39;.join(reversed(dat[i:i+8])), 16))</code></pre>
+<p>So we can <code>xor</code> the <code>arr</code> and <code>key</code> to find out correct input.</p>
+<pre><code>key = 0x00012f00
+flag = [0]*0x22
+
+for i in range(len(flag)):
+    flag[i] = arr[i] ^ key
+
+print(&#39;&#39;.join(map(chr, flag)))</code></pre>
+<p>Enter the correct flag string, we get the actual flag in the output.</p>
+<pre><code>$ python3 find_flag.py | ./childrev
+ENTER THE FLAG : YAY U MADE IT
+{flag}</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

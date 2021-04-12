@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Postbook</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Postbook</h1>
+</header>
+<p>Sign up with username=gg, password=gg and then sign in with the previous credential. Try to visit existen posts we figured the url of post seems iterable by changing parameter <code>id</code></p>
+<p>Try to access</p>
+<pre><code>  http://34.74.105.127/af82d5a390/index.php?page=view.php&amp;id=2</code></pre>
+<p>It leads us to a private post that contains a flag.</p>
+<p>Created a post with tag <code>&lt;script&gt;</code> in title and body, then we found a flag in result message.</p>
+<p>Inspect home page, we found two input tags with <code>'hidden'</code> attributes, one with attribute <code>user_id=&lt;number&gt;</code>, change the <code>user_id</code> to <code>1</code>, after create a post we get a flag at the top of post timeline.</p>
+<p>Try to login as <code>'user'</code> with password <code>'password'</code>, there is a flag at home page after login</p>
+<p>Checking value of key <code>'id'</code> in application cookies, figured the session id value is md5 hex digest of user id. change it to <code>hashlib.md5('1'.encode()).hexdigest()</code> to login as admin. There is a flag at home page.</p>
+<p>Delete a post via url to get one flag, the value of id is md5 hex digest of post id.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

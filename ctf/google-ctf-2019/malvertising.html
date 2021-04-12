@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Malvertising</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Malvertising</h1>
+</header>
+<p>Inspect the source code of malvertising homepage, there is a link to /ads/ad.html, which is the ad page. Inspect the ad page found a metris.js.</p>
+<p>To decode the key strings, - disable the click event listener in browser - add alert(<encoded key string>) to a button tag</p>
+<p>prettify the js code and decode some of the key strings, the logic is getting clear.</p>
+<pre><code>l();
+var s=&quot;constructor&quot;;
+var t=document[&#39;getElementById&#39;](&quot;adimg&quot;);
+t[&#39;onload&#39;]=function(){
+  try{
+    var u=steg[&#39;decode&#39;](t);
+  }catch(v){
+  }
+  if(Number(/android/i[&#39;test&#39;](navigator[&#39;userAgent&#39;]))){
+    s[s][s](u)();
+  }
+};</code></pre>
+<p>There is a decode logic to run, which requires userAgent to be ‘android’.</p>
+<p>change the user agent in browser. go to ‘Network conditions’ in ‘more tools’, change the user agent to ‘android’. After refresh the ad page, we have another js file in sources.</p>
+<pre><code>  /ads/src/uHsdvEHFDwljZFhPyKxp.js</code></pre>
+<p>Brute force to find the key.</p>
+<pre><code>for (let i = &#39;A&#39;.charCodeAt(0); i &lt;= &#39;Z&#39;.charCodeAt(0); i++) {
+  for (let j = &#39;A&#39;.charCodeAt(0); j &lt;= &#39;Z&#39;.charCodeAt(0); j++) {
+    lan = String.fromCharCode(i) + String.fromCharCode(j);
+    for (let k = 0; k &lt; 512; k++) {
+      // LINUX00000EN0001011MOZILLA003
+      // LINUX00000{lan}{ref/redirectCount/cookieNabled/onLine}MOZILLA003
+      ref = k.toString(2);
+      key = &#39;LINUX10000&#39; + lan + ref + &#39;MOZILLA003&#39;; 
+      res = T.d0(a, key);
+      var invalid = false;
+      for (let err = 0; err &lt; res.length; err++) {
+        if (res[err].charCodeAt(0) &gt; 126) {
+          invalid = true;
+          break;
+        }
+      }
+
+      if (invalid) continue;
+      console.log(key, res);
+    }
+  }
+}</code></pre>
+<p>With the correct key we got another path</p>
+<pre><code>  src/npoTHyBXnpZWgLorNrYc.js</code></pre>
+<p>After prettify npoTHyBXnpZWgLorNrYc.js we found a path in the script.</p>
+<pre><code>_0x3ed5d1[&#39;setAttribute&#39;](&#39;src&#39;,&#39;./src/WFmJWvYBQmZnedwpdQBU.js&#39;);
+document[&#39;head&#39;][&#39;appendChild&#39;](_0x3ed5d1);</code></pre>
+<p>By wget the path, we found the flag in the source code.</p>
+<pre><code>wget https://malvertising.web.ctfcompetition.com/ads/src/WFmJWvYBQmZnedwpdQBU.js</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

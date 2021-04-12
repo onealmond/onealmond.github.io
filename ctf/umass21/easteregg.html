@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Easter Egg</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Easter Egg</h1>
+</header>
+<p>Play the game, it allows user to go four directions, look around, take and use items, add items to inventory. The case is considered solved when stamp on the the swissblonkel scenario case, so it needs these two items in inventory and use solved stamp, then case solved and quite automatically.</p>
+<pre><code>a&gt; inventory
+You have a room-temperature coffee. Ew.
+You have a month-old chinese food. Ew.
+You have a the swissblonkel scenario. Hey, this is the case I&#39;m supposed to solve!
+You have a solved stamp. This might come in handy...
+a&gt; use solved stamp
+Case solved!</code></pre>
+<p>Disassamble the program with <code>ghidra</code>, this snipe of code looks interesting.</p>
+<pre><code>    ... 
+                  res = strcmp(action,&quot;jhiezetfmvirlnjfbobk&quot;);
+                  if (res == 0) {
+                    JHIEZETFMVIRLNJFBOBK = 1;
+                  }
+    ...
+    if (JHIEZETFMVIRLNJFBOBK != 0) {
+      i = 0;
+      while (i &lt; 0x23) {
+        putchar((int)(char)(LHEIBZNXEKQSAPHHUWTQ[i] ^ COJASZQHPZXKLAPHRHOK[i]));
+        i = i + 1;
+      }
+      putchar(10);
+    }</code></pre>
+<p>So if action matchs <code>jhiezetfmvirlnjfbobk</code>, it’ll print <code>xor</code> result of <code>LHEIBZNXEKQSAPHHUWTQ</code> and <code>COJASZQHPZXKLAPHRHOK</code>, likely to be the flag.</p>
+<p>Play again, make sure we got both stamp and the case we need to solve, before we use the stamp, perform action <code>jhiezetfmvirlnjfbobk</code> to toggle the flag, then use <code>solved stamp</code>, the game exits with flag printed.</p>
+<pre><code>a&gt; take the swissblonkel scenario
+Got the the swissblonkel scenario!
+a&gt; go west
+You are in Agency Lobby. It&#39;s late, the receptionist is out. 
+To the north is Chief&#39;s Office.
+To the east is Dangeresque&#39;s Office.
+To the west is Alleyway.
+
+a&gt; go north
+You are in Chief&#39;s Office. Geez, maybe I should leave. He looks pissed. 
+To the south is Agency Lobby.
+There are a few things here:
+- solved stamp
+
+a&gt; take solved stamp       
+Got the solved stamp!
+a&gt; jhiezetfmvirlnjfbobk                                                                                                                                                 
+a&gt; use solved stamp         
+Case solved!
+{Flag} !!</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

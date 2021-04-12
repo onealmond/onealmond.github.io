@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Rusty Rev</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Rusty Rev</h1>
+</header>
+<p>Connect to the server with <code>nc</code>, we were given an encrypted flag.</p>
+<pre><code>JcOCLQgPJEjwNAZHgVFzAoMVHOiCRVAVKkvFidUvzmUSSnqJzO</code></pre>
+<p>The program used to encrypt the flag is also given. To run it we need to create a fake flag file locally. Decompile the program doesn’t provide much helpful information, except tons of rust system function calls, and it loads plain text flag from file <code>flag.txt</code>, call an encrypt function to do the dirty work, then output the encrypted flag. Try out different strings, it seems there is some character level mapping between plain text and encrypted one. So maybe we could brute-force to find out the plain text flag.</p>
+<p>The encrypt flag has length of 50 bytes, possible characters for creating the flag include uppercase and lowercase letters, digits and punctuations, let’s try underline and dash first. So we generate the flag file, launch the program to output the encrypt flag, compare the output with the given flag character by character, add it to result list if match.</p>
+<pre><code>enc_flag = &#39;JcOCLQgPJEjwNAZHgVFzAoMVHOiCRVAVKkvFidUvzmUSSnqJzO&#39;
+flag = []
+pat = re.compile(&#39;Flag: (\w+)\n&#39;)
+candidates = string.ascii_lowercase+string.ascii_uppercase+string.digits+&#39;_&#39;+&#39;-&#39;
+
+for k in range(len(enc_flag)):
+    for c in candidates:
+        with open(&#39;flag.txt&#39;, &#39;w&#39;) as fd:
+            fd.write(&#39;&#39;.join(flag)+c)
+        p = Popen([&#39;./revme&#39;], stdout=PIPE)
+        enc = pat.search(p.stdout.read().decode()).group()[6:].strip()
+        if enc[k] == enc_flag[k]:
+            flag.append(c)
+            break
+
+print(&#39;&#39;.join(flag))</code></pre>
+<p>Finally join all the characters we get the plain text flag.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

