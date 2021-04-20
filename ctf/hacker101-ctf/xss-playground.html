@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>XSS Playground</title>
+  <title>Xss Playground</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -14,16 +14,14 @@
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
-    <head>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
-    </head>
 </head>
 <body>
     <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
     <div id="content" class="content" style="width:70%;height:auto">
 <header id="title-block-header">
-<h1 class="title">XSS Playground</h1>
+<h1 class="title">Xss Playground</h1>
 </header>
 <p>Check out the user profile section, user email is hidden. Inspect the source, in <code>custom.js</code>, there is a function called <code>retriveEmail</code>, it send a <code>GET</code> request to api with parameter <code>act=getemail</code>, could it get us email of the user?</p>
 <pre><code>function retrieveEmail(e){var t=new XMLHttpRequest;t.open(&quot;GET&quot;,&quot;api/action.php?act=getemail&quot;,!0),t.setRequestHeader(&quot;X-SAFEPROTECTION&quot;,&quot;enNlYW5vb2Zjb3Vyc2U=&quot;),t.onreadystatechange=function(){this.readyState===XMLHttpRequest.DONE&amp;&amp;this.status},t.send()}</code></pre>

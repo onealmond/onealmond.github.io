@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>OTP Implementation</title>
+  <title>Otp Implementation</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -14,16 +14,14 @@
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
-    <head>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
-    </head>
 </head>
 <body>
     <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
     <div id="content" class="content" style="width:70%;height:auto">
 <header id="title-block-header">
-<h1 class="title">OTP Implementation</h1>
+<h1 class="title">Otp Implementation</h1>
 </header>
 <p>Disassemble the program with <code>ghidra</code>, looks like the program take a string as parameter on startup and does some calculation with it, at the end, compares the result with string <code>lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl</code>, if match the given string is the key, we need to <code>xor</code> the key with the string in <code>flag.txt</code> to get the flag.</p>
 <pre><code>...

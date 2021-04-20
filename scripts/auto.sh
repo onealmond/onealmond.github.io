@@ -30,10 +30,12 @@ dst="ctf/"`basename $src`"/index.html"
 echo "Generating $dst"
 cat > "$dst" << EOF
 <html>
+<head>
 EOF
 cat >> "$dst" < templates/writeup-head.html
 cat >> "$dst" << EOF
-  <body>
+</head>
+<body>
 EOF
 cat >> "$dst" < templates/writeup-before-body.html
 cat >> "$dst" << EOF
@@ -57,7 +59,7 @@ EOF
 cat >> "$dst" < templates/writeup-after-body.html
 
 cat >> "$dst" << EOF
-  </body>
+</body>
 EOF
 cat >> "$dst" << EOF
 </html>
