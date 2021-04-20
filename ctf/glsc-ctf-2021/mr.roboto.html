@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Mr.roboto</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Mr.roboto</h1>
+</header>
+<p>Try to ping-pong some subpaths, <code>/robots.txt</code> shows something interesting.</p>
+<pre><code>user-agent: kilroy
+/hidden892734569.html</code></pre>
+<p>Request <code>/hidden892734569.html</code> gives us a clue about style file. Send request to check it out.</p>
+<pre><code>http --follow -v https://ctf-web2.ncsa.tech/style.css</code></pre>
+<p>After several redirections, we finally receive some useful message.</p>
+<pre><code>HTTP/1.1 302 Found
+content-length: 36
+content-type: text/plain; charset=utf-8
+date: Mon, 19 Apr 2021 08:47:55 GMT
+interesting: TXIuIFJvYm90byBzZXo6IFRyeSBnb2luZyB0byAvY3NzL3N0eWxlNzU2NDg3NS5jc3M=
+keep-alive: timeout=5
+location: /css/style.css
+vary: Accept
+x-powered-by: Express
+
+Found. Redirecting to /css/style.css
+</code></pre>
+<p>Decode the base64-encoded message we get yet another css path.</p>
+<pre><code>$ base64 -d &lt;&lt;&lt; TXIuIFJvYm90byBzZXo6IFRyeSBnb2luZyB0byAvY3NzL3N0eWxlNzU2NDg3NS5jc3M=
+Mr. Roboto sez: Try going to /css/style7564875.css</code></pre>
+<p>Request <code>/css/style7564875.css</code> resulting a rejection.</p>
+<pre><code>$ http --follow -v https://ctf-web2.ncsa.tech/css/style7564875.css
+...
+Mr. Roboto sez: You are almost there.  Maybe a different User-Agent: would help. Your User-Agent: HTTPie/1.0.3</code></pre>
+<p>Request again with agent shown in <code>robots.txt</code>.</p>
+<pre><code>http --follow -v https://ctf-web2.ncsa.tech/css/style7564875.css User-Agent:kilroy</code></pre>
+<p>Finally the flag show up.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

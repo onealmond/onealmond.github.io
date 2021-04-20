@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Collisions</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Collisions</h1>
+</header>
+<p>The program asks us to provide input to recover password. User input go through the following calculation, we need to find out the input that makes the result match array <code>EXPECTED</code>.</p>
+<pre><code>ulong update_crc_32(uint param_1,byte param_2)
+{
+  return (ulong)(param_1 &gt;&gt; 8 ^ *(uint *)(crc_tab32 + (ulong)(byte)(param_2 ^ (byte)param_1) * 4));
+}</code></pre>
+<pre><code>  printf(&quot;Please provide input to recover your password: &quot;);
+  i = 0;
+  while ((i &lt; 0x40 &amp;&amp; (iVar1 = getchar(), iVar1 != -1))) {
+    input[i] = (uint8_t)iVar1;
+    crc32_cur8 = update_crc_32((ulong)crc32_cur8,(ulong)input[i],(ulong)input[i]);
+    masked_uint8_t = ~(byte)crc32_cur8;
+    if (masked_uint8_t == EXPECTED[i]) {
+      correct[i] = true;
+    }
+    crc32_cur16 = update_crc_32((ulong)crc32_cur16,(ulong)masked_uint8_t);
+    from_blob[i] = BLOB[(int)(uint)(ushort)~(ushort)crc32_cur16];
+    decrypted[i] = input[i] ^ from_blob[i];
+    i = i + 1;
+  }
+  printf(&quot;\nRecovered password: %s\n&quot;,decrypted);</code></pre>
+<p>The idea is we minic the process, brute-force to find out the <code>0x40</code> characters.</p>
+<pre><code>unsigned int update_crc32(unsigned int param1, unsigned char param2) {
+    return (unsigned int)((param1 &gt;&gt; 8) ^ crc32_tab[(unsigned char)(param2^(unsigned char)param1)]);
+}
+
+int main() {
+
+  unsigned int cur8 = 0xffffffff;
+
+  for (int i = 0; i &lt; 0x40; ++i) {
+    bool found = false;
+    for (unsigned int j = 0; j &lt; 256; ++j) {
+      unsigned int res = update_crc32(cur8, j);
+      if ((unsigned char)(~res) == expected[i]) {
+          cur8 = res;
+          printf(&quot;%c&quot;, j);
+          break;
+      }
+    }
+  }
+  return 0;
+}</code></pre>
+<p>Dumnp the output to <code>c0ll1s10ns</code> we can finally get the flag.</p>
+<pre><code>$ g++ recover.cpp &amp;&amp; ./a.out |./c0ll1s10ns 
+Please provide input to recover your password: 
+Recovered password: GLSC{hop3_th3r3_w3R3n&#39;t_t00_m4ny_c0ll1s10ns_Those_can_be_a_Pa1n}</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

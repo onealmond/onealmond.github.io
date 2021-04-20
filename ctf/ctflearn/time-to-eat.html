@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Time To Eat</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Time To Eat</h1>
+</header>
+<p>The script <code>eat.py</code> with a lot hard-to-read names, takes a string contains 9 characters as input, <code>EAt</code> takes two strings to output a final one, which should match <em>E10a23t9090t9ae0140</em>.</p>
+<pre><code>def Eating(eat):
+    return str(int(eat)*3)
+
+def EAt(eat, eats):
+    print(eat, eats)
+    eat1 = 0
+    eat2 = 0
+    eat_x = 0
+    eAt = &quot;&quot;
+    while eat1 &lt; len(eat) and eat2 &lt; len(eats):
+        if eat_x%eat_b == eat_d//eat_c:
+            eAt += eats[eat2]
+            eat2 += 1
+        else:
+            eAt += eat[eat1]
+            eat1 += 1
+        eat_x += 1
+    return eAt
+
+def aten(eat):
+    return eat[::-1]
+
+def eaT(eat):
+    return str(int(eat[:3])*3) + eat[::-1]
+
+def aTE(eat):
+    return eat
+
+def Ate(eat):
+    return &quot;Eat&quot; + &#39;9&#39; + eat[:3]</code></pre>
+<p>We know that the expected ouput of <code>EAt</code>, we could reverse calculate to find out the two input strings. The first string, let’s say <code>s1</code>, is composed with <code>str(int(eat[:3])*3)</code> and <code>eat[::-1]</code>, the first part is number contains three digits, result of multiply 3 could be the 3-digit number or 4-digit number, the second part is reverse of input string, so we could setup two cases, <em>—_________</em> and <em>—-_________</em>, placeholder <em>-</em> for digits and *_* for letters. The second string<code>s2</code> is <code>"Eat" + '9' + eat[:3]</code>, so the placeholder for <code>s2</code> is <em>Eat9_________</em>.</p>
+<pre><code>eateat = EAt(eaT(eat), Ate(eat[::-1]))
+if eateat == &quot;E10a23t9090t9ae0140&quot;:
+    flag = &quot;eaten_&quot; + eat
+    print(&quot;absolutely EATEN!!! CTFlearn{&quot;,flag,&quot;}&quot;)</code></pre>
+<p>As we have two cases, we would generate two possible strings, we could dump them to the <code>eat.py</code> script to see which one is correct. Or we can see there are some connection between <code>s1</code> and <code>s2</code>, they are both using <code>eat[::-1]</code>, so there are part of one should match part of the other.</p>
+<pre><code>ans = &quot;E10a23t9090t9ae0140&quot;
+
+def exploit(s1):
+    e1 = 0
+    e2 = 0
+    e3 = 0
+    s2 = &quot;Eat9___&quot;
+
+    while e1 &lt; len(s1) and e2 &lt; len(s2):
+        if e3 % 3 == 2//4:
+            s2 = s2[:e2] + ans[e3] + s2[e2+1:]
+            e2 += 1
+        else:
+            s1 = s1[:e1] + ans[e3] + s1[e1+1:]
+            e1 += 1
+        e3 += 1 
+
+    return s1, s2
+
+s1, s2 = exploit(&quot;----_________&quot;)
+if s1[4:7] == s2[-3:]:
+    print(&quot;Case1:&quot;, str(int(s1[:4])//3) + s1[4:len(s1)-4+1][::-1])
+
+s1, s2 = exploit(&quot;---_________&quot;)
+if s1[3:6] == s2[-3:]:
+    print(&quot;Case2:&quot;, str(int(s1[:3])//3) + s1[3:len(s1)-3+1][::-1])</code></pre>
+<p>By adding the part check, there is only one output.</p>
+<pre><code>Case1: 341eat009</code></pre>
+<p>Input the result from case1 to <code>eat.py</code> the flag is printed.</p>
+<pre><code>python3 eat.py &lt;&lt;&lt; 341eat009
+what&#39;s the answer
+1023900tae143 Eat9900
+absolutely EATEN!!! CTFlearn{ eaten_341eat009 }</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

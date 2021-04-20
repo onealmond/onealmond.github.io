@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Scr1pt1ng</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Scr1pt1ng</h1>
+</header>
+<p>Decompile <code>scr1pt1ng</code> with <code>ghidra</code>, we can see that the program use predefined array <code>ENCODED_FLAG</code> for calculation, function <code>func_3367</code> is the begining of a series of <code>func_xxxx</code> calls,</p>
+<pre><code>int main(void) {
+  long lVar1;
+  undefined8 in_RSI;
+  undefined8 *puVar2;
+  uint8_t decoded_flag [59];
+  
+  lVar1 = 7;
+  puVar2 = (undefined8 *)decoded_flag;
+  while (lVar1 != 0) {
+    lVar1 = lVar1 + -1;
+    *puVar2 = 0;
+    puVar2 = puVar2 + 1;
+  }
+  *(undefined2 *)puVar2 = 0;
+  *(undefined *)((long)puVar2 + 2) = 0;
+  func_3367(puVar2,in_RSI,(long)puVar2 + 3);
+  decoded_flag._0_8_ = ENCODED_FLAG._0_8_;
+  decoded_flag._8_8_ = ENCODED_FLAG._8_8_;
+  decoded_flag._16_8_ = ENCODED_FLAG._16_8_;
+  decoded_flag._24_8_ = ENCODED_FLAG._24_8_;
+  decoded_flag._32_8_ = ENCODED_FLAG._32_8_;
+  decoded_flag._40_8_ = ENCODED_FLAG._40_8_;
+  decoded_flag._48_8_ = ENCODED_FLAG._48_8_;
+  decoded_flag[56] = ENCODED_FLAG[56];
+  decoded_flag[57] = &#39;\n&#39;;
+  printf(decoded_flag);
+  return 0;
+}
+</code></pre>
+<p>There are tons of similer functions, what they do is generate two random numbers from <code>rand</code>, if the two numbers equal to each other, go through the operation, <code>ROTR</code>, <code>ROTL</code>, <code>MINUS</code>, <code>PLUS</code> OR <code>XOR</code>, at the end it calls another similer function.</p>
+<pre><code>void func_3367(void)
+{
+  int iVar1;
+  int iVar2;
+  uint8_t idx;
+  
+  iVar1 = rand();
+  iVar2 = rand();
+  if (iVar1 == iVar2) {
+    ENCODED_FLAG[51] = ROTR((uint)ENCODED_FLAG[51],0xd1);
+  }
+  func_3769();
+  return;
+}</code></pre>
+<p>If we simply run the program, we got unprocessed <code>ENCODED_FLAG</code>, a meaning less string, cause no operation is performed, we need to make the two results from <code>rand()</code> equal. We could create a fake library and preload when we run the program, the library provide a fake <code>rand</code> function to return same number every time, so we shall be able to meet the requirement of two equal random numbers.</p>
+<pre><code>#!/bin/bash
+cat &gt; fake-so.c &lt;&lt; EOF
+int rand(void) {return 1;}
+EOF
+
+gcc -shared -fpic fake-so.c -o fake-so.so
+LD_PRELOAD=./fake-so.so ./scr1pt1ng</code></pre>
+<p>The <code>exploit.sh</code> generate a source file contains only fake <code>rand</code> function, compile with <code>gcc</code> to get the <code>.so</code> file, <code>LD_PRELOAD</code> allows us to do exactly what we want. Now <code>scr1pt1ng</code> can output the decoded flag.</p>
+<pre><code>GLSC{Le4rn1ng_h0w_t0_scr1pt_y0ur_t00ls_I5_very_p0werful!}</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

