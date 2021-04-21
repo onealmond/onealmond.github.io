@@ -39,7 +39,7 @@ cat >> "$dst" << EOF
 EOF
 cat >> "$dst" < templates/writeup-before-body.html
 cat >> "$dst" << EOF
-    <ul>
+      <ul>
 EOF
 
 for f in $puzzles; do
@@ -49,12 +49,12 @@ for f in $puzzles; do
   file=$(awk -F: '{print $1}' <<< "$f")
   echo "Indexing '$title': $file"
   cat >> "$dst" << EOF
-     <li class="puzzle-item"><a class="toc-item" href="${file}">${title}</a></li>
+      <li class="puzzle-item"><a class="toc-item" href="${file}">${title}</a></li>
 EOF
 done
 
 cat >> "$dst" << EOF
-    </ul>
+      </ul>
 EOF
 cat >> "$dst" < templates/writeup-after-body.html
 

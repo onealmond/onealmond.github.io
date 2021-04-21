@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Every Bits Counts</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Every Bits Counts</h1>
+</header>
+<p>Decompile the program with <code>ghidra</code> we got a super long <code>if-else</code> block in <em>main</em> function. It takes <em>0x34</em> bytes of input, if every position of input meet the requirements, we found the flag.</p>
+<p>A simple way to figure out the correct input is to mimic the check process. We only look into those <code>!= 0</code> part of check, translate it to <code>|=</code> for corresponding positions. There are 233 of non-zero check by <code>greap</code>.</p>
+<pre><code>  unsigned char param[0x34] = {0};
+  param[0x24] |= 0x10;
+  param[0x2f] |= 0x20;
+  param[0x20] |= 0x20;
+  param[0x2b] |= 4;
+  param[8] |= 1;
+  param[0x2e] |= 4;
+  param[0x30] |= 0x10;
+  ...</code></pre>
+<p>In case of missing bytes, we place palceholders for those unset.</p>
+<pre><code>  for (int i = 0; i &lt; sizeof(param); ++i) {
+    if (param[i] == 0)
+      printf(&quot;+&quot;);
+    else
+      printf(&quot;%c&quot;, param[i]);
+  }</code></pre>
+<p>In this way we got an incomplete output.</p>
+<pre><code>+WFlearn{w0w_you_f0und_My_fl@g_y0u_Ar3_so_much_n1c3}</code></pre>
+<p>But the missing part is easy to guess, change the first 3 chars to <em>“CTF”</em>, here comes the flag.</p>
+<pre><code>./every_bit_counts CTFlearn{w0w_you_f0und_My_fl@g_y0u_Ar3_so_much_n1c3}
+Wow you found my flag!</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

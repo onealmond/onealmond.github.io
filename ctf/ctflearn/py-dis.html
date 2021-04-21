@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Py Dis</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Py Dis</h1>
+</header>
+<p>The given file <code>dis.txt</code> is output of Python module <code>dis</code>, simply walkthrough the operations we can recover the Python code.</p>
+<pre><code>def func():
+    fp = open(&#39;flag.txt&#39;).read()
+    cipher = &#39;&#39;
+
+    for i in range(len(fp)):
+        temp = func2(ord(fp[i]), 170)
+        cipher = cipher + chr(func2(temp, i))
+
+    print(cipher)
+    f = open(&#39;encrypted_flag.txt&#39;, &#39;w&#39;)
+    f.write(cipher)</code></pre>
+<p>The output is also given, we can reverse the operations to find out the flag.</p>
+<pre><code>output = &#39;éÿîÅËÎÞÃÙóÙÕÎÈÊúèÞÎÜÌÌÕÓÕìùÂéçÆÐþÿñÖËîÿôÿ&#39;
+decoded = []
+for i in range(len(output)):
+    a = ord(output[i])^i
+    a = a^170
+    decoded.append(a)
+
+print(decoded)
+print(&#39;&#39;.join(map(chr, decoded)))</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
