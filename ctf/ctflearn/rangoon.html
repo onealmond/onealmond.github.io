@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -25,87 +96,87 @@
 </header>
 <p>The program takes input from command line, which is supposed to be the flag we are looking for.</p>
 <p>From the check bellow we know the first 9 bytes are <em>CTFlearn{</em>, no surprise.</p>
-<pre><code>    __s = *(byte **)(argv + 8);
-    i = 9;
-    pbVar8 = __s;
-    pbVar10 = (byte *)&quot;CTFlearn{&quot;;
-    do {
-      if (i == 0) break;
-      i = i + -1;
-      bVar12 = *pbVar8 &lt; *pbVar10;
-      bVar13 = *pbVar8 == *pbVar10;
-      pbVar8 = pbVar8 + (ulong)bVar14 * -2 + 1;
-      pbVar10 = pbVar10 + (ulong)bVar14 * -2 + 1;
-    } while (bVar13);</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a>    __s = *(byte **)(argv + <span class="dv">8</span>);</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    i = <span class="dv">9</span>;</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    pbVar8 = __s;</span>
+<span id="cb1-4"><a href="#cb1-4"></a>    pbVar10 = (byte *)<span class="st">&quot;CTFlearn{&quot;</span>;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="cf">do</span> {</span>
+<span id="cb1-6"><a href="#cb1-6"></a>      <span class="cf">if</span> (i == <span class="dv">0</span>) <span class="cf">break</span>;</span>
+<span id="cb1-7"><a href="#cb1-7"></a>      i = i + -<span class="dv">1</span>;</span>
+<span id="cb1-8"><a href="#cb1-8"></a>      bVar12 = *pbVar8 &lt; *pbVar10;</span>
+<span id="cb1-9"><a href="#cb1-9"></a>      bVar13 = *pbVar8 == *pbVar10;</span>
+<span id="cb1-10"><a href="#cb1-10"></a>      pbVar8 = pbVar8 + (ulong)bVar14 * -<span class="dv">2</span> + <span class="dv">1</span>;</span>
+<span id="cb1-11"><a href="#cb1-11"></a>      pbVar10 = pbVar10 + (ulong)bVar14 * -<span class="dv">2</span> + <span class="dv">1</span>;</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    } <span class="cf">while</span> (bVar13);</span></code></pre></div>
 <p>Notice that before the final <code>strcmp</code>, there is a test for value in register <em>r13</em>, it needs to be <em>0x1c</em>, looks like this is the length of the string should be, we need to pass that too.</p>
-<pre><code>    12e7:       49 01 c5                add    %rax,%r13
-    12ea:       49 83 fd 1c             cmp    $0x1c,%r13
-    12ee:       75 7f                   jne    136f &lt;main+0x22f&gt;
-    12f0:       48 89 ee                mov    %rbp,%rsi
-    12f3:       4c 89 f7                mov    %r14,%rdi
-    12f6:       e8 15 fe ff ff          callq  1110 &lt;strcmp@plt&gt;</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">    12e7:</span>       <span class="dv">49</span> <span class="dv">01</span> c5                <span class="bu">add</span>    %<span class="kw">rax</span>,%<span class="kw">r13</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">    12ea:</span>       <span class="dv">49</span> <span class="dv">83</span> fd 1c             <span class="bu">cmp</span>    <span class="dv">$</span><span class="bn">0x1c,</span>%<span class="kw">r13</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">    12ee:</span>       <span class="dv">75</span> 7f                   <span class="bu">jne</span>    136f &lt;main+<span class="bn">0x22f</span>&gt;</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">    12f0:</span>       <span class="dv">48</span> <span class="dv">89</span> ee                <span class="bu">mov</span>    %<span class="kw">rbp</span>,%<span class="kw">rsi</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">    12f3:</span>       4c <span class="dv">89</span> f7                <span class="bu">mov</span>    %<span class="kw">r14</span>,%<span class="kw">rdi</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">    12f6:</span>       e8 <span class="dv">15</span> fe ff ff          callq  <span class="dv">1110</span> &lt;strcmp@plt&gt;</span></code></pre></div>
 <p>Run it in <code>gdb</code> with test string <code>CTFlearn{aaaaaaaaaaaaaaaaaa}</code>, set a breakpoint at the test before <code>strcmp</code>.</p>
-<pre><code>$rax   : 0x00005555555580fd  →  0x000000000000007d (&quot;}&quot;?)
-$rbx   : 0xe3
-$rcx   : 0x7d
-$rdx   : 0x2
-$rsp   : 0x00007fffffffda90  →  0x00007fff00000079 (&quot;y&quot;?)
-$rbp   : 0x00005555555580e0  →  &quot;CTFlearn{Prince_Princess_Devi}&quot;
-$rsi   : 0x7d
-$rdi   : 0x00005555555580fd  →  0x000000000000007d (&quot;}&quot;?)
-$rip   : 0x00005555555552e7  →  &lt;main+423&gt; add r13, rax
-$r8    : 0x2000
-$r9    : 0x00005555555581df  →  0x0055555556aeb000
-$r10   : 0x6e
-$r11   : 0x246
-$r12   : 0x000055555556aeb0  →  0x00005555555560c1  →  0x6c6c4100676e694b (&quot;King&quot;?)
-$r13   : 0xffffaaaaaaaa7f21
-$r14   : 0x00007fffffffdfa1  →  &quot;CTFlearn{aaaaaaaaaaaaaaaaaa}&quot;
-$r15   : 0xc</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="va">$rax</span>   <span class="bu">:</span> 0x00005555555580fd  →  0x000000000000007d (<span class="st">&quot;}&quot;</span>?)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="va">$rbx</span>   <span class="bu">:</span> 0xe3</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="va">$rcx</span>   <span class="bu">:</span> 0x7d</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="va">$rdx</span>   <span class="bu">:</span> 0x2</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="va">$rsp</span>   <span class="bu">:</span> 0x00007fffffffda90  →  0x00007fff00000079 (<span class="st">&quot;y&quot;</span>?)</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="va">$rbp</span>   <span class="bu">:</span> 0x00005555555580e0  →  <span class="st">&quot;CTFlearn{Prince_Princess_Devi}&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="va">$rsi</span>   <span class="bu">:</span> 0x7d</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="va">$rdi</span>   <span class="bu">:</span> 0x00005555555580fd  →  0x000000000000007d (<span class="st">&quot;}&quot;</span>?)</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="va">$rip</span>   <span class="bu">:</span> 0x00005555555552e7  →  <span class="op">&lt;</span>main+<span class="op">423&gt;</span> add r13, rax</span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="va">$r8</span>    <span class="bu">:</span> 0x2000</span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="va">$r9</span>    <span class="bu">:</span> 0x00005555555581df  →  0x0055555556aeb000</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="va">$r10</span>   <span class="bu">:</span> 0x6e</span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="va">$r11</span>   <span class="bu">:</span> 0x246</span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="va">$r12</span>   <span class="bu">:</span> 0x000055555556aeb0  →  0x00005555555560c1  →  0x6c6c4100676e694b (<span class="st">&quot;King&quot;</span>?)</span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="va">$r13</span>   <span class="bu">:</span> 0xffffaaaaaaaa7f21</span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="va">$r14</span>   <span class="bu">:</span> 0x00007fffffffdfa1  →  <span class="st">&quot;CTFlearn{aaaaaaaaaaaaaaaaaa}&quot;</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="va">$r15</span>   <span class="bu">:</span> 0xc</span></code></pre></div>
 <p>The value in register <em>r13</em> is <em>0x1e</em>, no pass. But we have a string shown up at register <em>rbp</em>, <em>CTFlearn{Prince_Princess_Devi}</em>.</p>
-<pre><code>gef➤  registers $r13
-$r13   : 0x1e </code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">gef</span>➤  registers <span class="va">$r13</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="va">$r13</span>   <span class="bu">:</span> 0x1e </span></code></pre></div>
 <p>If we use <code>CTFlearn{Prince_Princess_Devi}</code>, we are not going to pass the length check, the value in register <em>r13</em> becomes <em>0x21</em>. We need to try some different strings. Take a look into the following block of code, <code>bVar2</code> and <code>bVar3</code> are values at position <em>0x11</em> and <em>0x16</em>, the later checks indidate they should both be <em>0x5f</em>, underscore.</p>
-<pre><code>...
-bVar2 = __s[0x11];
-bVar3 = __s[0x16];
-...
-lVar6 = __stpcpy_chk(j + 0x1040e8,
-                     *(undefined8 *)(i + (ulong)((uint)(bVar2 == 0x5f) + 2) * 8),
-                     (undefined8 *)((long)puVar9 - (j + 0x1040e8)));
-lVar6 = __memcpy_chk(lVar6,&amp;DAT_0010200e,2,(undefined8 *)((long)puVar9 - lVar6));
-lVar6 = __stpcpy_chk(lVar6 + 1,*(undefined8 *)(i + ((ulong)(bVar3 == 0x5f) * 5 + 3) * 8),
-                     0x1041df - lVar6);
-...</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a>...</span>
+<span id="cb5-2"><a href="#cb5-2"></a>bVar2 = __s[<span class="bn">0x11</span>];</span>
+<span id="cb5-3"><a href="#cb5-3"></a>bVar3 = __s[<span class="bn">0x16</span>];</span>
+<span id="cb5-4"><a href="#cb5-4"></a>...</span>
+<span id="cb5-5"><a href="#cb5-5"></a>lVar6 = __stpcpy_chk(j + <span class="bn">0x1040e8</span>,</span>
+<span id="cb5-6"><a href="#cb5-6"></a>                     *(undefined8 *)(i + (ulong)((uint)(bVar2 == <span class="bn">0x5f</span>) + <span class="dv">2</span>) * <span class="dv">8</span>),</span>
+<span id="cb5-7"><a href="#cb5-7"></a>                     (undefined8 *)((<span class="dt">long</span>)puVar9 - (j + <span class="bn">0x1040e8</span>)));</span>
+<span id="cb5-8"><a href="#cb5-8"></a>lVar6 = __memcpy_chk(lVar6,&amp;DAT_0010200e,<span class="dv">2</span>,(undefined8 *)((<span class="dt">long</span>)puVar9 - lVar6));</span>
+<span id="cb5-9"><a href="#cb5-9"></a>lVar6 = __stpcpy_chk(lVar6 + <span class="dv">1</span>,*(undefined8 *)(i + ((ulong)(bVar3 == <span class="bn">0x5f</span>) * <span class="dv">5</span> + <span class="dv">3</span>) * <span class="dv">8</span>),</span>
+<span id="cb5-10"><a href="#cb5-10"></a>                     <span class="bn">0x1041df</span> - lVar6);</span>
+<span id="cb5-11"><a href="#cb5-11"></a>...</span></code></pre></div>
 <p>With placeholders the input looks likc “CTFlearn{++++++++<em>++++</em>++++}”.</p>
-<pre><code>People&#39;sSquareandPark.KandawgyiNaturePark.Devi.ShwedagonPagoda.BagoRiver.Thaketa.Maha.AlexanderFraser.Burma.Myanmar.Yangon.Princess.Prince.Queen.Kin</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a>People&#39;sSquareandPark.KandawgyiNaturePark.Devi.ShwedagonPagoda.BagoRiver.Thaketa.Maha.AlexanderFraser.Burma.Myanmar.Yangon.Princess.Prince.Queen.Kin</span></code></pre></div>
 <p>As the word are picked from program, we rearrange the words and add <code>King</code> and <code>Bago</code> to make it up. Input <code>CTFlearn{Princess_King_Bago}</code> brings us through the length check, another string shown up at address in register <em>rbp</em>.</p>
-<pre><code>$rax   : 0x00005555555580fb  →  0x000000000000007d (&quot;}&quot;?)
-$rbx   : 0xe5
-$rcx   : 0x7d
-$rdx   : 0x2
-$rsp   : 0x00007fffffffda90  →  0x00007fff00000079 (&quot;y&quot;?)
-$rbp   : 0x00005555555580e0  →  &quot;CTFlearn{Princess_Maha_Devi}&quot;
-$rsi   : 0x7d
-$rdi   : 0x00005555555580fb  →  0x000000000000007d (&quot;}&quot;?)
-$rip   : 0x00005555555552e7  →  &lt;main+423&gt; add r13, rax
-$r8    : 0x2000
-$r9    : 0x00005555555581df  →  0x0055555556aeb000
-$r10   : 0x6e
-$r11   : 0x246
-$r12   : 0x000055555556aeb0  →  0x00005555555560c1  →  0x6c6c4100676e694b (&quot;King&quot;?)
-$r13   : 0xffffaaaaaaaa7f21
-$r14   : 0x00007fffffffdfa1  →  &quot;CTFlearn{Princess_King_Bago}&quot;
-$r15   : 0xc</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a><span class="va">$rax</span>   <span class="bu">:</span> 0x00005555555580fb  →  0x000000000000007d (<span class="st">&quot;}&quot;</span>?)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="va">$rbx</span>   <span class="bu">:</span> 0xe5</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="va">$rcx</span>   <span class="bu">:</span> 0x7d</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="va">$rdx</span>   <span class="bu">:</span> 0x2</span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="va">$rsp</span>   <span class="bu">:</span> 0x00007fffffffda90  →  0x00007fff00000079 (<span class="st">&quot;y&quot;</span>?)</span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="va">$rbp</span>   <span class="bu">:</span> 0x00005555555580e0  →  <span class="st">&quot;CTFlearn{Princess_Maha_Devi}&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="va">$rsi</span>   <span class="bu">:</span> 0x7d</span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="va">$rdi</span>   <span class="bu">:</span> 0x00005555555580fb  →  0x000000000000007d (<span class="st">&quot;}&quot;</span>?)</span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="va">$rip</span>   <span class="bu">:</span> 0x00005555555552e7  →  <span class="op">&lt;</span>main+<span class="op">423&gt;</span> add r13, rax</span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="va">$r8</span>    <span class="bu">:</span> 0x2000</span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="va">$r9</span>    <span class="bu">:</span> 0x00005555555581df  →  0x0055555556aeb000</span>
+<span id="cb7-12"><a href="#cb7-12"></a><span class="va">$r10</span>   <span class="bu">:</span> 0x6e</span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="va">$r11</span>   <span class="bu">:</span> 0x246</span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="va">$r12</span>   <span class="bu">:</span> 0x000055555556aeb0  →  0x00005555555560c1  →  0x6c6c4100676e694b (<span class="st">&quot;King&quot;</span>?)</span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="va">$r13</span>   <span class="bu">:</span> 0xffffaaaaaaaa7f21</span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="va">$r14</span>   <span class="bu">:</span> 0x00007fffffffdfa1  →  <span class="st">&quot;CTFlearn{Princess_King_Bago}&quot;</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a><span class="va">$r15</span>   <span class="bu">:</span> 0xc</span></code></pre></div>
 <p>Continue to <code>strcmp</code>, this string looks like what we are looking for and we picked the wrong words before.</p>
-<pre><code>strcmp@plt (
-   $rdi = 0x00007fffffffdfa1 → &quot;CTFlearn{Princess_King_Bago}&quot;,
-   $rsi = 0x00005555555580e0 → &quot;CTFlearn{Princess_Maha_Devi}&quot;,
-   $rdx = 0x0000000000000002,
-   $rcx = 0x000000000000007d
-)</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1"></a>strcmp@plt (</span>
+<span id="cb8-2"><a href="#cb8-2"></a>   $rdi = <span class="bn">0x00007fffffffdfa1</span> → <span class="st">&quot;CTFlearn{Princess_King_Bago}&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3"></a>   $rsi = <span class="bn">0x00005555555580e0</span> → <span class="st">&quot;CTFlearn{Princess_Maha_Devi}&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>   $rdx = <span class="bn">0x0000000000000002</span>,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>   $rcx = <span class="bn">0x000000000000007d</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>)</span></code></pre></div>
 <p>Run again with it, yeah, this is our flag.</p>
-<pre><code>CONGRATULATIONS, you found the flag:  CTFlearn{Princess_Maha_Devi}</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a><span class="ex">CONGRATULATIONS</span>, you found the flag:  CTFlearn<span class="dt">{Princess_Maha_Devi}</span></span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

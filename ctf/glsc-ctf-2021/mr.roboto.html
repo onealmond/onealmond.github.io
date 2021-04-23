@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,33 +95,32 @@
 <h1 class="title">Mr.roboto</h1>
 </header>
 <p>Try to ping-pong some subpaths, <code>/robots.txt</code> shows something interesting.</p>
-<pre><code>user-agent: kilroy
-/hidden892734569.html</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="ex">user-agent</span>: kilroy</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ex">/hidden892734569.html</span></span></code></pre></div>
 <p>Request <code>/hidden892734569.html</code> gives us a clue about style file. Send request to check it out.</p>
-<pre><code>http --follow -v https://ctf-web2.ncsa.tech/style.css</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">http</span> --follow -v https://ctf-web2.ncsa.tech/style.css</span></code></pre></div>
 <p>After several redirections, we finally receive some useful message.</p>
-<pre><code>HTTP/1.1 302 Found
-content-length: 36
-content-type: text/plain; charset=utf-8
-date: Mon, 19 Apr 2021 08:47:55 GMT
-interesting: TXIuIFJvYm90byBzZXo6IFRyeSBnb2luZyB0byAvY3NzL3N0eWxlNzU2NDg3NS5jc3M=
-keep-alive: timeout=5
-location: /css/style.css
-vary: Accept
-x-powered-by: Express
-
-Found. Redirecting to /css/style.css
-</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">HTTP/1.1</span> 302 Found</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">content-length</span>: 36</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">content-type</span>: text/plain<span class="kw">;</span> <span class="va">charset=</span>utf-8</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ex">date</span>: Mon, 19 Apr 2021 08:47:55 GMT</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="ex">interesting</span>: TXIuIFJvYm90byBzZXo6IFRyeSBnb2luZyB0byAvY3NzL3N0eWxlNzU2NDg3NS5jc3M=</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">keep-alive</span>: timeout=5</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="ex">location</span>: /css/style.css</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="ex">vary</span>: Accept</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="ex">x-powered-by</span>: Express</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="ex">Found.</span> Redirecting to /css/style.css</span></code></pre></div>
 <p>Decode the base64-encoded message we get yet another css path.</p>
-<pre><code>$ base64 -d &lt;&lt;&lt; TXIuIFJvYm90byBzZXo6IFRyeSBnb2luZyB0byAvY3NzL3N0eWxlNzU2NDg3NS5jc3M=
-Mr. Roboto sez: Try going to /css/style7564875.css</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a>$ <span class="ex">base64</span> -d <span class="op">&lt;&lt;&lt;</span> TXIuIFJvYm90byBzZXo6IFRyeSBnb2luZyB0byAvY3NzL3N0eWxlNzU2NDg3NS5jc3M=</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="ex">Mr.</span> Roboto sez: Try going to /css/style7564875.css</span></code></pre></div>
 <p>Request <code>/css/style7564875.css</code> resulting a rejection.</p>
-<pre><code>$ http --follow -v https://ctf-web2.ncsa.tech/css/style7564875.css
-...
-Mr. Roboto sez: You are almost there.  Maybe a different User-Agent: would help. Your User-Agent: HTTPie/1.0.3</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>$ <span class="ex">http</span> --follow -v https://ctf-web2.ncsa.tech/css/style7564875.css</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">...</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="ex">Mr.</span> Roboto sez: You are almost there.  Maybe a different User-Agent: would help. Your User-Agent: HTTPie/1.0.3</span></code></pre></div>
 <p>Request again with agent shown in <code>robots.txt</code>.</p>
-<pre><code>http --follow -v https://ctf-web2.ncsa.tech/css/style7564875.css User-Agent:kilroy</code></pre>
-<p>Finally the flag show up.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">http</span> --follow -v https://ctf-web2.ncsa.tech/css/style7564875.css User-Agent:kilroy</span></code></pre></div>
+<p>Finally the flag shown up.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

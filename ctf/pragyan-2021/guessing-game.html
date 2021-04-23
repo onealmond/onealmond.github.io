@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,136 +95,136 @@
 <h1 class="title">Guessing Game</h1>
 </header>
 <p>The program asks us to input 10 numbers, then it do calculation with these 10 numbers, check the result with bytes stored in <code>match</code>. Decompile the program with <code>r2</code>, we are able to take a look into how the calculation works.</p>
-<pre><code>      ...
-      0x56383f24c108      488d3df90e00.  lea rdi, str.Enter_10_numbers_to_check_your_luck ; 0x56383f24d008 ; &quot;Enter 10 numbers to check your luck&quot;
-      0x56383f24c10f      488d2d160f00.  lea rbp, [0x56383f24d02c] ; &quot; %u&quot;
-      0x56383f24c116      e815ffffff     call sym.imp.puts
-      0x56383f24c11b      488b3dc62f00.  mov rdi, qword [reloc.stdout] ; [0x56383f24f0e8:8]=0
-      0x56383f24c122      e849ffffff     call sym.imp.fflush
-      0x56383f24c127      660f1f840000.  nop word [rax + rax]
-  ┌─&gt; 0x56383f24c130      4889de         mov rsi, rbx
-  ╎   0x56383f24c133      4889ef         mov rdi, rbp
-  ╎   0x56383f24c136      31c0           xor eax, eax
-  ╎   0x56383f24c138      4883c304       add rbx, 4
-  ╎   0x56383f24c13c      e83fffffff     call sym.imp.__isoc99_scanf
-  ╎   0x56383f24c141      4939dc         cmp r12, rbx
-  └─&lt; 0x56383f24c144      75ea           jne 0x56383f24c130
-      0x56383f24c146      660fefc0       pxor xmm0, xmm0
-      0x56383f24c14a      488d6c2430     lea rbp, [rsp + 0x30]
-      0x56383f24c14f      4c8d642458     lea r12, [rsp + 0x58]
-      0x56383f24c154      48c744245000.  mov qword [rsp + 0x50], 0
-      0x56383f24c15d      0f29442430     movaps xmmword [rsp + 0x30], xmm0
-      0x56383f24c162      0f29442440     movaps xmmword [rsp + 0x40], xmm0
-      0x56383f24c167      660f1f840000.  nop word [rax + rax]
-  ┌─&gt; 0x56383f24c170      bb05000000     mov ebx, 5
- ┌──&gt; 0x56383f24c175      e816ffffff     call sym.imp.rand
- ╎╎   0x56383f24c17a      314500         xor dword [rbp], eax
- ╎╎   0x56383f24c17d      83eb01         sub ebx, 1
- └──&lt; 0x56383f24c180      75f3           jne 0x56383f24c175
-  ╎   0x56383f24c182      4883c504       add rbp, 4
-  ╎   0x56383f24c186      4c39e5         cmp rbp, r12
-  └─&lt; 0x56383f24c189      75e5           jne 0x56383f24c170
-      0x56383f24c18b      f30f7e542450   movq xmm2, qword [rsp + 0x50]
-      0x56383f24c191      f30f7e5c2420   movq xmm3, qword [rsp + 0x20]
-      0x56383f24c197      660f6f442430   movdqa xmm0, xmmword [rsp + 0x30]
-      0x56383f24c19d      660fef0424     pxor xmm0, xmmword [rsp]
-      0x56383f24c1a2      660fefd3       pxor xmm2, xmm3
-      0x56383f24c1a6      660fef05122f.  pxor xmm0, xmmword [obj.arr]
-      0x56383f24c1ae      f30f7e1d2a2f.  movq xmm3, qword [0x56383f24f0e0] ; [0x56383f24f0e0:8]=0
-      0x56383f24c1b6      660f6f4c2410   movdqa xmm1, xmmword [rsp + 0x10]
-      0x56383f24c1bc      660fef4c2440   pxor xmm1, xmmword [rsp + 0x40]
-      0x56383f24c1c2      660fef0d062f.  pxor xmm1, xmmword [0x56383f24f0d0]
-      0x56383f24c1ca      660fefd3       pxor xmm2, xmm3
-      0x56383f24c1ce      660f7ec0       movd eax, xmm0
-      0x56383f24c1d2      3905a82e0000   cmp dword [obj.match], eax ; [0x56383f24f080:4]=0x3653a908
-      ...</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb1-1"><a href="#cb1-1"></a>      ...</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="bn">      0x56383f24c108      </span>488d3df90e00.  <span class="bu">lea</span> <span class="kw">rdi</span>, <span class="bu">str</span>.Enter_<span class="dv">10</span>_numbers_to_check_your_luck <span class="co">; 0x56383f24d008 ; &quot;Enter 10 numbers to check your luck&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="bn">      0x56383f24c10f      </span>488d2d160f00.  <span class="bu">lea</span> <span class="kw">rbp</span>, [<span class="bn">0x56383f24d02c</span>] <span class="co">; &quot; %u&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="bn">      0x56383f24c116      </span>e815ffffff     <span class="bu">call</span> sym.imp.puts</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="bn">      0x56383f24c11b      </span>488b3dc62f00.  <span class="bu">mov</span> <span class="kw">rdi</span>, <span class="dt">qword</span> [reloc.stdout] <span class="co">; [0x56383f24f0e8:8]=0</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="bn">      0x56383f24c122      </span>e849ffffff     <span class="bu">call</span> sym.imp.fflush</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="bn">      0x56383f24c127      </span>660f1f840000.  <span class="bu">nop</span> <span class="dt">word</span> [<span class="kw">rax</span> + <span class="kw">rax</span>]</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  ┌─&gt;<span class="bn"> 0x56383f24c130      </span>4889de         <span class="bu">mov</span> <span class="kw">rsi</span>, <span class="kw">rbx</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>  ╎<span class="bn">   0x56383f24c133      </span>4889ef         <span class="bu">mov</span> <span class="kw">rdi</span>, <span class="kw">rbp</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>  ╎<span class="bn">   0x56383f24c136      </span>31c0           <span class="bu">xor</span> <span class="kw">eax</span>, <span class="kw">eax</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>  ╎<span class="bn">   0x56383f24c138      </span>4883c304       <span class="bu">add</span> <span class="kw">rbx</span>, <span class="dv">4</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a>  ╎<span class="bn">   0x56383f24c13c      </span>e83fffffff     <span class="bu">call</span> sym.imp.__isoc99_scanf</span>
+<span id="cb1-13"><a href="#cb1-13"></a>  ╎<span class="bn">   0x56383f24c141      </span>4939dc         <span class="bu">cmp</span> <span class="kw">r12</span>, <span class="kw">rbx</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>  └─&lt;<span class="bn"> 0x56383f24c144      </span>75ea           <span class="bu">jne</span><span class="bn"> 0x56383f24c130</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="bn">      0x56383f24c146      </span>660fefc0       <span class="bu">pxor</span> <span class="kw">xmm0</span>, <span class="kw">xmm0</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="bn">      0x56383f24c14a      </span>488d6c2430     <span class="bu">lea</span> <span class="kw">rbp</span>, [<span class="kw">rsp</span> + <span class="bn">0x30</span>]</span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="bn">      0x56383f24c14f      </span>4c8d642458     <span class="bu">lea</span> <span class="kw">r12</span>, [<span class="kw">rsp</span> + <span class="bn">0x58</span>]</span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="bn">      0x56383f24c154      </span>48c744245000.  <span class="bu">mov</span> <span class="dt">qword</span> [<span class="kw">rsp</span> + <span class="bn">0x50</span>], <span class="dv">0</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="bn">      0x56383f24c15d      </span>0f29442430     <span class="bu">movaps</span> xmmword [<span class="kw">rsp</span> + <span class="bn">0x30</span>], <span class="kw">xmm0</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="bn">      0x56383f24c162      </span>0f29442440     <span class="bu">movaps</span> xmmword [<span class="kw">rsp</span> + <span class="bn">0x40</span>], <span class="kw">xmm0</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="bn">      0x56383f24c167      </span>660f1f840000.  <span class="bu">nop</span> <span class="dt">word</span> [<span class="kw">rax</span> + <span class="kw">rax</span>]</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  ┌─&gt;<span class="bn"> 0x56383f24c170      </span>bb05000000     <span class="bu">mov</span> <span class="kw">ebx</span>, <span class="dv">5</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a> ┌──&gt;<span class="bn"> 0x56383f24c175      </span>e816ffffff     <span class="bu">call</span> sym.imp.rand</span>
+<span id="cb1-24"><a href="#cb1-24"></a> ╎╎<span class="bn">   0x56383f24c17a      </span><span class="dv">314500</span>         <span class="bu">xor</span> <span class="dt">dword</span> [<span class="kw">rbp</span>], <span class="kw">eax</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a> ╎╎<span class="bn">   0x56383f24c17d      </span>83eb01         <span class="bu">sub</span> <span class="kw">ebx</span>, <span class="dv">1</span></span>
+<span id="cb1-26"><a href="#cb1-26"></a> └──&lt;<span class="bn"> 0x56383f24c180      </span>75f3           <span class="bu">jne</span><span class="bn"> 0x56383f24c175</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a>  ╎<span class="bn">   0x56383f24c182      </span>4883c504       <span class="bu">add</span> <span class="kw">rbp</span>, <span class="dv">4</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a>  ╎<span class="bn">   0x56383f24c186      </span>4c39e5         <span class="bu">cmp</span> <span class="kw">rbp</span>, <span class="kw">r12</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a>  └─&lt;<span class="bn"> 0x56383f24c189      </span><span class="fl">75e5</span>           <span class="bu">jne</span><span class="bn"> 0x56383f24c170</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a><span class="bn">      0x56383f24c18b      </span>f30f7e542450   <span class="bu">movq</span> <span class="kw">xmm2</span>, <span class="dt">qword</span> [<span class="kw">rsp</span> + <span class="bn">0x50</span>]</span>
+<span id="cb1-31"><a href="#cb1-31"></a><span class="bn">      0x56383f24c191      </span>f30f7e5c2420   <span class="bu">movq</span> <span class="kw">xmm3</span>, <span class="dt">qword</span> [<span class="kw">rsp</span> + <span class="bn">0x20</span>]</span>
+<span id="cb1-32"><a href="#cb1-32"></a><span class="bn">      0x56383f24c197      </span>660f6f442430   <span class="bu">movdqa</span> <span class="kw">xmm0</span>, xmmword [<span class="kw">rsp</span> + <span class="bn">0x30</span>]</span>
+<span id="cb1-33"><a href="#cb1-33"></a><span class="bn">      0x56383f24c19d      </span>660fef0424     <span class="bu">pxor</span> <span class="kw">xmm0</span>, xmmword [<span class="kw">rsp</span>]</span>
+<span id="cb1-34"><a href="#cb1-34"></a><span class="bn">      0x56383f24c1a2      </span>660fefd3       <span class="bu">pxor</span> <span class="kw">xmm2</span>, <span class="kw">xmm3</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a><span class="bn">      0x56383f24c1a6      </span>660fef05122f.  <span class="bu">pxor</span> <span class="kw">xmm0</span>, xmmword [obj.arr]</span>
+<span id="cb1-36"><a href="#cb1-36"></a><span class="bn">      0x56383f24c1ae      </span>f30f7e1d2a2f.  <span class="bu">movq</span> <span class="kw">xmm3</span>, <span class="dt">qword</span> [<span class="bn">0x56383f24f0e0</span>] <span class="co">; [0x56383f24f0e0:8]=0</span></span>
+<span id="cb1-37"><a href="#cb1-37"></a><span class="bn">      0x56383f24c1b6      </span>660f6f4c2410   <span class="bu">movdqa</span> <span class="kw">xmm1</span>, xmmword [<span class="kw">rsp</span> + <span class="bn">0x10</span>]</span>
+<span id="cb1-38"><a href="#cb1-38"></a><span class="bn">      0x56383f24c1bc      </span>660fef4c2440   <span class="bu">pxor</span> <span class="kw">xmm1</span>, xmmword [<span class="kw">rsp</span> + <span class="bn">0x40</span>]</span>
+<span id="cb1-39"><a href="#cb1-39"></a><span class="bn">      0x56383f24c1c2      </span>660fef0d062f.  <span class="bu">pxor</span> <span class="kw">xmm1</span>, xmmword [<span class="bn">0x56383f24f0d0</span>]</span>
+<span id="cb1-40"><a href="#cb1-40"></a><span class="bn">      0x56383f24c1ca      </span>660fefd3       <span class="bu">pxor</span> <span class="kw">xmm2</span>, <span class="kw">xmm3</span></span>
+<span id="cb1-41"><a href="#cb1-41"></a><span class="bn">      0x56383f24c1ce      </span>660f7ec0       <span class="bu">movd</span> <span class="kw">eax</span>, <span class="kw">xmm0</span></span>
+<span id="cb1-42"><a href="#cb1-42"></a><span class="bn">      0x56383f24c1d2      </span>3905a82e0000   <span class="bu">cmp</span> <span class="dt">dword</span> [obj.<span class="pp">match</span>], <span class="kw">eax</span> <span class="co">; [0x56383f24f080:4]=0x3653a908</span></span>
+<span id="cb1-43"><a href="#cb1-43"></a>      ...</span></code></pre></div>
 <p>Translate it to psudocode, it gets clearer.</p>
-<pre><code>def forward():
-
-    for i in range(16):
-      xmm0[i] ^= buf[i]
-
-    for i in range(16):
-      xmm2[i] ^= xmm3[i]
-
-    for i in range(16):
-      xmm0[i] ^= arr[i]
-
-    xmm3 = arr[-8:]
-    xmm1 = buf[16:32]
-
-    for i in range(17):
-      xmm1[i] ^= ran[16+i]
-
-    for i in range(17):
-      xmm1[i] ^= arr[16+i]
-     
-    for i in range(8):
-      xmm2[i] ^= xmm3[i]</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> forward():</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">16</span>):</span>
+<span id="cb2-4"><a href="#cb2-4"></a>      xmm0[i] <span class="op">^=</span> buf[i]</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">16</span>):</span>
+<span id="cb2-7"><a href="#cb2-7"></a>      xmm2[i] <span class="op">^=</span> xmm3[i]</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">16</span>):</span>
+<span id="cb2-10"><a href="#cb2-10"></a>      xmm0[i] <span class="op">^=</span> arr[i]</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>    xmm3 <span class="op">=</span> arr[<span class="op">-</span><span class="dv">8</span>:]</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    xmm1 <span class="op">=</span> buf[<span class="dv">16</span>:<span class="dv">32</span>]</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">17</span>):</span>
+<span id="cb2-16"><a href="#cb2-16"></a>      xmm1[i] <span class="op">^=</span> ran[<span class="dv">16</span><span class="op">+</span>i]</span>
+<span id="cb2-17"><a href="#cb2-17"></a></span>
+<span id="cb2-18"><a href="#cb2-18"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">17</span>):</span>
+<span id="cb2-19"><a href="#cb2-19"></a>      xmm1[i] <span class="op">^=</span> arr[<span class="dv">16</span><span class="op">+</span>i]</span>
+<span id="cb2-20"><a href="#cb2-20"></a>     </span>
+<span id="cb2-21"><a href="#cb2-21"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>):</span>
+<span id="cb2-22"><a href="#cb2-22"></a>      xmm2[i] <span class="op">^=</span> xmm3[i]</span></code></pre></div>
 <p><code>buf</code> stores the 10 numbers from input, <code>arr</code> above is transformation result from original one, the transformation duplicates the string <code>DeltaForce</code> three times, so it becomes a string of four <code>DeltaForce</code>, here is the decompiled code snipe from <code>ghidra</code>.</p>
-<pre><code>  ...
-  i = 10;
-  local_20 = *(long *)(in_FS_OFFSET + 0x28);
-  do {
-    arr[i] = arr[(int)i + (int)((i &amp; 0xffffffff) / 10) * -10];
-    i = i + 1;
-  } while (i != 0x28);
-  ...</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1"></a>  ...</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  i = <span class="dv">10</span>;</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  local_20 = *(<span class="dt">long</span> *)(in_FS_OFFSET + <span class="bn">0x28</span>);</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="cf">do</span> {</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    arr[i] = arr[(<span class="dt">int</span>)i + (<span class="dt">int</span>)((i &amp; <span class="bn">0xffffffff</span>) / <span class="dv">10</span>) * -<span class="dv">10</span>];</span>
+<span id="cb3-6"><a href="#cb3-6"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  } <span class="cf">while</span> (i != <span class="bn">0x28</span>);</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  ...</span></code></pre></div>
 <p><code>ran</code> is a list of random numbers generated from constant seeded <code>rand</code>.</p>
-<pre><code>  srand(0xffffff);
-  ...
-  do {
-    j = 5;
-    do {
-      random = rand();
-      *(uint *)p2 = *(uint *)p2 ^ random;
-      j = j + -1;
-    } while (j != 0);
-    p2 = (long *)((long)p2 + 4);
-  } while (p2 != &amp;local_20);
-  ...</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a>  srand(<span class="bn">0xffffff</span>);</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  ...</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="cf">do</span> {</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    j = <span class="dv">5</span>;</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="cf">do</span> {</span>
+<span id="cb4-6"><a href="#cb4-6"></a>      random = rand();</span>
+<span id="cb4-7"><a href="#cb4-7"></a>      *(uint *)p2 = *(uint *)p2 ^ random;</span>
+<span id="cb4-8"><a href="#cb4-8"></a>      j = j + -<span class="dv">1</span>;</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    } <span class="cf">while</span> (j != <span class="dv">0</span>);</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    p2 = (<span class="dt">long</span> *)((<span class="dt">long</span>)p2 + <span class="dv">4</span>);</span>
+<span id="cb4-11"><a href="#cb4-11"></a>  } <span class="cf">while</span> (p2 != &amp;local_20);</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  ...</span></code></pre></div>
 <p>Now we need to do reverse calculation to find out what number should we input. All calculation is byte level, so <code>buf</code> need to be an array of size 40.</p>
-<pre><code>ran = [36, 184, 75, 50, 106, 222, 33, 64, 75, 253, 75, 85, 118, 114, 201, 92, 121, 55, 219, 18, 48, 67, 22, 5, 184, 96, 219, 113, 158, 97, 171, 102, 131, 244, 199, 55, 173, 40, 184, 46]
-arr = [ord(c) for c in list((&quot;DeltaForce&quot; * 4))]
-match = [8, 169, 83, 54, 120, 162, 97, 29, 81, 247, 122, 68, 111, 40, 202, 127, 57, 33, 233, 0, 64, 81, 67, 38, 190, 126, 215, 82, 253, 4, 239, 3, 49, 11, 209, 71, 226, 13, 147, 78]
-buf = [0]*40
-xmm1 = buf[16:32]
-xmm2 = ran[32:40]
-xmm3 = ran[0:16]</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>ran <span class="op">=</span> [<span class="dv">36</span>, <span class="dv">184</span>, <span class="dv">75</span>, <span class="dv">50</span>, <span class="dv">106</span>, <span class="dv">222</span>, <span class="dv">33</span>, <span class="dv">64</span>, <span class="dv">75</span>, <span class="dv">253</span>, <span class="dv">75</span>, <span class="dv">85</span>, <span class="dv">118</span>, <span class="dv">114</span>, <span class="dv">201</span>, <span class="dv">92</span>, <span class="dv">121</span>, <span class="dv">55</span>, <span class="dv">219</span>, <span class="dv">18</span>, <span class="dv">48</span>, <span class="dv">67</span>, <span class="dv">22</span>, <span class="dv">5</span>, <span class="dv">184</span>, <span class="dv">96</span>, <span class="dv">219</span>, <span class="dv">113</span>, <span class="dv">158</span>, <span class="dv">97</span>, <span class="dv">171</span>, <span class="dv">102</span>, <span class="dv">131</span>, <span class="dv">244</span>, <span class="dv">199</span>, <span class="dv">55</span>, <span class="dv">173</span>, <span class="dv">40</span>, <span class="dv">184</span>, <span class="dv">46</span>]</span>
+<span id="cb5-2"><a href="#cb5-2"></a>arr <span class="op">=</span> [<span class="bu">ord</span>(c) <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">list</span>((<span class="st">&quot;DeltaForce&quot;</span> <span class="op">*</span> <span class="dv">4</span>))]</span>
+<span id="cb5-3"><a href="#cb5-3"></a>match <span class="op">=</span> [<span class="dv">8</span>, <span class="dv">169</span>, <span class="dv">83</span>, <span class="dv">54</span>, <span class="dv">120</span>, <span class="dv">162</span>, <span class="dv">97</span>, <span class="dv">29</span>, <span class="dv">81</span>, <span class="dv">247</span>, <span class="dv">122</span>, <span class="dv">68</span>, <span class="dv">111</span>, <span class="dv">40</span>, <span class="dv">202</span>, <span class="dv">127</span>, <span class="dv">57</span>, <span class="dv">33</span>, <span class="dv">233</span>, <span class="dv">0</span>, <span class="dv">64</span>, <span class="dv">81</span>, <span class="dv">67</span>, <span class="dv">38</span>, <span class="dv">190</span>, <span class="dv">126</span>, <span class="dv">215</span>, <span class="dv">82</span>, <span class="dv">253</span>, <span class="dv">4</span>, <span class="dv">239</span>, <span class="dv">3</span>, <span class="dv">49</span>, <span class="dv">11</span>, <span class="dv">209</span>, <span class="dv">71</span>, <span class="dv">226</span>, <span class="dv">13</span>, <span class="dv">147</span>, <span class="dv">78</span>]</span>
+<span id="cb5-4"><a href="#cb5-4"></a>buf <span class="op">=</span> [<span class="dv">0</span>]<span class="op">*</span><span class="dv">40</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>xmm1 <span class="op">=</span> buf[<span class="dv">16</span>:<span class="dv">32</span>]</span>
+<span id="cb5-6"><a href="#cb5-6"></a>xmm2 <span class="op">=</span> ran[<span class="dv">32</span>:<span class="dv">40</span>]</span>
+<span id="cb5-7"><a href="#cb5-7"></a>xmm3 <span class="op">=</span> ran[<span class="dv">0</span>:<span class="dv">16</span>]</span></code></pre></div>
 <p>Use <code>bytes_to_array</code> function to conver byte string of <code>match</code> to integer array that can be used for calculation.</p>
-<pre><code>def bytes_to_array(dat, sz):
-    dat = dat.split()
-    arr = []
-    for i in range(0, len(dat), sz):
-        arr.append(int(&#39;&#39;.join(reversed(dat[i:i+sz])), 16))
-    return arr
-
-match = &quot;08 a9 53 36 78 a2 61 1d 51 f7 7a 44 6f 28 ca 7f 39 21 e9 00 40 51 43 26 be 7e d7 52 fd 04 ef 03 31 0b d1 47 e2 0d 93 4e&quot;
-match = bytes_to_array(match, 1)</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">def</span> bytes_to_array(dat, sz):</span>
+<span id="cb6-2"><a href="#cb6-2"></a>    dat <span class="op">=</span> dat.split()</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    arr <span class="op">=</span> []</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(dat), sz):</span>
+<span id="cb6-5"><a href="#cb6-5"></a>        arr.append(<span class="bu">int</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">reversed</span>(dat[i:i<span class="op">+</span>sz])), <span class="dv">16</span>))</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="cf">return</span> arr</span>
+<span id="cb6-7"><a href="#cb6-7"></a></span>
+<span id="cb6-8"><a href="#cb6-8"></a>match <span class="op">=</span> <span class="st">&quot;08 a9 53 36 78 a2 61 1d 51 f7 7a 44 6f 28 ca 7f 39 21 e9 00 40 51 43 26 be 7e d7 52 fd 04 ef 03 31 0b d1 47 e2 0d 93 4e&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>match <span class="op">=</span> bytes_to_array(match, <span class="dv">1</span>)</span></code></pre></div>
 <p>The random byte list can be generated from <code>rand</code> in glibc with seed <code>0xffffff</code>, or copy from <code>r2</code>.</p>
-<pre><code>- offset -       0 1  2 3  4 5  6 7  8 9  A B  C D  E F  0123456789ABCDEF
-0x7ffd22229560  24b8 4b32 6ade 2140 4bfd 4b55 7672 c95c  $.K2j.!@K.KUvr.\
-0x7ffd22229570  7937 db12 3043 1605 b860 db71 9e61 ab66  y7..0C...`.q.a.f
-0x7ffd22229580  83f4 c737 ad28 b82e </code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb7-1"><a href="#cb7-1"></a>- offset -       <span class="dv">0</span> <span class="dv">1</span>  <span class="dv">2</span> <span class="dv">3</span>  <span class="dv">4</span> <span class="dv">5</span>  <span class="dv">6</span> <span class="dv">7</span>  <span class="dv">8</span> <span class="dv">9</span>  A B  C D  E F  0123456789ABCDEF</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="bn">0x7ffd22229560  </span>24b8 4b32 6ade <span class="dv">2140</span> 4bfd 4b55 <span class="dv">7672</span> c95c  <span class="dv">$</span>.K2j.!@K.KUvr.\</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="bn">0x7ffd22229570  </span><span class="dv">7937</span> db12 <span class="dv">3043</span> <span class="dv">1605</span> b860 db71 <span class="fl">9e61</span> ab66  y7..0C...`.q.a.f</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="bn">0x7ffd22229580  </span>83f4 c737 ad28 b82e </span></code></pre></div>
 <p>According to <code>forward</code> operations above, here is the reverse operations.</p>
-<pre><code>def reverse():
-    xmm0 = [0] * 40
-
-    for i in range(40):
-        xmm0[i] = match[i] ^ arr[i]
-    for i in range(40):
-        buf[i] = xmm0[i] ^ ran[i]
-
-    for i in range(4):
-        xmm1[i] = match[16+i] ^ arr[16+i]
-
-    for i in range(4):
-        xmm1[i] ^= ran[16+i]
-
-    buf[16:20] = xmm1[:4]
-
-reverse()
-print(&#39; &#39;.join([str(int.from_bytes(bytes(buf[i:i+4]),&#39;little&#39;)) for i in range(0, len(buf), 4)]))</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">def</span> reverse():</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    xmm0 <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="dv">40</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">40</span>):</span>
+<span id="cb8-5"><a href="#cb8-5"></a>        xmm0[i] <span class="op">=</span> match[i] <span class="op">^</span> arr[i]</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">40</span>):</span>
+<span id="cb8-7"><a href="#cb8-7"></a>        buf[i] <span class="op">=</span> xmm0[i] <span class="op">^</span> ran[i]</span>
+<span id="cb8-8"><a href="#cb8-8"></a></span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-10"><a href="#cb8-10"></a>        xmm1[i] <span class="op">=</span> match[<span class="dv">16</span><span class="op">+</span>i] <span class="op">^</span> arr[<span class="dv">16</span><span class="op">+</span>i]</span>
+<span id="cb8-11"><a href="#cb8-11"></a></span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-13"><a href="#cb8-13"></a>        xmm1[i] <span class="op">^=</span> ran[<span class="dv">16</span><span class="op">+</span>i]</span>
+<span id="cb8-14"><a href="#cb8-14"></a></span>
+<span id="cb8-15"><a href="#cb8-15"></a>    buf[<span class="dv">16</span>:<span class="dv">20</span>] <span class="op">=</span> xmm1[:<span class="dv">4</span>]</span>
+<span id="cb8-16"><a href="#cb8-16"></a></span>
+<span id="cb8-17"><a href="#cb8-17"></a>reverse()</span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="bu">print</span>(<span class="st">&#39; &#39;</span>.join([<span class="bu">str</span>(<span class="bu">int</span>.from_bytes(<span class="bu">bytes</span>(buf[i:i<span class="op">+</span><span class="dv">4</span>]),<span class="st">&#39;little&#39;</span>)) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(buf), <span class="dv">4</span>)]))</span></code></pre></div>
 <p>Concatenate the numbers with space as delimiter and send to the server, the flag is in response.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>

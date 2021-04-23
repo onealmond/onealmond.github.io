@@ -3,6 +3,7 @@
 src=$1
 
 if [[ -z $src ]] ;then echo "src not given"; exit 0; fi
+if [[ ! -d $src ]] ;then echo "src should be a directory"; exit 0; fi
 puzzles=""
 
 function generate_writeup_html {

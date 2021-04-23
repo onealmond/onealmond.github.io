@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,170 +95,170 @@
 <h1 class="title">Chains</h1>
 </header>
 <p>It’s a program built for 64-bit ARM architecture.</p>
-<pre><code>$ file chains
-chains: ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, stripped
-$ checksec --file chains
-RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
-Partial RELRO   No canary found   NX enabled    PIE enabled     No RPATH   No RUNPATH   chains</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a>$ <span class="fu">file</span> chains</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ex">chains</span>: ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), <span class="ex">dynamically</span> linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, stripped</span>
+<span id="cb1-3"><a href="#cb1-3"></a>$ <span class="ex">checksec</span> --file chains</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="ex">RELRO</span>           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="ex">Partial</span> RELRO   No canary found   NX enabled    PIE enabled     No RPATH   No RUNPATH   chains</span></code></pre></div>
 <p>Decompile it with <code>ghidra</code>, according to function <code>FUN_00100838</code> and <code>FUN_001007cc</code>, we know that the program needs to calculate times return from <code>FUN_001007cc</code> for numbers from 1 to 900000000, if the times match value at even position(<code>target</code>) in array <code>DAT_00111040</code>, then value at odd position(<code>count</code>) is reduced by 1. So if we group the array by <code>target</code>, it’s about to find the <code>count</code>th value in corresponding <code>target</code> group.</p>
-<pre><code>ulonglong FUN_001007cc(uint param_1)
-{
-  uint cur;
-  uint ret;
-  
-  ret = 0;
-  cur = param_1;
-  while (cur != 1) {
-    if ((cur &amp; 1) == 0) {
-      cur = cur &gt;&gt; 1;
-    }
-    else {
-      cur = cur * 3 + 1;
-    }
-    ret = ret + 1;
-  }
-  return (ulonglong)ret;
-}
-
-undefined8 FUN_00100838(void)
-{
-  int target;
-  int res;
-  uint cur;
-  uint N;
-  int count;
-  
-  cur = 0;
-  do {
-    if (0x29f7 &lt; cur) {
-      putchar(10);
-      return 0;
-    }
-    target = *(int *)(&amp;DAT_00111040 + (ulonglong)cur * 4);
-    count = *(int *)(&amp;DAT_00111040 + (ulonglong)(cur + 1) * 4);
-    N = 1;
-    while (N &lt; 900000000) {
-      res = FUN_001007cc((ulonglong)N);
-      if (target == res) {
-        count = count + -1;
-      }
-      if (count == 0) {
-        putchar(N + 0xca5b17ff);
-        fflush(stdout);
-        break;
-      }
-      N = N + 1;
-    }
-    cur = cur + 2;
-  } while( true );
-}</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a>ulonglong FUN_001007cc(uint param_1)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>{</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  uint cur;</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  uint ret;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  </span>
+<span id="cb2-6"><a href="#cb2-6"></a>  ret = <span class="dv">0</span>;</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  cur = param_1;</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="cf">while</span> (cur != <span class="dv">1</span>) {</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="cf">if</span> ((cur &amp; <span class="dv">1</span>) == <span class="dv">0</span>) {</span>
+<span id="cb2-10"><a href="#cb2-10"></a>      cur = cur &gt;&gt; <span class="dv">1</span>;</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    }</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    <span class="cf">else</span> {</span>
+<span id="cb2-13"><a href="#cb2-13"></a>      cur = cur * <span class="dv">3</span> + <span class="dv">1</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    }</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    ret = ret + <span class="dv">1</span>;</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  }</span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="cf">return</span> (ulonglong)ret;</span>
+<span id="cb2-18"><a href="#cb2-18"></a>}</span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a>undefined8 FUN_00100838(<span class="dt">void</span>)</span>
+<span id="cb2-21"><a href="#cb2-21"></a>{</span>
+<span id="cb2-22"><a href="#cb2-22"></a>  <span class="dt">int</span> target;</span>
+<span id="cb2-23"><a href="#cb2-23"></a>  <span class="dt">int</span> res;</span>
+<span id="cb2-24"><a href="#cb2-24"></a>  uint cur;</span>
+<span id="cb2-25"><a href="#cb2-25"></a>  uint N;</span>
+<span id="cb2-26"><a href="#cb2-26"></a>  <span class="dt">int</span> count;</span>
+<span id="cb2-27"><a href="#cb2-27"></a>  </span>
+<span id="cb2-28"><a href="#cb2-28"></a>  cur = <span class="dv">0</span>;</span>
+<span id="cb2-29"><a href="#cb2-29"></a>  <span class="cf">do</span> {</span>
+<span id="cb2-30"><a href="#cb2-30"></a>    <span class="cf">if</span> (<span class="bn">0x29f7</span> &lt; cur) {</span>
+<span id="cb2-31"><a href="#cb2-31"></a>      putchar(<span class="dv">10</span>);</span>
+<span id="cb2-32"><a href="#cb2-32"></a>      <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb2-33"><a href="#cb2-33"></a>    }</span>
+<span id="cb2-34"><a href="#cb2-34"></a>    target = *(<span class="dt">int</span> *)(&amp;DAT_00111040 + (ulonglong)cur * <span class="dv">4</span>);</span>
+<span id="cb2-35"><a href="#cb2-35"></a>    count = *(<span class="dt">int</span> *)(&amp;DAT_00111040 + (ulonglong)(cur + <span class="dv">1</span>) * <span class="dv">4</span>);</span>
+<span id="cb2-36"><a href="#cb2-36"></a>    N = <span class="dv">1</span>;</span>
+<span id="cb2-37"><a href="#cb2-37"></a>    <span class="cf">while</span> (N &lt; <span class="dv">900000000</span>) {</span>
+<span id="cb2-38"><a href="#cb2-38"></a>      res = FUN_001007cc((ulonglong)N);</span>
+<span id="cb2-39"><a href="#cb2-39"></a>      <span class="cf">if</span> (target == res) {</span>
+<span id="cb2-40"><a href="#cb2-40"></a>        count = count + -<span class="dv">1</span>;</span>
+<span id="cb2-41"><a href="#cb2-41"></a>      }</span>
+<span id="cb2-42"><a href="#cb2-42"></a>      <span class="cf">if</span> (count == <span class="dv">0</span>) {</span>
+<span id="cb2-43"><a href="#cb2-43"></a>        putchar(N + <span class="bn">0xca5b17ff</span>);</span>
+<span id="cb2-44"><a href="#cb2-44"></a>        fflush(stdout);</span>
+<span id="cb2-45"><a href="#cb2-45"></a>        <span class="cf">break</span>;</span>
+<span id="cb2-46"><a href="#cb2-46"></a>      }</span>
+<span id="cb2-47"><a href="#cb2-47"></a>      N = N + <span class="dv">1</span>;</span>
+<span id="cb2-48"><a href="#cb2-48"></a>    }</span>
+<span id="cb2-49"><a href="#cb2-49"></a>    cur = cur + <span class="dv">2</span>;</span>
+<span id="cb2-50"><a href="#cb2-50"></a>  } <span class="cf">while</span>( true );</span>
+<span id="cb2-51"><a href="#cb2-51"></a>}</span></code></pre></div>
 <h2 id="find-out-the-array">Find out the array</h2>
 <p><code>DAT_00111040</code> is an integer array, dump the whole block of data and process it with <code>python</code>.</p>
-<pre><code>dat = dat.split(&#39; &#39;)
-targets = []
-
-for i in range(0, len(dat), 4):
-  targets.append(int(&#39;&#39;.join(reversed(dat[i:i+4])), 16))
-
-print(targets)
-print(&#39;targets size:&#39;, len(targets))
-
-distinct_targets = dict()
-counter = Counter()
-for i in range(0, len(targets), 2):
-    counter[targets[i]] += 1
-
-print(counter)
-print(&#39;counter size:&#39;, len(counter))
-print(distinct_targets)</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>dat <span class="op">=</span> dat.split(<span class="st">&#39; &#39;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>targets <span class="op">=</span> []</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(dat), <span class="dv">4</span>):</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  targets.append(<span class="bu">int</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">reversed</span>(dat[i:i<span class="op">+</span><span class="dv">4</span>])), <span class="dv">16</span>))</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="bu">print</span>(targets)</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="bu">print</span>(<span class="st">&#39;targets size:&#39;</span>, <span class="bu">len</span>(targets))</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>distinct_targets <span class="op">=</span> <span class="bu">dict</span>()</span>
+<span id="cb3-11"><a href="#cb3-11"></a>counter <span class="op">=</span> Counter()</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(targets), <span class="dv">2</span>):</span>
+<span id="cb3-13"><a href="#cb3-13"></a>    counter[targets[i]] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="bu">print</span>(counter)</span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="bu">print</span>(<span class="st">&#39;counter size:&#39;</span>, <span class="bu">len</span>(counter))</span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="bu">print</span>(distinct_targets)</span></code></pre></div>
 <p>We get an array with 2686 elements, but only 19 distinct targets.</p>
-<pre><code>[136, 4253818, 136, 4253813, 271, 1779864, 136, 4253816, 136, 4253816, 211, 3144285, 136,...,352, 495094, 136, 4253825, 181, 4130208, 136, 4253767]
-targets size: 2686
-Counter({211: 628, 136: 500, 160: 81, 181: 52, 352: 22, 266: 11, 105: 10, 271: 7, 199: 7, 273: 7, 247: 5, 113: 3, 341: 3, 110: 2, 303: 1, 318: 1, 116: 1, 202: 1, 185: 1})
-counter size: 19</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>[<span class="dv">136</span>, <span class="dv">4253818</span>, <span class="dv">136</span>, <span class="dv">4253813</span>, <span class="dv">271</span>, <span class="dv">1779864</span>, <span class="dv">136</span>, <span class="dv">4253816</span>, <span class="dv">136</span>, <span class="dv">4253816</span>, <span class="dv">211</span>, <span class="dv">3144285</span>, <span class="dv">136</span>,...,<span class="dv">352</span>, <span class="dv">495094</span>, <span class="dv">136</span>, <span class="dv">4253825</span>, <span class="dv">181</span>, <span class="dv">4130208</span>, <span class="dv">136</span>, <span class="dv">4253767</span>]</span>
+<span id="cb4-2"><a href="#cb4-2"></a>targets size: <span class="dv">2686</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>Counter({<span class="dv">211</span>: <span class="dv">628</span>, <span class="dv">136</span>: <span class="dv">500</span>, <span class="dv">160</span>: <span class="dv">81</span>, <span class="dv">181</span>: <span class="dv">52</span>, <span class="dv">352</span>: <span class="dv">22</span>, <span class="dv">266</span>: <span class="dv">11</span>, <span class="dv">105</span>: <span class="dv">10</span>, <span class="dv">271</span>: <span class="dv">7</span>, <span class="dv">199</span>: <span class="dv">7</span>, <span class="dv">273</span>: <span class="dv">7</span>, <span class="dv">247</span>: <span class="dv">5</span>, <span class="dv">113</span>: <span class="dv">3</span>, <span class="dv">341</span>: <span class="dv">3</span>, <span class="dv">110</span>: <span class="dv">2</span>, <span class="dv">303</span>: <span class="dv">1</span>, <span class="dv">318</span>: <span class="dv">1</span>, <span class="dv">116</span>: <span class="dv">1</span>, <span class="dv">202</span>: <span class="dv">1</span>, <span class="dv">185</span>: <span class="dv">1</span>})</span>
+<span id="cb4-4"><a href="#cb4-4"></a>counter size: <span class="dv">19</span></span></code></pre></div>
 <h2 id="calculate-times">Calculate times</h2>
 <p>As we only interest in results from <code>FUN_001007cc</code> that exist in distinct targets, we could precalculate them for reference. The max target is <code>352</code>, then we stop calculate when it exceeds the value to save time. Redirect the result to file for later lookup. It took about 20min to generate the whole map.</p>
-<pre><code>unordered_map&lt;unsigned int, vector&lt;unsigned int&gt;&gt; target_group = {
- {211,vector&lt;unsigned int&gt;()},
- {136,vector&lt;unsigned int&gt;()},
- {160,vector&lt;unsigned int&gt;()},
- {181,vector&lt;unsigned int&gt;()},
- {352,vector&lt;unsigned int&gt;()},
- {266,vector&lt;unsigned int&gt;()},
- {105,vector&lt;unsigned int&gt;()},
- {271,vector&lt;unsigned int&gt;()},
- {199,vector&lt;unsigned int&gt;()},
- {273,vector&lt;unsigned int&gt;()},
- {247,vector&lt;unsigned int&gt;()},
- {113,vector&lt;unsigned int&gt;()},
- {341,vector&lt;unsigned int&gt;()},
- {110,vector&lt;unsigned int&gt;()},
- {303,vector&lt;unsigned int&gt;()},
- {318,vector&lt;unsigned int&gt;()},
- {116,vector&lt;unsigned int&gt;()},
- {202,vector&lt;unsigned int&gt;()},
- {185,vector&lt;unsigned int&gt;()}
-};
-
-unsigned int FUN_001007cc(unsigned int num) {
-  unsigned int cur;
-  unsigned int ret;
-  
-  ret = 0;
-  cur = num;
-
-  while (cur != 1 &amp;&amp; ret &lt; 353) {
-    if ((cur &amp; 1) == 0) {
-      cur = cur &gt;&gt; 1;
-    } else {
-      cur = cur * 3 + 1;
-    }
-    ret++;
-  }
-  return (unsigned long)ret;
-}
-
-int precalculate() {
-  unsigned int res, N;
-
-  for (N = 1; N &lt; 900000000; ++N) {
-    res = FUN_001007cc(N);
-    if (target_group.find(res) != target_group.end()){
-      target_group[res].push_back(N);
-    }
-  }
-
-  for (auto&amp; t : target_group) {
-    printf(&quot;%u:&quot;, t.first);
-    for (auto&amp; n : t.second) {
-      printf(&quot;%u,&quot;, n);
-    }
-    printf(&quot;\n&quot;);
-  }
-  
-  return 0;
-}</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a>unordered_map&lt;<span class="dt">unsigned</span> <span class="dt">int</span>, vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;&gt; target_group = {</span>
+<span id="cb5-2"><a href="#cb5-2"></a> {<span class="dv">211</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-3"><a href="#cb5-3"></a> {<span class="dv">136</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-4"><a href="#cb5-4"></a> {<span class="dv">160</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-5"><a href="#cb5-5"></a> {<span class="dv">181</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-6"><a href="#cb5-6"></a> {<span class="dv">352</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-7"><a href="#cb5-7"></a> {<span class="dv">266</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-8"><a href="#cb5-8"></a> {<span class="dv">105</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-9"><a href="#cb5-9"></a> {<span class="dv">271</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-10"><a href="#cb5-10"></a> {<span class="dv">199</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-11"><a href="#cb5-11"></a> {<span class="dv">273</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-12"><a href="#cb5-12"></a> {<span class="dv">247</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-13"><a href="#cb5-13"></a> {<span class="dv">113</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-14"><a href="#cb5-14"></a> {<span class="dv">341</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-15"><a href="#cb5-15"></a> {<span class="dv">110</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-16"><a href="#cb5-16"></a> {<span class="dv">303</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-17"><a href="#cb5-17"></a> {<span class="dv">318</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-18"><a href="#cb5-18"></a> {<span class="dv">116</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-19"><a href="#cb5-19"></a> {<span class="dv">202</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()},</span>
+<span id="cb5-20"><a href="#cb5-20"></a> {<span class="dv">185</span>,vector&lt;<span class="dt">unsigned</span> <span class="dt">int</span>&gt;()}</span>
+<span id="cb5-21"><a href="#cb5-21"></a>};</span>
+<span id="cb5-22"><a href="#cb5-22"></a></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="dt">unsigned</span> <span class="dt">int</span> FUN_001007cc(<span class="dt">unsigned</span> <span class="dt">int</span> num) {</span>
+<span id="cb5-24"><a href="#cb5-24"></a>  <span class="dt">unsigned</span> <span class="dt">int</span> cur;</span>
+<span id="cb5-25"><a href="#cb5-25"></a>  <span class="dt">unsigned</span> <span class="dt">int</span> ret;</span>
+<span id="cb5-26"><a href="#cb5-26"></a>  </span>
+<span id="cb5-27"><a href="#cb5-27"></a>  ret = <span class="dv">0</span>;</span>
+<span id="cb5-28"><a href="#cb5-28"></a>  cur = num;</span>
+<span id="cb5-29"><a href="#cb5-29"></a></span>
+<span id="cb5-30"><a href="#cb5-30"></a>  <span class="cf">while</span> (cur != <span class="dv">1</span> &amp;&amp; ret &lt; <span class="dv">353</span>) {</span>
+<span id="cb5-31"><a href="#cb5-31"></a>    <span class="cf">if</span> ((cur &amp; <span class="dv">1</span>) == <span class="dv">0</span>) {</span>
+<span id="cb5-32"><a href="#cb5-32"></a>      cur = cur &gt;&gt; <span class="dv">1</span>;</span>
+<span id="cb5-33"><a href="#cb5-33"></a>    } <span class="cf">else</span> {</span>
+<span id="cb5-34"><a href="#cb5-34"></a>      cur = cur * <span class="dv">3</span> + <span class="dv">1</span>;</span>
+<span id="cb5-35"><a href="#cb5-35"></a>    }</span>
+<span id="cb5-36"><a href="#cb5-36"></a>    ret++;</span>
+<span id="cb5-37"><a href="#cb5-37"></a>  }</span>
+<span id="cb5-38"><a href="#cb5-38"></a>  <span class="cf">return</span> (<span class="dt">unsigned</span> <span class="dt">long</span>)ret;</span>
+<span id="cb5-39"><a href="#cb5-39"></a>}</span>
+<span id="cb5-40"><a href="#cb5-40"></a></span>
+<span id="cb5-41"><a href="#cb5-41"></a><span class="dt">int</span> precalculate() {</span>
+<span id="cb5-42"><a href="#cb5-42"></a>  <span class="dt">unsigned</span> <span class="dt">int</span> res, N;</span>
+<span id="cb5-43"><a href="#cb5-43"></a></span>
+<span id="cb5-44"><a href="#cb5-44"></a>  <span class="cf">for</span> (N = <span class="dv">1</span>; N &lt; <span class="dv">900000000</span>; ++N) {</span>
+<span id="cb5-45"><a href="#cb5-45"></a>    res = FUN_001007cc(N);</span>
+<span id="cb5-46"><a href="#cb5-46"></a>    <span class="cf">if</span> (target_group.find(res) != target_group.end()){</span>
+<span id="cb5-47"><a href="#cb5-47"></a>      target_group[res].push_back(N);</span>
+<span id="cb5-48"><a href="#cb5-48"></a>    }</span>
+<span id="cb5-49"><a href="#cb5-49"></a>  }</span>
+<span id="cb5-50"><a href="#cb5-50"></a></span>
+<span id="cb5-51"><a href="#cb5-51"></a>  <span class="cf">for</span> (<span class="kw">auto</span>&amp; t : target_group) {</span>
+<span id="cb5-52"><a href="#cb5-52"></a>    printf(<span class="st">&quot;</span><span class="sc">%u</span><span class="st">:&quot;</span>, t.first);</span>
+<span id="cb5-53"><a href="#cb5-53"></a>    <span class="cf">for</span> (<span class="kw">auto</span>&amp; n : t.second) {</span>
+<span id="cb5-54"><a href="#cb5-54"></a>      printf(<span class="st">&quot;</span><span class="sc">%u</span><span class="st">,&quot;</span>, n);</span>
+<span id="cb5-55"><a href="#cb5-55"></a>    }</span>
+<span id="cb5-56"><a href="#cb5-56"></a>    printf(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb5-57"><a href="#cb5-57"></a>  }</span>
+<span id="cb5-58"><a href="#cb5-58"></a>  </span>
+<span id="cb5-59"><a href="#cb5-59"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb5-60"><a href="#cb5-60"></a>}</span></code></pre></div>
 <h2 id="lookup-the-targets">Lookup the targets</h2>
 <p>Now we iterate through the array to find matches, convert number at <code>arr[cur+1]-1</code> in <code>target_group[arr[cur]]</code> to <code>char</code>, concatenate all the chars we get a long description about Collatz conjecture and the flag is at the end of it. It took about 28sec to generate the result.</p>
-<pre><code>target_group = {}
-
-with open(&#39;target_group&#39;) as fd:
-    while True:
-        l = fd.readline()
-        if l == None or l == &#39;&#39;:
-            break
-        t = l.split(&quot;:&quot;)
-        target_group[int(t[0])] = list(map(int, t[1].split(&#39;,&#39;)[:-1]))
-
-flag = &#39;&#39;
-
-for cur in range(0, len(arr), 2):
-    if target_group[arr[cur]] is not None:
-        if arr[cur+1] &lt;= len(target_group[arr[cur]]):
-            N = target_group[arr[cur]][arr[cur+1]-1]
-            print(N, (N+0xca5b17ff)%256, chr((N+0xca5b17ff)%256))
-            flag += chr((N+0xca5b17ff)%256)
-print(&#39;flag:&#39;, flag)</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>target_group <span class="op">=</span> {}</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&#39;target_group&#39;</span>) <span class="im">as</span> fd:</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-5"><a href="#cb6-5"></a>        l <span class="op">=</span> fd.readline()</span>
+<span id="cb6-6"><a href="#cb6-6"></a>        <span class="cf">if</span> l <span class="op">==</span> <span class="va">None</span> <span class="kw">or</span> l <span class="op">==</span> <span class="st">&#39;&#39;</span>:</span>
+<span id="cb6-7"><a href="#cb6-7"></a>            <span class="cf">break</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>        t <span class="op">=</span> l.split(<span class="st">&quot;:&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9"></a>        target_group[<span class="bu">int</span>(t[<span class="dv">0</span>])] <span class="op">=</span> <span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">int</span>, t[<span class="dv">1</span>].split(<span class="st">&#39;,&#39;</span>)[:<span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a>flag <span class="op">=</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="cf">for</span> cur <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(arr), <span class="dv">2</span>):</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="cf">if</span> target_group[arr[cur]] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb6-15"><a href="#cb6-15"></a>        <span class="cf">if</span> arr[cur<span class="op">+</span><span class="dv">1</span>] <span class="op">&lt;=</span> <span class="bu">len</span>(target_group[arr[cur]]):</span>
+<span id="cb6-16"><a href="#cb6-16"></a>            N <span class="op">=</span> target_group[arr[cur]][arr[cur<span class="op">+</span><span class="dv">1</span>]<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb6-17"><a href="#cb6-17"></a>            <span class="bu">print</span>(N, (N<span class="op">+</span><span class="bn">0xca5b17ff</span>)<span class="op">%</span><span class="dv">256</span>, <span class="bu">chr</span>((N<span class="op">+</span><span class="bn">0xca5b17ff</span>)<span class="op">%</span><span class="dv">256</span>))</span>
+<span id="cb6-18"><a href="#cb6-18"></a>            flag <span class="op">+=</span> <span class="bu">chr</span>((N<span class="op">+</span><span class="bn">0xca5b17ff</span>)<span class="op">%</span><span class="dv">256</span>)</span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="bu">print</span>(<span class="st">&#39;flag:&#39;</span>, flag)</span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

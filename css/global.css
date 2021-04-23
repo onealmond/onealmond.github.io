@@ -6,6 +6,11 @@ body {
 
 a {
   text-decoration: none;
+  color: #D638B8;
+}
+
+li::a {
+  text-decoration: none;
   color: #fff;
 }
 

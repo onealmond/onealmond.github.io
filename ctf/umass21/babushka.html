@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,259 +95,259 @@
 <h1 class="title">Babushka</h1>
 </header>
 <p>In script <code>babushka.py</code>, there are 250 functions with random generated names, half of them are not called. To seperate them we generate a list of all the random generated names in file <code>func_names</code>, scan again to find thoses actually contribute to the final result, we only pay attention to those function listed in file <code>valid_funcs</code>.</p>
-<pre><code>for f in `cat func_names`;do c=$(grep $f babushka.py |wc -l);if [ $c -gt 1 ];then echo $f:$c;fi;done &gt; valid_funcs</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">for</span> <span class="ex">f</span> in <span class="kw">`</span><span class="fu">cat</span> func_names<span class="kw">`;do</span> <span class="va">c=$(</span><span class="fu">grep</span> <span class="va">$f</span> babushka.py <span class="kw">|</span><span class="fu">wc</span> -l<span class="va">)</span>;<span class="kw">if</span><span class="bu"> [</span> <span class="va">$c</span> <span class="ot">-gt</span> 1<span class="bu"> ]</span>;<span class="kw">then</span> <span class="bu">echo</span> <span class="va">$f</span>:<span class="va">$c</span><span class="kw">;fi</span>;<span class="kw">done</span> <span class="op">&gt;</span> <span class="ex">valid_funcs</span></span></code></pre></div>
 <p><code>check_key</code> takes input string as key and pads it to reach length of <code>128</code>, return a list of boolean value, <code>combiner</code> takes the list as parameter, return true if particular positions in the list is <code>True</code>.</p>
 <p>Run <code>combiner</code> only with key <code>UMASS</code>, we get a list of 23 <code>False</code> from <code>check_key</code>.</p>
-<pre><code>    key = input(&quot;Oi, babushka, what&#39;s the key? &quot;)
-    combiner = types.FunctionType(types.CodeType(*pickle.loads(b&#39;\x80\x04\x95\xcc\x00\x00\x00\x00\x00\x00\x00]\x94(K\x01K\x00K\x00K\x04K\x03KCC@d\x01}\x01|\x00D\x00]\x0c}\x02|\x01o\x12|\x02}\x01q\x08d\x02}\x03|\x00D\x00]\x0c}\x02|\x03|\x02O\x00}\x03q\x1e|\x01s4|\x03r8d\x02p&gt;|\x00d\x03\x19\x00S\x00\x94(N\x88\x89K\x00t\x94)(\x8c\nOUVCHXMRZO\x94\x8c\nGDOZHYKENT\x94\x8c\nTZCLOUEGVM\x94\x8c\nMMBJDKSFLR\x94t\x94\x8c\x0e&lt;OwOwhatsthis&gt;\x94\x8c\x0cany_combiner\x94J\xa2\xee\x81\x02C\x0e\x00\x01\x04\x01\x08\x01\n\x01\x04\x01\x08\x01\n\x01\x94))e.&#39;)), globals())
-
-    res = check_key(key)
-    print(res)</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>    key <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;Oi, babushka, what&#39;s the key? &quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>    combiner <span class="op">=</span> types.FunctionType(types.CodeType(<span class="op">*</span>pickle.loads(b<span class="st">&#39;</span><span class="ch">\x80\x04\x95\xcc\x00\x00\x00\x00\x00\x00\x00</span><span class="st">]</span><span class="ch">\x94</span><span class="st">(K</span><span class="ch">\x01</span><span class="st">K</span><span class="ch">\x00</span><span class="st">K</span><span class="ch">\x00</span><span class="st">K</span><span class="ch">\x04</span><span class="st">K</span><span class="ch">\x03</span><span class="st">KCC@d</span><span class="ch">\x01</span><span class="st">}</span><span class="ch">\x01</span><span class="st">|</span><span class="ch">\x00</span><span class="st">D</span><span class="ch">\x00</span><span class="st">]</span><span class="ch">\x0c</span><span class="st">}</span><span class="ch">\x02</span><span class="st">|</span><span class="ch">\x01</span><span class="st">o</span><span class="ch">\x12</span><span class="st">|</span><span class="ch">\x02</span><span class="st">}</span><span class="ch">\x01</span><span class="st">q</span><span class="ch">\x08</span><span class="st">d</span><span class="ch">\x02</span><span class="st">}</span><span class="ch">\x03</span><span class="st">|</span><span class="ch">\x00</span><span class="st">D</span><span class="ch">\x00</span><span class="st">]</span><span class="ch">\x0c</span><span class="st">}</span><span class="ch">\x02</span><span class="st">|</span><span class="ch">\x03</span><span class="st">|</span><span class="ch">\x02</span><span class="st">O</span><span class="ch">\x00</span><span class="st">}</span><span class="ch">\x03</span><span class="st">q</span><span class="ch">\x1e</span><span class="st">|</span><span class="ch">\x01</span><span class="st">s4|</span><span class="ch">\x03</span><span class="st">r8d</span><span class="ch">\x02</span><span class="st">p&gt;|</span><span class="ch">\x00</span><span class="st">d</span><span class="ch">\x03\x19\x00</span><span class="st">S</span><span class="ch">\x00\x94</span><span class="st">(N</span><span class="ch">\x88\x89</span><span class="st">K</span><span class="ch">\x00</span><span class="st">t</span><span class="ch">\x94</span><span class="st">)(</span><span class="ch">\x8c\n</span><span class="st">OUVCHXMRZO</span><span class="ch">\x94\x8c\n</span><span class="st">GDOZHYKENT</span><span class="ch">\x94\x8c\n</span><span class="st">TZCLOUEGVM</span><span class="ch">\x94\x8c\n</span><span class="st">MMBJDKSFLR</span><span class="ch">\x94</span><span class="st">t</span><span class="ch">\x94\x8c\x0e</span><span class="st">&lt;OwOwhatsthis&gt;</span><span class="ch">\x94\x8c\x0c</span><span class="st">any_combiner</span><span class="ch">\x94</span><span class="st">J</span><span class="ch">\xa2\xee\x81\x02</span><span class="st">C</span><span class="ch">\x0e\x00\x01\x04\x01\x08\x01\n\x01\x04\x01\x08\x01\n\x01\x94</span><span class="st">))e.&#39;</span>)), <span class="bu">globals</span>())</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    res <span class="op">=</span> check_key(key)</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="bu">print</span>(res)</span></code></pre></div>
 <p>Create a list of 23 <code>True</code>, change one position to <code>False</code> every time. As long as <code>res[0]</code> is <code>True</code>, the result is <code>Yes!</code>.</p>
-<pre><code>    res = [True] * 23
-    for i in range(len(res)):
-        res[i] = False
-        if combiner(res):
-            print(&quot;Yes!&quot;)
-        else:
-            print(&quot;No!&quot;)
-        res[i] = True</code></pre>
-<pre><code>python3 babushka.py &lt;&lt;&lt; UMASS
-Oi, babushka, what&#39;s the key? No!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!
-Yes!</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>    res <span class="op">=</span> [<span class="va">True</span>] <span class="op">*</span> <span class="dv">23</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(res)):</span>
+<span id="cb3-3"><a href="#cb3-3"></a>        res[i] <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>        <span class="cf">if</span> combiner(res):</span>
+<span id="cb3-5"><a href="#cb3-5"></a>            <span class="bu">print</span>(<span class="st">&quot;Yes!&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-7"><a href="#cb3-7"></a>            <span class="bu">print</span>(<span class="st">&quot;No!&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a>        res[i] <span class="op">=</span> <span class="va">True</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">python3</span> babushka.py <span class="op">&lt;&lt;&lt;</span> UMASS</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="ex">Oi</span>, babushka, what<span class="st">&#39;s the key? No!</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="st">Yes!</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="st">Yes!</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="st">Yes!</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="st">Yes!</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="st">Yes!</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="st">Yes!</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="st">Yes!</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="st">Yes!</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="st">Yes!</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="st">Yes!</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="st">Yes!</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="st">Yes!</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="st">Yes!</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="st">Yes!</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="st">Yes!</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="st">Yes!</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="st">Yes!</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="st">Yes!</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="st">Yes!</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="st">Yes!</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="st">Yes!</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="st">Yes!</span></span></code></pre></div>
 <p>Insert debug code <code>print(inspect.stack()[0].function, b)</code> into each function before return, we are able to observe how return of each function affect the final result. Play around with different conditions, it seems if the <code>14th</code> place of list returned by <code>DSIIPABGWUFNMMMZAGWI</code> function is <code>True</code>, the result is <code>Yes!</code>.</p>
-<pre><code>BHXFVDRTGGNFTXBCOMOJ [False, False, False, False]
-BFUQBRFEKUSFTVYAIUBC [False, False, False, False, False, False, False, False]                                                                                       LXNQKJIZEUZPFAQFDWIY [False, False, False, False, False, False, False, False, False, False, False, False]
-DSIIPABGWUFNMMMZAGWI [False, False, False, False, False, False, False, False, False, False, False, False, False, True, False, False]
-GXMDJYHXMQHQTWTTLDEF [False, False, False, False, False, False, False, False, False, False, False, False, False, True, False, False, False, False, False, False]
-AVMDIBYGKPJHLWZSFMZK [False, False, False, False, False, False, False, False, False, False, False, False, False, True, False, False, False, False, False, False, False, False, False, False]                                                                                                                                            
-QHNSNERTVUQZQIOVLXHU [True, False, False, False]
-...
-check_key: [True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True]
-Yes!</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>BHXFVDRTGGNFTXBCOMOJ [<span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>]</span>
+<span id="cb5-2"><a href="#cb5-2"></a>BFUQBRFEKUSFTVYAIUBC [<span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>]                                                                                       LXNQKJIZEUZPFAQFDWIY [<span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>]</span>
+<span id="cb5-3"><a href="#cb5-3"></a>DSIIPABGWUFNMMMZAGWI [<span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">True</span>, <span class="va">False</span>, <span class="va">False</span>]</span>
+<span id="cb5-4"><a href="#cb5-4"></a>GXMDJYHXMQHQTWTTLDEF [<span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">True</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>]</span>
+<span id="cb5-5"><a href="#cb5-5"></a>AVMDIBYGKPJHLWZSFMZK [<span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">True</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>]                                                                                                                                            </span>
+<span id="cb5-6"><a href="#cb5-6"></a>QHNSNERTVUQZQIOVLXHU [<span class="va">True</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>]</span>
+<span id="cb5-7"><a href="#cb5-7"></a>...</span>
+<span id="cb5-8"><a href="#cb5-8"></a>check_key: [<span class="va">True</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">False</span>, <span class="va">True</span>]</span>
+<span id="cb5-9"><a href="#cb5-9"></a>Yes<span class="op">!</span></span></code></pre></div>
 <p>The 14th value is controlled by bytecode in function <code>DSIIPABGWUFNMMMZAGWI</code>. Disassemble bytecode (<code>code0</code>) in function <code>DSIIPABGWUFNMMMZAGWI</code> with Python module <code>dis</code>, we get another piece of bytecode(<code>code1</code>), disassemble <code>code1</code> we get bytecodes (<code>code2</code>) without any further call to randomly named function. Every return appends a <code>True</code> or <code>False</code> to the list, so return of <code>code1</code> might give us what we what.</p>
-<pre><code>import types,pickle,dis
-code = types.CodeType(*pickle.loads(b&#39;\x80\x04\x95\x11\x13\x00\x00\x00\x00\x00\x00]\x94(K\x01K\x00K...\x01\x14\x01\x16\x018\x01\x06\x01\x1a\x01\x0c\x01\x94))e.&#39;))
-dis.disco(code)</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">import</span> types,pickle,dis</span>
+<span id="cb6-2"><a href="#cb6-2"></a>code <span class="op">=</span> types.CodeType(<span class="op">*</span>pickle.loads(b<span class="st">&#39;</span><span class="ch">\x80\x04\x95\x11\x13\x00\x00\x00\x00\x00\x00</span><span class="st">]</span><span class="ch">\x94</span><span class="st">(K</span><span class="ch">\x01</span><span class="st">K</span><span class="ch">\x00</span><span class="st">K...</span><span class="ch">\x01\x14\x01\x16\x01</span><span class="st">8</span><span class="ch">\x01\x06\x01\x1a\x01\x0c\x01\x94</span><span class="st">))e.&#39;</span>))</span>
+<span id="cb6-3"><a href="#cb6-3"></a>dis.disco(code)</span></code></pre></div>
 <p>Now take a look into the dissambled <code>code1</code>, to make it return <code>True</code> we need to make the key meet all the requirements here.</p>
-<pre><code>42069667           0 LOAD_CONST               1 (True)
-                   2 STORE_FAST               1 (OVXPEYYWSK)
-
-42069668           4 LOAD_FAST                1 (OVXPEYYWSK)
-                   6 JUMP_IF_FALSE_OR_POP   198
-                   8 LOAD_GLOBAL              0 (ord)
-                  10 LOAD_FAST                0 (QFBKDVBLQX)
-                  12 LOAD_CONST               2 (12)
-                  14 BINARY_SUBSCR
-                  16 CALL_FUNCTION            1
-                  18 LOAD_CONST               3 (128)
-                  20 BINARY_AND
-                  22 LOAD_CONST               4 (7)
-                  24 BINARY_RSHIFT
-                  26 LOAD_CONST               5 (0)
-                  28 COMPARE_OP               2 (==)
-                  30 JUMP_IF_FALSE_OR_POP   198
-                  32 LOAD_GLOBAL              0 (ord)
-                  34 LOAD_FAST                0 (QFBKDVBLQX)
-                  36 LOAD_CONST               2 (12)
-                  38 BINARY_SUBSCR
-                  40 CALL_FUNCTION            1
-                  42 LOAD_CONST               6 (64)
-                  44 BINARY_AND
-                  46 LOAD_CONST               7 (6)
-                  48 BINARY_RSHIFT
-                  50 LOAD_CONST               8 (1)
-                  52 COMPARE_OP               2 (==)
-                  54 JUMP_IF_FALSE_OR_POP   198
-                  56 LOAD_GLOBAL              0 (ord)
-                  58 LOAD_FAST                0 (QFBKDVBLQX)
-                  60 LOAD_CONST               2 (12)
-                  62 BINARY_SUBSCR
-                  64 CALL_FUNCTION            1
-                  66 LOAD_CONST               9 (32)
-                  68 BINARY_AND
-                  70 LOAD_CONST              10 (5)
-                  72 BINARY_RSHIFT
-                  74 LOAD_CONST               8 (1)
-                  76 COMPARE_OP               2 (==)
-                  78 JUMP_IF_FALSE_OR_POP   198
-                  80 LOAD_GLOBAL              0 (ord)
-                  82 LOAD_FAST                0 (QFBKDVBLQX)
-                  84 LOAD_CONST               2 (12)
-                  86 BINARY_SUBSCR
-                  88 CALL_FUNCTION            1
-                  90 LOAD_CONST              11 (16)
-                  92 BINARY_AND
-                  94 LOAD_CONST              12 (4)
-                  96 BINARY_RSHIFT
-                  98 LOAD_CONST               5 (0)
-                 100 COMPARE_OP               2 (==)
-                 102 JUMP_IF_FALSE_OR_POP   198
-                 104 LOAD_GLOBAL              0 (ord)
-                 106 LOAD_FAST                0 (QFBKDVBLQX)
-                 108 LOAD_CONST               2 (12)
-                 110 BINARY_SUBSCR
-                 112 CALL_FUNCTION            1
-                 114 LOAD_CONST              13 (8)
-                 116 BINARY_AND
-                 118 LOAD_CONST              14 (3)
-                 120 BINARY_RSHIFT
-                 122 LOAD_CONST               8 (1)
-                 124 COMPARE_OP               2 (==)
-                 126 JUMP_IF_FALSE_OR_POP   198
-                 128 LOAD_GLOBAL              0 (ord)
-                 130 LOAD_FAST                0 (QFBKDVBLQX)
-                 132 LOAD_CONST               2 (12)
-                 134 BINARY_SUBSCR
-                 136 CALL_FUNCTION            1
-                 138 LOAD_CONST              12 (4)
-                 140 BINARY_AND
-                 142 LOAD_CONST              15 (2)
-                 144 BINARY_RSHIFT
-                 146 LOAD_CONST               5 (0)
-                 148 COMPARE_OP               2 (==)
-                 150 JUMP_IF_FALSE_OR_POP   198
-                 152 LOAD_GLOBAL              0 (ord)
-                 154 LOAD_FAST                0 (QFBKDVBLQX)
-                 156 LOAD_CONST               2 (12)
-                 158 BINARY_SUBSCR
-                 160 CALL_FUNCTION            1
-                 162 LOAD_CONST              15 (2)
-                 164 BINARY_AND
-                 166 LOAD_CONST               8 (1)
-                 168 BINARY_RSHIFT
-                 170 LOAD_CONST               5 (0)
-                 172 COMPARE_OP               2 (==)
-                 174 JUMP_IF_FALSE_OR_POP   198
-                 176 LOAD_GLOBAL              0 (ord)
-                 178 LOAD_FAST                0 (QFBKDVBLQX)
-                 180 LOAD_CONST               2 (12)
-                 182 BINARY_SUBSCR
-                 184 CALL_FUNCTION            1
-                 186 LOAD_CONST               8 (1)
-                 188 BINARY_AND
-                 190 LOAD_CONST               5 (0)
-                 192 BINARY_RSHIFT
-                 194 LOAD_CONST               8 (1)
-                 196 COMPARE_OP               2 (==)
-                 ...
-
-                3976 LOAD_GLOBAL              0 (ord)
-                3978 LOAD_FAST                0 (QFBKDVBLQX)
-                3980 LOAD_CONST               7 (6)
-                3982 BINARY_SUBSCR
-                3984 CALL_FUNCTION            1
-                3986 LOAD_CONST              19 (15)
-                3988 BINARY_AND
-                3990 LOAD_CONST              12 (4)
-                3992 BINARY_XOR
-                3994 LOAD_CONST               5 (0)
-                3996 COMPARE_OP               2 (==)
-             &gt;&gt; 3998 STORE_FAST               1 (OVXPEYYWSK)
-
-42069715        4000 LOAD_FAST                1 (OVXPEYYWSK)
-                4002 EXTENDED_ARG            15
-                4004 JUMP_IF_FALSE_OR_POP  4020
-                4006 LOAD_GLOBAL              0 (ord)
-                4008 LOAD_FAST                0 (QFBKDVBLQX)
-                4010 LOAD_CONST              61 (27)
-                4012 BINARY_SUBSCR
-                4014 CALL_FUNCTION            1
-                4016 LOAD_CONST              51 (95)
-                4018 COMPARE_OP               2 (==)
-             &gt;&gt; 4020 STORE_FAST               1 (OVXPEYYWSK)
-
-42069716        4022 LOAD_FAST                1 (OVXPEYYWSK)
-                4024 BUILD_LIST               1
-                4026 STORE_FAST               1 (OVXPEYYWSK)
-
-42069717        4028 LOAD_GLOBAL              2 (types)
-                4030 LOAD_METHOD              3 (FunctionType)
-                4032 LOAD_GLOBAL              2 (types)
-                4034 LOAD_ATTR                4 (CodeType)
-                4036 LOAD_GLOBAL              5 (pickle)
-                4038 LOAD_METHOD              6 (loads)
-                4040 LOAD_CONST              62 (b&#39;\x80\x04\x95\x11\x13\x00\x00\x00\x00\x00\x00]\x94(K\x01K\x00K\x00K\x04K\x04KCBL\x11\x00\x00d\x01}\x01|\x01o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\t@\x00d\n?\x00d\x05k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x05k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02o\xc6t\x00|\x00d\x02\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01o\xfat\x00|\x00d\x0f\x19\x00\x83\x01d\x10@\x00d\x11A\x00d\x05k\x02o\xfat\x00|\x00d\x0f\x19\x00\x83\x01d\x12@\x00d\x0eA\x00d\x05k\x02}\x01|\x01\x90\x01o\x10t\x00|\x00d\x13\x19\x00\x83\x01d\x14k\x02}\x01|\x01\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x05k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x08k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\x01o\xe4t\x00|\x00d\x15\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\x01o\xfat\x00|\x00d\x16\x19\x00\x83\x01d\x17k\x02}\x01|\x01\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\t@\x00d\n?\x00d\x05k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x08k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\x02o\xcet\x00|\x00d\t\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x05k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x08k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\x03o\xa2t\x00|\x00d\x18\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x05k\x02}\x01|\x01\x90\x03o\xb8t\x00|\x00d\x0c\x19\x00\x83\x01d\x19k\x02}\x01|\x01\x90\x03o\xf0t\x00|\x00d\x1a\x19\x00\x83\x01d\x10@\x00d\x11A\x00d\x05k\x02\x90\x03o\xf0t\x00|\x00d\x1a\x19\x00\x83\x01d\x12@\x00d\x1bA\x00d\x05k\x02}\x01|\x01\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\x04o\xc4t\x00|\x00d\x1c\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x05k\x02}\x01|\x00d\x00d\n\x85\x02\x19\x00d\x1dk\x03\x90\x04r\xded\x1eg\x01S\x00|\x01\x90\x04o\xf2t\x00|\x00d\x1f\x19\x00\x83\x01d k\x02}\x01|\x01\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x05k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x05k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\x05o\xc6t\x00|\x00d!\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x05k\x02}\x01|\x01\x90\x05o\xdct\x00|\x00d\x0e\x19\x00\x83\x01d&quot;k\x02}\x01|\x01\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x05k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\x06o\xb0t\x00|\x00d#\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x05k\x02}\x01|\x01\x90\x06o\xe8t\x00|\x00d$\x19\x00\x83\x01d\x10@\x00d\x11A\x00d\x05k\x02\x90\x06o\xe8t\x00|\x00d$\x19\x00\x83\x01d\x12@\x00d\x08A\x00d\x05k\x02}\x01|\x01\x90\x06o\xfet\x00|\x00d%\x19\x00\x83\x01d&amp;k\x02}\x01t\x00|\x00d\x05\x19\x00\x83\x01d\x10@\x00d\&#39;k\x02\x90\x07r\x1cd(}\x02n\x04d)}\x02|\x01\x90\x07o4t\x00|\x00d*\x19\x00\x83\x01d+k\x02}\x01|\x01\x90\x07olt\x00|\x00d,\x19\x00\x83\x01d\x10@\x00d-A\x00d\x05k\x02\x90\x07olt\x00|\x00d,\x19\x00\x83\x01d\x12@\x00d\x02A\x00d\x05k\x02}\x01|\x01\x90\x07o\x82t\x00|\x00d.\x19\x00\x83\x01d/k\x02}\x01|\x01\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\t@\x00d\n?\x00d\x05k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x05k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x08k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\x08oVt\x00|\x00d\x08\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\t@\x00d\n?\x00d\x05k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x08k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\to*t\x00|\x00d\x1b\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01t\x00d0\x83\x01t\x00|\x00d\x05\x19\x00\x83\x01A\x00}\x03|\x01\x90\toTt\x00|\x00d\x05\x19\x00\x83\x01d1k\x02}\x01|\x00d\x00d\n\x85\x02\x19\x00d\x1dk\x03\x90\trnd\x1eg\x01S\x00|\x01\x90\to\x82t\x00|\x00d2\x19\x00\x83\x01d\x17k\x02}\x01t\x00|\x00d\x05\x19\x00\x83\x01d\x10@\x00d2k\x02\x90\tr\xa0d3}\x02n\x04d4}\x02|\x01\x90\to\xdat\x00|\x00d\r\x19\x00\x83\x01d\x10@\x00d5A\x00d\x05k\x02\x90\to\xdat\x00|\x00d\r\x19\x00\x83\x01d\x12@\x00d\rA\x00d\x05k\x02}\x01|\x01\x90\to\xf0t\x00|\x00d\x04\x19\x00\x83\x01d6k\x02}\x01|\x01\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x08k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\no\xc4t\x00|\x00d7\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01t\x01|\x00\x83\x01}\x02|\x01\x90\x0bo\x04t\x00|\x00d8\x19\x00\x83\x01d\x10@\x00d-A\x00d\x05k\x02\x90\x0bo\x04t\x00|\x00d8\x19\x00\x83\x01d\x12@\x00d\x0eA\x00d\x05k\x02}\x01|\x01\x90\x0bo\x1at\x00|\x00d9\x19\x00\x83\x01d\x17k\x02}\x01|\x00d\x00d\n\x85\x02\x19\x00d\x1dk\x03\x90\x0br4d\x1eg\x01S\x00|\x01\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x05k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\x0co\x06t\x00|\x00d\x12\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x05k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x05k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\x0co\xdat\x00|\x00d\x07\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\x0co\xf0t\x00|\x00d:\x19\x00\x83\x01d;k\x02}\x01|\x01\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\ro\xc4t\x00|\x00d\x0b\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\ro\xfct\x00|\x00d&lt;\x19\x00\x83\x01d\x10@\x00d5A\x00d\x05k\x02\x90\ro\xfct\x00|\x00d&lt;\x19\x00\x83\x01d\x12@\x00d\x12A\x00d\x05k\x02}\x01|\x01\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x08k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x08k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x05k\x02\x90\x0eo\xd0t\x00|\x00d=\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x05k\x02}\x01t\x02\xa0\x02|\x00\xa1\x01\x01\x00t\x00|\x00d\x05\x19\x00\x83\x01d\x10@\x00d*k\x02\x90\x0er\xf8d2}\x02n\x04d&gt;}\x02|\x01\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x05k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x05k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\x0fo\xcet\x00|\x00d&gt;\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\x0fo\xe4t\x00|\x00d?\x19\x00\x83\x01d@k\x02}\x01|\x01\x90\x0fo\xfat\x00|\x00d\n\x19\x00\x83\x01dAk\x02}\x01|\x01\x90\x10o\x10t\x00|\x00dB\x19\x00\x83\x01dCk\x02}\x01t\x02\xa0\x02|\x00\xa1\x01\x01\x00|\x01\x90\x10o0t\x00|\x00d3\x19\x00\x83\x01dDk\x02}\x01dE}\x02|\x01\x90\x10oJt\x00|\x00d\&#39;\x19\x00\x83\x01d k\x02}\x01|\x01\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x03@\x00d\x04?\x00d\x05k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x06@\x00d\x07?\x00d\x05k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\t@\x00d\n?\x00d\x08k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x0b@\x00d\x02?\x00d\x08k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x0c@\x00d\r?\x00d\x05k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x02@\x00d\x0e?\x00d\x05k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x0e@\x00d\x08?\x00d\x08k\x02\x90\x11o\x1et\x00|\x00d)\x19\x00\x83\x01d\x08@\x00d\x05?\x00d\x08k\x02}\x01|\x01\x90\x11o4t\x00|\x00dE\x19\x00\x83\x01d\x19k\x02}\x01|\x01g\x01}\x01t\x03|\x00\x83\x01|\x01\x17\x00}\x01|\x01S\x00\x94(N\x88K\x04K\x80K\x07K\x00K@K\x06K\x01K K\x05K\x10K\x08K\x03K\x02K!K\xf0K`K\x0fK\x0cKrK\x18K\x11K3K\rKwK\x0eK\tK#\x8c\x05UMASS\x94\x89K\x13KcK&amp;KAK\x15K\x0bK\&#39;KdK%K*K$K&quot;KyK\x1dKpK\x14Kt\x8c\x01L\x94KUK\x1eK\x17K?KPK0K)K\x1fK\x19K\x1aK_K\x12K\x16K(K\x1cKaK{K\nKsKiK\x1bt\x94(\x8c\x03ord\x94\x8c\x03len\x94\x8c\x04copy\x94\x8c\x14LXNQKJIZEUZPFAQFDWIY\x94t\x94(\x8c\nEPGRFNWEUW\x94\x8c\nCYDTCHDYJM\x94\x8c\nWJLLYDLVQX\x94\x8c\nECIOZNQGST\x94t\x94\x8c\x0e&lt;OwOwhatsthis&gt;\x94\x8c\x14AZEOCEVBKZRBNUDWIWUS\x94J\xa2\xee\x81\x02C\x84\x00\x01\x04\x01\xc4\x014\x01\x16\x01\xd4\x01\x16\x01\xd4\x01\xd4\x01\x16\x018\x01\xd4\x01\x12\x01\x06\x01\x16\x01\xd4\x01\x16\x01\xd4\x018\x01\x16\x01\x16\x01\x06\x02\x04\x01\x16\x018\x01\x16\x01\xd4\x01\xd4\x01\x14\x01\x16\x01\x12\x01\x06\x01\x16\x01\x16\x01\x06\x02\x04\x018\x01\x16\x01\xd4\x01\x08\x018\x01\x16\x01\x12\x01\x06\x01\xd4\x01\xd4\x01\x16\x01\xd4\x018\x01\xd4\x01\n\x01\x16\x01\x06\x02\x04\x01\xd4\x01\x16\x01\x16\x01\x16\x01\n\x01\x16\x01\x04\x01\x16\x01\xd4\x01\x16\x01\x06\x01\x0c\x01\x94))e.&#39;)
-                4042 CALL_METHOD              1
-                4044 CALL_FUNCTION_EX         0
-                4046 LOAD_GLOBAL              7 (globals)
-                4048 CALL_FUNCTION            0
-                4050 CALL_METHOD              2
-                4052 STORE_FAST               3 (RWNMTPXTXX)
-
-42069718        4054 LOAD_FAST                3 (RWNMTPXTXX)
-                4056 LOAD_FAST                0 (QFBKDVBLQX)
-                4058 CALL_FUNCTION            1
-                4060 LOAD_FAST                1 (OVXPEYYWSK)
-                4062 BINARY_ADD
-                4064 STORE_FAST               1 (OVXPEYYWSK)
-
-42069719        4066 LOAD_FAST                1 (OVXPEYYWSK)
-                4068 RETURN_VALUE</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb7-1"><a href="#cb7-1"></a><span class="dv">42069667</span>           <span class="dv">0</span> LOAD_CONST               <span class="dv">1</span> (True)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>                   <span class="dv">2</span> STORE_FAST               <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-3"><a href="#cb7-3"></a></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="dv">42069668</span>           <span class="dv">4</span> LOAD_FAST                <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>                   <span class="dv">6</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>                   <span class="dv">8</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>                  <span class="dv">10</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>                  <span class="dv">12</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>                  <span class="dv">14</span> BINARY_SUBSCR</span>
+<span id="cb7-10"><a href="#cb7-10"></a>                  <span class="dv">16</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>                  <span class="dv">18</span> LOAD_CONST               <span class="dv">3</span> (<span class="dv">128</span>)</span>
+<span id="cb7-12"><a href="#cb7-12"></a>                  <span class="dv">20</span> BINARY_AND</span>
+<span id="cb7-13"><a href="#cb7-13"></a>                  <span class="dv">22</span> LOAD_CONST               <span class="dv">4</span> (<span class="dv">7</span>)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>                  <span class="dv">24</span> BINARY_RSHIFT</span>
+<span id="cb7-15"><a href="#cb7-15"></a>                  <span class="dv">26</span> LOAD_CONST               <span class="dv">5</span> (<span class="dv">0</span>)</span>
+<span id="cb7-16"><a href="#cb7-16"></a>                  <span class="dv">28</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>                  <span class="dv">30</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>                  <span class="dv">32</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-19"><a href="#cb7-19"></a>                  <span class="dv">34</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-20"><a href="#cb7-20"></a>                  <span class="dv">36</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-21"><a href="#cb7-21"></a>                  <span class="dv">38</span> BINARY_SUBSCR</span>
+<span id="cb7-22"><a href="#cb7-22"></a>                  <span class="dv">40</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>                  <span class="dv">42</span> LOAD_CONST               <span class="dv">6</span> (<span class="dv">64</span>)</span>
+<span id="cb7-24"><a href="#cb7-24"></a>                  <span class="dv">44</span> BINARY_AND</span>
+<span id="cb7-25"><a href="#cb7-25"></a>                  <span class="dv">46</span> LOAD_CONST               <span class="dv">7</span> (<span class="dv">6</span>)</span>
+<span id="cb7-26"><a href="#cb7-26"></a>                  <span class="dv">48</span> BINARY_RSHIFT</span>
+<span id="cb7-27"><a href="#cb7-27"></a>                  <span class="dv">50</span> LOAD_CONST               <span class="dv">8</span> (<span class="dv">1</span>)</span>
+<span id="cb7-28"><a href="#cb7-28"></a>                  <span class="dv">52</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-29"><a href="#cb7-29"></a>                  <span class="dv">54</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-30"><a href="#cb7-30"></a>                  <span class="dv">56</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-31"><a href="#cb7-31"></a>                  <span class="dv">58</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-32"><a href="#cb7-32"></a>                  <span class="dv">60</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-33"><a href="#cb7-33"></a>                  <span class="dv">62</span> BINARY_SUBSCR</span>
+<span id="cb7-34"><a href="#cb7-34"></a>                  <span class="dv">64</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-35"><a href="#cb7-35"></a>                  <span class="dv">66</span> LOAD_CONST               <span class="dv">9</span> (<span class="dv">32</span>)</span>
+<span id="cb7-36"><a href="#cb7-36"></a>                  <span class="dv">68</span> BINARY_AND</span>
+<span id="cb7-37"><a href="#cb7-37"></a>                  <span class="dv">70</span> LOAD_CONST              <span class="dv">10</span> (<span class="dv">5</span>)</span>
+<span id="cb7-38"><a href="#cb7-38"></a>                  <span class="dv">72</span> BINARY_RSHIFT</span>
+<span id="cb7-39"><a href="#cb7-39"></a>                  <span class="dv">74</span> LOAD_CONST               <span class="dv">8</span> (<span class="dv">1</span>)</span>
+<span id="cb7-40"><a href="#cb7-40"></a>                  <span class="dv">76</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-41"><a href="#cb7-41"></a>                  <span class="dv">78</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-42"><a href="#cb7-42"></a>                  <span class="dv">80</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-43"><a href="#cb7-43"></a>                  <span class="dv">82</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-44"><a href="#cb7-44"></a>                  <span class="dv">84</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-45"><a href="#cb7-45"></a>                  <span class="dv">86</span> BINARY_SUBSCR</span>
+<span id="cb7-46"><a href="#cb7-46"></a>                  <span class="dv">88</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-47"><a href="#cb7-47"></a>                  <span class="dv">90</span> LOAD_CONST              <span class="dv">11</span> (<span class="dv">16</span>)</span>
+<span id="cb7-48"><a href="#cb7-48"></a>                  <span class="dv">92</span> BINARY_AND</span>
+<span id="cb7-49"><a href="#cb7-49"></a>                  <span class="dv">94</span> LOAD_CONST              <span class="dv">12</span> (<span class="dv">4</span>)</span>
+<span id="cb7-50"><a href="#cb7-50"></a>                  <span class="dv">96</span> BINARY_RSHIFT</span>
+<span id="cb7-51"><a href="#cb7-51"></a>                  <span class="dv">98</span> LOAD_CONST               <span class="dv">5</span> (<span class="dv">0</span>)</span>
+<span id="cb7-52"><a href="#cb7-52"></a>                 <span class="dv">100</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-53"><a href="#cb7-53"></a>                 <span class="dv">102</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-54"><a href="#cb7-54"></a>                 <span class="dv">104</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-55"><a href="#cb7-55"></a>                 <span class="dv">106</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-56"><a href="#cb7-56"></a>                 <span class="dv">108</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-57"><a href="#cb7-57"></a>                 <span class="dv">110</span> BINARY_SUBSCR</span>
+<span id="cb7-58"><a href="#cb7-58"></a>                 <span class="dv">112</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-59"><a href="#cb7-59"></a>                 <span class="dv">114</span> LOAD_CONST              <span class="dv">13</span> (<span class="dv">8</span>)</span>
+<span id="cb7-60"><a href="#cb7-60"></a>                 <span class="dv">116</span> BINARY_AND</span>
+<span id="cb7-61"><a href="#cb7-61"></a>                 <span class="dv">118</span> LOAD_CONST              <span class="dv">14</span> (<span class="dv">3</span>)</span>
+<span id="cb7-62"><a href="#cb7-62"></a>                 <span class="dv">120</span> BINARY_RSHIFT</span>
+<span id="cb7-63"><a href="#cb7-63"></a>                 <span class="dv">122</span> LOAD_CONST               <span class="dv">8</span> (<span class="dv">1</span>)</span>
+<span id="cb7-64"><a href="#cb7-64"></a>                 <span class="dv">124</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-65"><a href="#cb7-65"></a>                 <span class="dv">126</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-66"><a href="#cb7-66"></a>                 <span class="dv">128</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-67"><a href="#cb7-67"></a>                 <span class="dv">130</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-68"><a href="#cb7-68"></a>                 <span class="dv">132</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-69"><a href="#cb7-69"></a>                 <span class="dv">134</span> BINARY_SUBSCR</span>
+<span id="cb7-70"><a href="#cb7-70"></a>                 <span class="dv">136</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-71"><a href="#cb7-71"></a>                 <span class="dv">138</span> LOAD_CONST              <span class="dv">12</span> (<span class="dv">4</span>)</span>
+<span id="cb7-72"><a href="#cb7-72"></a>                 <span class="dv">140</span> BINARY_AND</span>
+<span id="cb7-73"><a href="#cb7-73"></a>                 <span class="dv">142</span> LOAD_CONST              <span class="dv">15</span> (<span class="dv">2</span>)</span>
+<span id="cb7-74"><a href="#cb7-74"></a>                 <span class="dv">144</span> BINARY_RSHIFT</span>
+<span id="cb7-75"><a href="#cb7-75"></a>                 <span class="dv">146</span> LOAD_CONST               <span class="dv">5</span> (<span class="dv">0</span>)</span>
+<span id="cb7-76"><a href="#cb7-76"></a>                 <span class="dv">148</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-77"><a href="#cb7-77"></a>                 <span class="dv">150</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-78"><a href="#cb7-78"></a>                 <span class="dv">152</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-79"><a href="#cb7-79"></a>                 <span class="dv">154</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-80"><a href="#cb7-80"></a>                 <span class="dv">156</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-81"><a href="#cb7-81"></a>                 <span class="dv">158</span> BINARY_SUBSCR</span>
+<span id="cb7-82"><a href="#cb7-82"></a>                 <span class="dv">160</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-83"><a href="#cb7-83"></a>                 <span class="dv">162</span> LOAD_CONST              <span class="dv">15</span> (<span class="dv">2</span>)</span>
+<span id="cb7-84"><a href="#cb7-84"></a>                 <span class="dv">164</span> BINARY_AND</span>
+<span id="cb7-85"><a href="#cb7-85"></a>                 <span class="dv">166</span> LOAD_CONST               <span class="dv">8</span> (<span class="dv">1</span>)</span>
+<span id="cb7-86"><a href="#cb7-86"></a>                 <span class="dv">168</span> BINARY_RSHIFT</span>
+<span id="cb7-87"><a href="#cb7-87"></a>                 <span class="dv">170</span> LOAD_CONST               <span class="dv">5</span> (<span class="dv">0</span>)</span>
+<span id="cb7-88"><a href="#cb7-88"></a>                 <span class="dv">172</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-89"><a href="#cb7-89"></a>                 <span class="dv">174</span> JUMP_IF_FALSE_OR_POP   <span class="dv">198</span></span>
+<span id="cb7-90"><a href="#cb7-90"></a>                 <span class="dv">176</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-91"><a href="#cb7-91"></a>                 <span class="dv">178</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-92"><a href="#cb7-92"></a>                 <span class="dv">180</span> LOAD_CONST               <span class="dv">2</span> (<span class="dv">12</span>)</span>
+<span id="cb7-93"><a href="#cb7-93"></a>                 <span class="dv">182</span> BINARY_SUBSCR</span>
+<span id="cb7-94"><a href="#cb7-94"></a>                 <span class="dv">184</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-95"><a href="#cb7-95"></a>                 <span class="dv">186</span> LOAD_CONST               <span class="dv">8</span> (<span class="dv">1</span>)</span>
+<span id="cb7-96"><a href="#cb7-96"></a>                 <span class="dv">188</span> BINARY_AND</span>
+<span id="cb7-97"><a href="#cb7-97"></a>                 <span class="dv">190</span> LOAD_CONST               <span class="dv">5</span> (<span class="dv">0</span>)</span>
+<span id="cb7-98"><a href="#cb7-98"></a>                 <span class="dv">192</span> BINARY_RSHIFT</span>
+<span id="cb7-99"><a href="#cb7-99"></a>                 <span class="dv">194</span> LOAD_CONST               <span class="dv">8</span> (<span class="dv">1</span>)</span>
+<span id="cb7-100"><a href="#cb7-100"></a>                 <span class="dv">196</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-101"><a href="#cb7-101"></a>                 ...</span>
+<span id="cb7-102"><a href="#cb7-102"></a></span>
+<span id="cb7-103"><a href="#cb7-103"></a>                <span class="dv">3976</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-104"><a href="#cb7-104"></a>                <span class="dv">3978</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-105"><a href="#cb7-105"></a>                <span class="dv">3980</span> LOAD_CONST               <span class="dv">7</span> (<span class="dv">6</span>)</span>
+<span id="cb7-106"><a href="#cb7-106"></a>                <span class="dv">3982</span> BINARY_SUBSCR</span>
+<span id="cb7-107"><a href="#cb7-107"></a>                <span class="dv">3984</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-108"><a href="#cb7-108"></a>                <span class="dv">3986</span> LOAD_CONST              <span class="dv">19</span> (<span class="dv">15</span>)</span>
+<span id="cb7-109"><a href="#cb7-109"></a>                <span class="dv">3988</span> BINARY_AND</span>
+<span id="cb7-110"><a href="#cb7-110"></a>                <span class="dv">3990</span> LOAD_CONST              <span class="dv">12</span> (<span class="dv">4</span>)</span>
+<span id="cb7-111"><a href="#cb7-111"></a>                <span class="dv">3992</span> BINARY_XOR</span>
+<span id="cb7-112"><a href="#cb7-112"></a>                <span class="dv">3994</span> LOAD_CONST               <span class="dv">5</span> (<span class="dv">0</span>)</span>
+<span id="cb7-113"><a href="#cb7-113"></a>                <span class="dv">3996</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-114"><a href="#cb7-114"></a>             &gt;&gt; <span class="dv">3998</span> STORE_FAST               <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-115"><a href="#cb7-115"></a></span>
+<span id="cb7-116"><a href="#cb7-116"></a><span class="dv">42069715</span>        <span class="dv">4000</span> LOAD_FAST                <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-117"><a href="#cb7-117"></a>                <span class="dv">4002</span> EXTENDED_ARG            <span class="dv">15</span></span>
+<span id="cb7-118"><a href="#cb7-118"></a>                <span class="dv">4004</span> JUMP_IF_FALSE_OR_POP  <span class="dv">4020</span></span>
+<span id="cb7-119"><a href="#cb7-119"></a>                <span class="dv">4006</span> LOAD_GLOBAL              <span class="dv">0</span> (ord)</span>
+<span id="cb7-120"><a href="#cb7-120"></a>                <span class="dv">4008</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-121"><a href="#cb7-121"></a>                <span class="dv">4010</span> LOAD_CONST              <span class="dv">61</span> (<span class="dv">27</span>)</span>
+<span id="cb7-122"><a href="#cb7-122"></a>                <span class="dv">4012</span> BINARY_SUBSCR</span>
+<span id="cb7-123"><a href="#cb7-123"></a>                <span class="dv">4014</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-124"><a href="#cb7-124"></a>                <span class="dv">4016</span> LOAD_CONST              <span class="dv">51</span> (<span class="dv">95</span>)</span>
+<span id="cb7-125"><a href="#cb7-125"></a>                <span class="dv">4018</span> COMPARE_OP               <span class="dv">2</span> (==)</span>
+<span id="cb7-126"><a href="#cb7-126"></a>             &gt;&gt; <span class="dv">4020</span> STORE_FAST               <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-127"><a href="#cb7-127"></a></span>
+<span id="cb7-128"><a href="#cb7-128"></a><span class="dv">42069716</span>        <span class="dv">4022</span> LOAD_FAST                <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-129"><a href="#cb7-129"></a>                <span class="dv">4024</span> BUILD_LIST               <span class="dv">1</span></span>
+<span id="cb7-130"><a href="#cb7-130"></a>                <span class="dv">4026</span> STORE_FAST               <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-131"><a href="#cb7-131"></a></span>
+<span id="cb7-132"><a href="#cb7-132"></a><span class="dv">42069717</span>        <span class="dv">4028</span> LOAD_GLOBAL              <span class="dv">2</span> (types)</span>
+<span id="cb7-133"><a href="#cb7-133"></a>                <span class="dv">4030</span> LOAD_METHOD              <span class="dv">3</span> (FunctionType)</span>
+<span id="cb7-134"><a href="#cb7-134"></a>                <span class="dv">4032</span> LOAD_GLOBAL              <span class="dv">2</span> (types)</span>
+<span id="cb7-135"><a href="#cb7-135"></a>                <span class="dv">4034</span> LOAD_ATTR                <span class="dv">4</span> (CodeType)</span>
+<span id="cb7-136"><a href="#cb7-136"></a>                <span class="dv">4036</span> LOAD_GLOBAL              <span class="dv">5</span> (pickle)</span>
+<span id="cb7-137"><a href="#cb7-137"></a>                <span class="dv">4038</span> LOAD_METHOD              <span class="dv">6</span> (loads)</span>
+<span id="cb7-138"><a href="#cb7-138"></a>                <span class="dv">4040</span> LOAD_CONST              <span class="dv">62</span> (b<span class="st">&#39;\x80\x04\x95\x11\x13\x00\x00...\x01\x0c\x01\x94))e.&#39;</span>)</span>
+<span id="cb7-139"><a href="#cb7-139"></a>                <span class="dv">4042</span> CALL_METHOD              <span class="dv">1</span></span>
+<span id="cb7-140"><a href="#cb7-140"></a>                <span class="dv">4044</span> CALL_FUNCTION_EX         <span class="dv">0</span></span>
+<span id="cb7-141"><a href="#cb7-141"></a>                <span class="dv">4046</span> LOAD_GLOBAL              <span class="dv">7</span> (globals)</span>
+<span id="cb7-142"><a href="#cb7-142"></a>                <span class="dv">4048</span> CALL_FUNCTION            <span class="dv">0</span></span>
+<span id="cb7-143"><a href="#cb7-143"></a>                <span class="dv">4050</span> CALL_METHOD              <span class="dv">2</span></span>
+<span id="cb7-144"><a href="#cb7-144"></a>                <span class="dv">4052</span> STORE_FAST               <span class="dv">3</span> (RWNMTPXTXX)</span>
+<span id="cb7-145"><a href="#cb7-145"></a></span>
+<span id="cb7-146"><a href="#cb7-146"></a><span class="dv">42069718</span>        <span class="dv">4054</span> LOAD_FAST                <span class="dv">3</span> (RWNMTPXTXX)</span>
+<span id="cb7-147"><a href="#cb7-147"></a>                <span class="dv">4056</span> LOAD_FAST                <span class="dv">0</span> (QFBKDVBLQX)</span>
+<span id="cb7-148"><a href="#cb7-148"></a>                <span class="dv">4058</span> CALL_FUNCTION            <span class="dv">1</span></span>
+<span id="cb7-149"><a href="#cb7-149"></a>                <span class="dv">4060</span> LOAD_FAST                <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-150"><a href="#cb7-150"></a>                <span class="dv">4062</span> BINARY_ADD</span>
+<span id="cb7-151"><a href="#cb7-151"></a>                <span class="dv">4064</span> STORE_FAST               <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-152"><a href="#cb7-152"></a></span>
+<span id="cb7-153"><a href="#cb7-153"></a><span class="dv">42069719</span>        <span class="dv">4066</span> LOAD_FAST                <span class="dv">1</span> (OVXPEYYWSK)</span>
+<span id="cb7-154"><a href="#cb7-154"></a>                <span class="dv">4068</span> RETURN_VALUE</span></code></pre></div>
 <p>Translate them block by block, here is the positional values of the key according to the opcodes.</p>
-<pre><code>s = [0]*128
-s[:5] = &#39;UMASS&#39;
-s[5] = 123
-s[6] = 112|4
-s[7] = 96|8
-s[8] = 51
-s[9] = 80|15
-s[10] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;4)&amp;16)|((1&lt;&lt;1)&amp;2)|((1&lt;&lt;0)&amp;1)
-s[11] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;4)&amp;16)
-s[12] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;3)&amp;8)|((1&lt;&lt;0)&amp;1)
-s[13] = ((1&lt;&lt;5)&amp;32)|((1&lt;&lt;4)&amp;16)|((1&lt;&lt;0)&amp;1)
-s[14] = 49
-s[15] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;0)&amp;1)
-s[16] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;2)&amp;4)|((1&lt;&lt;1)&amp;2)|((1&lt;&lt;0)&amp;1)
-s[17] = ((1&lt;&lt;5)&amp;32)|((1&lt;&lt;4)&amp;16)|((1&lt;&lt;1)&amp;2)|((1&lt;&lt;0)&amp;1)
-s[18] = 80|15
-s[19] = 98
-s[20] = 112|9
-s[21] = 116
-s[22] = 48|3
-s[23] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;1)&amp;2)|((1&lt;&lt;0)&amp;1)
-s[24] = 48
-s[25] = 100
-s[26] = 51
-s[27] = 95
-s[28] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;1)&amp;2)|((1&lt;&lt;0)&amp;1)
-s[29] = 112|4
-s[30] = 96|6
-s[31] = 116
-s[32] = 96|9
-s[33] = 109
-s[34] = 51
-s[35] = 95
-s[36] = 104
-s[37] = 97
-s[38] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;1)&amp;2)|((1&lt;&lt;0)&amp;1)
-s[39] = 96|11
-s[40] = ((1&lt;&lt;6)&amp;64)|((1&lt;&lt;5)&amp;32)|((1&lt;&lt;4)&amp;16)|((1&lt;&lt;3)&amp;8)|((1&lt;&lt;2)&amp;4)|((1&lt;&lt;0)&amp;1)
-print(&#39;&#39;.join(s[:5])+&#39;&#39;.join(map(chr, s[5:])))</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>s <span class="op">=</span> [<span class="dv">0</span>]<span class="op">*</span><span class="dv">128</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>s[:<span class="dv">5</span>] <span class="op">=</span> <span class="st">&#39;UMASS&#39;</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>s[<span class="dv">5</span>] <span class="op">=</span> <span class="dv">123</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>s[<span class="dv">6</span>] <span class="op">=</span> <span class="dv">112</span><span class="op">|</span><span class="dv">4</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>s[<span class="dv">7</span>] <span class="op">=</span> <span class="dv">96</span><span class="op">|</span><span class="dv">8</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>s[<span class="dv">8</span>] <span class="op">=</span> <span class="dv">51</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>s[<span class="dv">9</span>] <span class="op">=</span> <span class="dv">80</span><span class="op">|</span><span class="dv">15</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>s[<span class="dv">10</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">4</span>)<span class="op">&amp;</span><span class="dv">16</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">1</span>)<span class="op">&amp;</span><span class="dv">2</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>s[<span class="dv">11</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">4</span>)<span class="op">&amp;</span><span class="dv">16</span>)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>s[<span class="dv">12</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">3</span>)<span class="op">&amp;</span><span class="dv">8</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>s[<span class="dv">13</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">4</span>)<span class="op">&amp;</span><span class="dv">16</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-12"><a href="#cb8-12"></a>s[<span class="dv">14</span>] <span class="op">=</span> <span class="dv">49</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>s[<span class="dv">15</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>s[<span class="dv">16</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">2</span>)<span class="op">&amp;</span><span class="dv">4</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">1</span>)<span class="op">&amp;</span><span class="dv">2</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-15"><a href="#cb8-15"></a>s[<span class="dv">17</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">4</span>)<span class="op">&amp;</span><span class="dv">16</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">1</span>)<span class="op">&amp;</span><span class="dv">2</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-16"><a href="#cb8-16"></a>s[<span class="dv">18</span>] <span class="op">=</span> <span class="dv">80</span><span class="op">|</span><span class="dv">15</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>s[<span class="dv">19</span>] <span class="op">=</span> <span class="dv">98</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a>s[<span class="dv">20</span>] <span class="op">=</span> <span class="dv">112</span><span class="op">|</span><span class="dv">9</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>s[<span class="dv">21</span>] <span class="op">=</span> <span class="dv">116</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>s[<span class="dv">22</span>] <span class="op">=</span> <span class="dv">48</span><span class="op">|</span><span class="dv">3</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>s[<span class="dv">23</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">1</span>)<span class="op">&amp;</span><span class="dv">2</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-22"><a href="#cb8-22"></a>s[<span class="dv">24</span>] <span class="op">=</span> <span class="dv">48</span></span>
+<span id="cb8-23"><a href="#cb8-23"></a>s[<span class="dv">25</span>] <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a>s[<span class="dv">26</span>] <span class="op">=</span> <span class="dv">51</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a>s[<span class="dv">27</span>] <span class="op">=</span> <span class="dv">95</span></span>
+<span id="cb8-26"><a href="#cb8-26"></a>s[<span class="dv">28</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">1</span>)<span class="op">&amp;</span><span class="dv">2</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-27"><a href="#cb8-27"></a>s[<span class="dv">29</span>] <span class="op">=</span> <span class="dv">112</span><span class="op">|</span><span class="dv">4</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a>s[<span class="dv">30</span>] <span class="op">=</span> <span class="dv">96</span><span class="op">|</span><span class="dv">6</span></span>
+<span id="cb8-29"><a href="#cb8-29"></a>s[<span class="dv">31</span>] <span class="op">=</span> <span class="dv">116</span></span>
+<span id="cb8-30"><a href="#cb8-30"></a>s[<span class="dv">32</span>] <span class="op">=</span> <span class="dv">96</span><span class="op">|</span><span class="dv">9</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a>s[<span class="dv">33</span>] <span class="op">=</span> <span class="dv">109</span></span>
+<span id="cb8-32"><a href="#cb8-32"></a>s[<span class="dv">34</span>] <span class="op">=</span> <span class="dv">51</span></span>
+<span id="cb8-33"><a href="#cb8-33"></a>s[<span class="dv">35</span>] <span class="op">=</span> <span class="dv">95</span></span>
+<span id="cb8-34"><a href="#cb8-34"></a>s[<span class="dv">36</span>] <span class="op">=</span> <span class="dv">104</span></span>
+<span id="cb8-35"><a href="#cb8-35"></a>s[<span class="dv">37</span>] <span class="op">=</span> <span class="dv">97</span></span>
+<span id="cb8-36"><a href="#cb8-36"></a>s[<span class="dv">38</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">1</span>)<span class="op">&amp;</span><span class="dv">2</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-37"><a href="#cb8-37"></a>s[<span class="dv">39</span>] <span class="op">=</span> <span class="dv">96</span><span class="op">|</span><span class="dv">11</span></span>
+<span id="cb8-38"><a href="#cb8-38"></a>s[<span class="dv">40</span>] <span class="op">=</span> ((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">6</span>)<span class="op">&amp;</span><span class="dv">64</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">5</span>)<span class="op">&amp;</span><span class="dv">32</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">4</span>)<span class="op">&amp;</span><span class="dv">16</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">3</span>)<span class="op">&amp;</span><span class="dv">8</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">2</span>)<span class="op">&amp;</span><span class="dv">4</span>)<span class="op">|</span>((<span class="dv">1</span><span class="op">&lt;&lt;</span><span class="dv">0</span>)<span class="op">&amp;</span><span class="dv">1</span>)</span>
+<span id="cb8-39"><a href="#cb8-39"></a><span class="bu">print</span>(<span class="st">&#39;&#39;</span>.join(s[:<span class="dv">5</span>])<span class="op">+</span><span class="st">&#39;&#39;</span>.join(<span class="bu">map</span>(<span class="bu">chr</span>, s[<span class="dv">5</span>:])))</span></code></pre></div>
 <p>Run the script and feed the output to <code>babushka</code> we get a <code>yes!</code>, which means this the flag.</p>
-<pre><code>$ python3 key.py|python3 babushka.py
-Yes!</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a>$ <span class="ex">python3</span> key.py<span class="kw">|</span><span class="ex">python3</span> babushka.py</span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="ex">Yes</span>!</span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,76 +95,76 @@
 <h1 class="title">Otp Implementation</h1>
 </header>
 <p>Disassemble the program with <code>ghidra</code>, looks like the program take a string as parameter on startup and does some calculation with it, at the end, compares the result with string <code>lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl</code>, if match the given string is the key, we need to <code>xor</code> the key with the string in <code>flag.txt</code> to get the flag.</p>
-<pre><code>...
-// calculate with the given string
-while( true ) {
-  iVar3 = valid_char((ulong)(uint)(int)param[i]);
-  if (iVar3 == 0) break;
-  if (i == 0) {
-    cVar1 = jumble();
-    bVar2 = (byte)(cVar1 &gt;&gt; 7) &gt;&gt; 4;
-    buf[0] = (cVar1 + bVar2 &amp; 0xf) - bVar2;
-  }
-  else {
-    cVar1 = jumble();
-    bVar2 = (byte)((int)cVar1 + (int)buf[i + -1] &gt;&gt; 0x37);
-    buf[i] = ((char)((int)cVar1 + (int)buf[i + -1]) + (bVar2 &gt;&gt; 4) &amp; 0xf) - (bVar2 &gt;&gt; 4);
-  }
-  i = i + 1;
-}
-j = 0;
-while (j &lt; i) {
-  buf[j] = buf[j] + &#39;a&#39;;
-  j = j + 1;
-}
-// check whether input is the key
-if (i == 100) {
-  iVar3 = strncmp(buf,
-                  &quot;lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl&quot;
-                  ,100);
-  if (iVar3 == 0) {
-    puts(&quot;You got the key, congrats! Now xor it with the flag!&quot;);
-    uVar4 = 0;
-    goto LAB_001009ea;
-  }
-}
-...</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a>...</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">// calculate with the given string</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="cf">while</span>( true ) {</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  iVar3 = valid_char((ulong)(uint)(<span class="dt">int</span>)param[i]);</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="cf">if</span> (iVar3 == <span class="dv">0</span>) <span class="cf">break</span>;</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="cf">if</span> (i == <span class="dv">0</span>) {</span>
+<span id="cb1-7"><a href="#cb1-7"></a>    cVar1 = jumble();</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    bVar2 = (byte)(cVar1 &gt;&gt; <span class="dv">7</span>) &gt;&gt; <span class="dv">4</span>;</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    buf[<span class="dv">0</span>] = (cVar1 + bVar2 &amp; <span class="bn">0xf</span>) - bVar2;</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  }</span>
+<span id="cb1-11"><a href="#cb1-11"></a>  <span class="cf">else</span> {</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    cVar1 = jumble();</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    bVar2 = (byte)((<span class="dt">int</span>)cVar1 + (<span class="dt">int</span>)buf[i + -<span class="dv">1</span>] &gt;&gt; <span class="bn">0x37</span>);</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    buf[i] = ((<span class="dt">char</span>)((<span class="dt">int</span>)cVar1 + (<span class="dt">int</span>)buf[i + -<span class="dv">1</span>]) + (bVar2 &gt;&gt; <span class="dv">4</span>) &amp; <span class="bn">0xf</span>) - (bVar2 &gt;&gt; <span class="dv">4</span>);</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  }</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  i = i + <span class="dv">1</span>;</span>
+<span id="cb1-17"><a href="#cb1-17"></a>}</span>
+<span id="cb1-18"><a href="#cb1-18"></a>j = <span class="dv">0</span>;</span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="cf">while</span> (j &lt; i) {</span>
+<span id="cb1-20"><a href="#cb1-20"></a>  buf[j] = buf[j] + <span class="ch">&#39;a&#39;</span>;</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  j = j + <span class="dv">1</span>;</span>
+<span id="cb1-22"><a href="#cb1-22"></a>}</span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">// check whether input is the key</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="cf">if</span> (i == <span class="dv">100</span>) {</span>
+<span id="cb1-25"><a href="#cb1-25"></a>  iVar3 = strncmp(buf,</span>
+<span id="cb1-26"><a href="#cb1-26"></a>                  <span class="st">&quot;lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl&quot;</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a>                  ,<span class="dv">100</span>);</span>
+<span id="cb1-28"><a href="#cb1-28"></a>  <span class="cf">if</span> (iVar3 == <span class="dv">0</span>) {</span>
+<span id="cb1-29"><a href="#cb1-29"></a>    puts(<span class="st">&quot;You got the key, congrats! Now xor it with the flag!&quot;</span>);</span>
+<span id="cb1-30"><a href="#cb1-30"></a>    uVar4 = <span class="dv">0</span>;</span>
+<span id="cb1-31"><a href="#cb1-31"></a>    <span class="cf">goto</span> LAB_001009ea;</span>
+<span id="cb1-32"><a href="#cb1-32"></a>  }</span>
+<span id="cb1-33"><a href="#cb1-33"></a>}</span>
+<span id="cb1-34"><a href="#cb1-34"></a>...</span></code></pre></div>
 <p>From <code>valid_char</code> we know that the string should be composed with <code>0123456789abcdef</code>. So we need to guess a 100 bytes string with <code>0123456789abcdef</code>.</p>
-<pre><code>undefined8 valid_char(char param_1)
-{
-  undefined8 valid;
-  
-  if ((param_1 &lt; &#39;0&#39;) || (&#39;9&#39; &lt; param_1)) {
-    if ((param_1 &lt; &#39;a&#39;) || (&#39;f&#39; &lt; param_1)) {
-      valid = 0;
-    }
-    else {
-      valid = 1;
-    }
-  }
-  else {
-    valid = 1;
-  }
-  return valid;
-}</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a>undefined8 valid_char(<span class="dt">char</span> param_1)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>{</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  undefined8 valid;</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  </span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="cf">if</span> ((param_1 &lt; <span class="ch">&#39;0&#39;</span>) || (<span class="ch">&#39;9&#39;</span> &lt; param_1)) {</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="cf">if</span> ((param_1 &lt; <span class="ch">&#39;a&#39;</span>) || (<span class="ch">&#39;f&#39;</span> &lt; param_1)) {</span>
+<span id="cb2-7"><a href="#cb2-7"></a>      valid = <span class="dv">0</span>;</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    }</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="cf">else</span> {</span>
+<span id="cb2-10"><a href="#cb2-10"></a>      valid = <span class="dv">1</span>;</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    }</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  }</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="cf">else</span> {</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    valid = <span class="dv">1</span>;</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  }</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="cf">return</span> valid;</span>
+<span id="cb2-17"><a href="#cb2-17"></a>}</span></code></pre></div>
 <p>Each byte is calculated based on the one before it, except the first one. We could generate possible strings and check if the first <em>n</em> bytes matchs the first <em>n</em> bytes of the target string. Trace the system call of <code>strncmp</code> we could get the result string.</p>
-<pre><code>$ ltrace -s 1000 ./otp aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-strncpy(0x7ffe7018cfb0, &quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;, 100) = 0x7ffe7018cfb0
-strncmp(&quot;fkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpe\376\177&quot;, &quot;lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl&quot;, 100) = -6
-puts(&quot;Invalid key!&quot;Invalid key!
-)                                                                                    = 13
-+++ exited (status 1) +++</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a>$ <span class="ex">ltrace</span> -s 1000 ./otp aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">strncpy</span>(0x7ffe7018cfb0, <span class="st">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>, 100) = <span class="ex">0x7ffe7018cfb0</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">strncmp</span>(<span class="st">&quot;fkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpejodinchmbglafkpe\376\177&quot;</span>, <span class="st">&quot;lfmhjmnahapkechbanheabbfjladhbplbnfaijdajpnljecghmoafbljlaamhpaheonlmnpmaddhngbgbhobgnofjgeaomadbidl&quot;</span>, 100) = <span class="ex">-6</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ex">puts</span>(<span class="st">&quot;Invalid key!&quot;</span>Invalid key!</span>
+<span id="cb3-5"><a href="#cb3-5"></a>)                                                                                    = <span class="ex">13</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">+++</span> exited (status 1) <span class="ex">+++</span></span></code></pre></div>
 <p>Now we need to parse the output of <code>ltrace</code> to get the result string, then we compare it with the target string.</p>
-<pre><code>for i in range(target_len):
-    for x in sample:
-        key[i] = x
-        p = Popen([&#39;ltrace&#39;, &#39;-s&#39;, &#39;1000&#39;, &#39;./otp&#39;, &#39;&#39;.join(key)], stderr=PIPE, stdout=DEVNULL)
-        output = p.stderr.read().decode()
-        res = re.search(&#39;strncmp\(\&quot;(.+)\&quot;.+\)&#39;, output).group(1)[:100]
-        if target[i] == res[i]:
-            break</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(target_len):</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="cf">for</span> x <span class="kw">in</span> sample:</span>
+<span id="cb4-3"><a href="#cb4-3"></a>        key[i] <span class="op">=</span> x</span>
+<span id="cb4-4"><a href="#cb4-4"></a>        p <span class="op">=</span> Popen([<span class="st">&#39;ltrace&#39;</span>, <span class="st">&#39;-s&#39;</span>, <span class="st">&#39;1000&#39;</span>, <span class="st">&#39;./otp&#39;</span>, <span class="st">&#39;&#39;</span>.join(key)], stderr<span class="op">=</span>PIPE, stdout<span class="op">=</span>DEVNULL)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>        output <span class="op">=</span> p.stderr.read().decode()</span>
+<span id="cb4-6"><a href="#cb4-6"></a>        res <span class="op">=</span> re.search(<span class="st">&#39;strncmp\(</span><span class="ch">\&quot;</span><span class="st">(.+)</span><span class="ch">\&quot;</span><span class="st">.+\)&#39;</span>, output).group(<span class="dv">1</span>)[:<span class="dv">100</span>]</span>
+<span id="cb4-7"><a href="#cb4-7"></a>        <span class="cf">if</span> target[i] <span class="op">==</span> res[i]:</span>
+<span id="cb4-8"><a href="#cb4-8"></a>            <span class="cf">break</span></span></code></pre></div>
 <p>Finally, <code>xor</code> the key with <code>flag.txt</code> to decode the flag.</p>
-<pre><code>&#39;&#39;.join([chr(x^y) for x, y in zip(bytes.fromhex(&#39;&#39;.join(key)), bytes.fromhex(flag))])</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">&#39;&#39;</span>.join([<span class="bu">chr</span>(x<span class="op">^</span>y) <span class="cf">for</span> x, y <span class="kw">in</span> <span class="bu">zip</span>(<span class="bu">bytes</span>.fromhex(<span class="st">&#39;&#39;</span>.join(key)), <span class="bu">bytes</span>.fromhex(flag))])</span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

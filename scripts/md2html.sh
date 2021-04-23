@@ -12,6 +12,7 @@ fi
 pandoc --from=markdown --to=html \
   -o "$2" \
   --metadata title="$title" \
+  --highlight-style breezedark \
   -H templates/writeup-head.html \
   -B templates/writeup-before-body.html \
   -A templates/writeup-after-body.html \

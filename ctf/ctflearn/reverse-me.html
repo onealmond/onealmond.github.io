@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,166 +95,165 @@
 <h1 class="title">Reverse Me</h1>
 </header>
 <p>The program takes 26 bytes of input to encrypt and shuffle it to get another 26 bytes of output, the correct input would make the output match the array <code>expected</code>.</p>
-<pre><code>  printf(&quot;Enter flag [CTFlearn{ ... }]: &quot;);
-  __edflag = (int)register0x00000020 + -0x38;
-  __isoc99_scanf(&amp;DAT_00100b87);
-  encrypt(local_38,__edflag);
-  lVar1 = shuffle(extraout_RAX);
-  i = 0;
-  do {
-    if (0x19 &lt; i) {
-      puts(&quot;Correct!&quot;);
-LAB_00100abf:
-      if (canary != *(long *)(in_FS_OFFSET + 0x28)) {
-                    /* WARNING: Subroutine does not return */
-        __stack_chk_fail();
-      }
-      return 0;
-    }
-    if (expected[i] != *(char *)(lVar1 + i)) {
-      puts(&quot;Incorrect&quot;);
-      goto LAB_00100abf;
-    }
-    i = i + 1;
-  } while( true );</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a>  printf(<span class="st">&quot;Enter flag [CTFlearn{ ... }]: &quot;</span>);</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  __edflag = (<span class="dt">int</span>)register0x00000020 + -<span class="bn">0x38</span>;</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  __isoc99_scanf(&amp;DAT_00100b87);</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  encrypt(local_38,__edflag);</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  lVar1 = shuffle(extraout_RAX);</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="cf">do</span> {</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="cf">if</span> (<span class="bn">0x19</span> &lt; i) {</span>
+<span id="cb1-9"><a href="#cb1-9"></a>      puts(<span class="st">&quot;Correct!&quot;</span>);</span>
+<span id="cb1-10"><a href="#cb1-10"></a>LAB_00100abf:</span>
+<span id="cb1-11"><a href="#cb1-11"></a>      <span class="cf">if</span> (canary != *(<span class="dt">long</span> *)(in_FS_OFFSET + <span class="bn">0x28</span>)) {</span>
+<span id="cb1-12"><a href="#cb1-12"></a>                    <span class="co">/* </span><span class="al">WARNING</span><span class="co">: Subroutine does not return */</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>        __stack_chk_fail();</span>
+<span id="cb1-14"><a href="#cb1-14"></a>      }</span>
+<span id="cb1-15"><a href="#cb1-15"></a>      <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb1-16"><a href="#cb1-16"></a>    }</span>
+<span id="cb1-17"><a href="#cb1-17"></a>    <span class="cf">if</span> (expected[i] != *(<span class="dt">char</span> *)(lVar1 + i)) {</span>
+<span id="cb1-18"><a href="#cb1-18"></a>      puts(<span class="st">&quot;Incorrect&quot;</span>);</span>
+<span id="cb1-19"><a href="#cb1-19"></a>      <span class="cf">goto</span> LAB_00100abf;</span>
+<span id="cb1-20"><a href="#cb1-20"></a>    }</span>
+<span id="cb1-21"><a href="#cb1-21"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  } <span class="cf">while</span>( true );</span></code></pre></div>
 <p>As we already have the answer, can we reverse each step to find out the correct input?</p>
-<pre><code>void * shuffle(char *param_1) {
-  size_t sz;
-  void *ret;
-  int i;
-  
-  sz = strlen(param_1);
-  ret = malloc(sz - 4);
-  i = 0;
-  while( true ) {
-    sz = strlen(param_1);
-    if (sz &lt;= (ulong)(long)i) break;
-    *(char *)((long)ret + (long)i) = param_1[(long)i + 1];
-    i = i + 2;
-  }
-  i = 1;
-  while( true ) {
-    sz = strlen(param_1);
-    if (sz &lt;= (ulong)(long)i) break;
-    *(char *)((long)ret + (long)i) = param_1[(long)i + -1];
-    i = i + 2;
-  }
-  return ret;
-}</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="dt">void</span> * shuffle(<span class="dt">char</span> *param_1) {</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">size_t</span> sz;</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">void</span> *ret;</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">int</span> i;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  </span>
+<span id="cb2-6"><a href="#cb2-6"></a>  sz = strlen(param_1);</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  ret = malloc(sz - <span class="dv">4</span>);</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="cf">while</span>( true ) {</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    sz = strlen(param_1);</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    <span class="cf">if</span> (sz &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    *(<span class="dt">char</span> *)((<span class="dt">long</span>)ret + (<span class="dt">long</span>)i) = param_1[(<span class="dt">long</span>)i + <span class="dv">1</span>];</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    i = i + <span class="dv">2</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  }</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  i = <span class="dv">1</span>;</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="cf">while</span>( true ) {</span>
+<span id="cb2-17"><a href="#cb2-17"></a>    sz = strlen(param_1);</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    <span class="cf">if</span> (sz &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb2-19"><a href="#cb2-19"></a>    *(<span class="dt">char</span> *)((<span class="dt">long</span>)ret + (<span class="dt">long</span>)i) = param_1[(<span class="dt">long</span>)i + -<span class="dv">1</span>];</span>
+<span id="cb2-20"><a href="#cb2-20"></a>    i = i + <span class="dv">2</span>;</span>
+<span id="cb2-21"><a href="#cb2-21"></a>  }</span>
+<span id="cb2-22"><a href="#cb2-22"></a>  <span class="cf">return</span> ret;</span>
+<span id="cb2-23"><a href="#cb2-23"></a>}</span></code></pre></div>
 <p>First we unshuffle the expected array.</p>
-<pre><code>def unshuffle(param):
-    buf = [0] * len(param)
-
-    for i in range(0, len(param)-1, 2):
-        buf[i+1] = param[i]
-
-    for i in range(1, len(param), 2):
-        buf[i-1] = param[i]
-
-    return buf</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> unshuffle(param):</span>
+<span id="cb3-2"><a href="#cb3-2"></a>    buf <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(param)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(param)<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>):</span>
+<span id="cb3-5"><a href="#cb3-5"></a>        buf[i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> param[i]</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(param), <span class="dv">2</span>):</span>
+<span id="cb3-8"><a href="#cb3-8"></a>        buf[i<span class="dv">-1</span>] <span class="op">=</span> param[i]</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>    <span class="cf">return</span> buf</span></code></pre></div>
 <p>This is how it encrypts input. <code>uVar2</code> variable is not so clear, but check the next step, <code>uVar2</code> is used to access buffer starts at <code>local_48</code>.</p>
-<pre><code>void encrypt(char *__block,int __edflag) {
-  size_t __size;
-  void *pvVar1;
-  uint uVar2;
-  long in_FS_OFFSET;
-  int i;
-  undefined4 local_48 [4];
-  undefined4 local_38;
-  undefined4 local_34;
-  undefined4 local_30;
-  undefined4 local_2c;
-  long canary;
-  
-  canary = *(long *)(in_FS_OFFSET + 0x28);
-  __size = strlen(__block);
-  pvVar1 = malloc(__size);
-  local_48[0] = 1;
-  local_48[1] = 3;
-  local_48[2] = 3;
-  local_48[3] = 7;
-  local_38 = 0xde;
-  local_34 = 0xad;
-  local_30 = 0xbe;
-  local_2c = 0xef;
-  i = 0;
-  while( true ) {
-    __size = strlen(__block);
-    if (__size &lt;= (ulong)(long)i) break;
-    uVar2 = (uint)(i &gt;&gt; 0x1f) &gt;&gt; 0x1d;
-    *(byte *)((long)pvVar1 + (long)i) = __block[i] ^ (byte)local_48[(int)((i + uVar2 &amp; 7) - uVar2)];
-    i = i + 1;
-  }
-  if (canary != *(long *)(in_FS_OFFSET + 0x28)) {
-                    /* WARNING: Subroutine does not return */
-    __stack_chk_fail();
-  }
-  return;
-}</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="dt">void</span> encrypt(<span class="dt">char</span> *__block,<span class="dt">int</span> __edflag) {</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="dt">size_t</span> __size;</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">void</span> *pvVar1;</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  uint uVar2;</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">long</span> in_FS_OFFSET;</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="dt">int</span> i;</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  undefined4 local_48 [<span class="dv">4</span>];</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  undefined4 local_38;</span>
+<span id="cb4-9"><a href="#cb4-9"></a>  undefined4 local_34;</span>
+<span id="cb4-10"><a href="#cb4-10"></a>  undefined4 local_30;</span>
+<span id="cb4-11"><a href="#cb4-11"></a>  undefined4 local_2c;</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  <span class="dt">long</span> canary;</span>
+<span id="cb4-13"><a href="#cb4-13"></a>  </span>
+<span id="cb4-14"><a href="#cb4-14"></a>  canary = *(<span class="dt">long</span> *)(in_FS_OFFSET + <span class="bn">0x28</span>);</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  __size = strlen(__block);</span>
+<span id="cb4-16"><a href="#cb4-16"></a>  pvVar1 = malloc(__size);</span>
+<span id="cb4-17"><a href="#cb4-17"></a>  local_48[<span class="dv">0</span>] = <span class="dv">1</span>;</span>
+<span id="cb4-18"><a href="#cb4-18"></a>  local_48[<span class="dv">1</span>] = <span class="dv">3</span>;</span>
+<span id="cb4-19"><a href="#cb4-19"></a>  local_48[<span class="dv">2</span>] = <span class="dv">3</span>;</span>
+<span id="cb4-20"><a href="#cb4-20"></a>  local_48[<span class="dv">3</span>] = <span class="dv">7</span>;</span>
+<span id="cb4-21"><a href="#cb4-21"></a>  local_38 = <span class="bn">0xde</span>;</span>
+<span id="cb4-22"><a href="#cb4-22"></a>  local_34 = <span class="bn">0xad</span>;</span>
+<span id="cb4-23"><a href="#cb4-23"></a>  local_30 = <span class="bn">0xbe</span>;</span>
+<span id="cb4-24"><a href="#cb4-24"></a>  local_2c = <span class="bn">0xef</span>;</span>
+<span id="cb4-25"><a href="#cb4-25"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb4-26"><a href="#cb4-26"></a>  <span class="cf">while</span>( true ) {</span>
+<span id="cb4-27"><a href="#cb4-27"></a>    __size = strlen(__block);</span>
+<span id="cb4-28"><a href="#cb4-28"></a>    <span class="cf">if</span> (__size &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb4-29"><a href="#cb4-29"></a>    uVar2 = (uint)(i &gt;&gt; <span class="bn">0x1f</span>) &gt;&gt; <span class="bn">0x1d</span>;</span>
+<span id="cb4-30"><a href="#cb4-30"></a>    *(byte *)((<span class="dt">long</span>)pvVar1 + (<span class="dt">long</span>)i) = __block[i] ^ (byte)local_48[(<span class="dt">int</span>)((i + uVar2 &amp; <span class="dv">7</span>) - uVar2)];</span>
+<span id="cb4-31"><a href="#cb4-31"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb4-32"><a href="#cb4-32"></a>  }</span>
+<span id="cb4-33"><a href="#cb4-33"></a>  <span class="cf">if</span> (canary != *(<span class="dt">long</span> *)(in_FS_OFFSET + <span class="bn">0x28</span>)) {</span>
+<span id="cb4-34"><a href="#cb4-34"></a>                    <span class="co">/* </span><span class="al">WARNING</span><span class="co">: Subroutine does not return */</span></span>
+<span id="cb4-35"><a href="#cb4-35"></a>    __stack_chk_fail();</span>
+<span id="cb4-36"><a href="#cb4-36"></a>  }</span>
+<span id="cb4-37"><a href="#cb4-37"></a>  <span class="cf">return</span>;</span>
+<span id="cb4-38"><a href="#cb4-38"></a>}</span></code></pre></div>
 <p>Check it out in <code>r2</code>, the index goes in range <em>0-7</em>.</p>
-<pre><code>       ╎│   0x55c93e800883      c1ea1d         shr edx, 0x1d
-       ╎│   0x55c93e800886      01d0           add eax, edx 
-       ╎│   0x55c93e800888      83e007         and eax, 7
-       ╎│   0x55c93e80088b      29d0           sub eax, edx 
-       ╎│   0x55c93e80088d      4898           cdqe
-</code></pre>
-<pre><code>Enter flag [CTFlearn{ ... }]: AAAAAAAAAAAAAAAAAAAAAAAAAA
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000000                       
-[0x55c93e80088d]&gt; dc    
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000001
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000002
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000003
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000004
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000005
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000006
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000007
-[0x55c93e80088d]&gt; dc
-hit breakpoint at: 0x55c93e80088d
-[0x55c93e80088d]&gt; dr rax
-0x00000000</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb5-1"><a href="#cb5-1"></a>       ╎│<span class="bn">   0x55c93e800883      </span>c1ea1d         <span class="bu">shr</span> <span class="kw">edx</span><span class="bn">, 0x1d</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>       ╎│<span class="bn">   0x55c93e800886      </span>01d0           <span class="bu">add</span> <span class="kw">eax</span>, <span class="kw">edx</span> </span>
+<span id="cb5-3"><a href="#cb5-3"></a>       ╎│<span class="bn">   0x55c93e800888      </span><span class="fl">83e007</span>         <span class="bu">and</span> <span class="kw">eax</span>, <span class="dv">7</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>       ╎│<span class="bn">   0x55c93e80088b      </span>29d0           <span class="bu">sub</span> <span class="kw">eax</span>, <span class="kw">edx</span> </span>
+<span id="cb5-5"><a href="#cb5-5"></a>       ╎│<span class="bn">   0x55c93e80088d      </span><span class="dv">4898</span>           <span class="bu">cdqe</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">Enter</span> flag [CTFlearn{ ... }]: <span class="ex">AAAAAAAAAAAAAAAAAAAAAAAAAA</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-3"><a href="#cb6-3"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="ex">0x00000000</span>                       </span>
+<span id="cb6-5"><a href="#cb6-5"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc    </span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-7"><a href="#cb6-7"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="ex">0x00000001</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-11"><a href="#cb6-11"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="ex">0x00000002</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-15"><a href="#cb6-15"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="ex">0x00000003</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-19"><a href="#cb6-19"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="ex">0x00000004</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-23"><a href="#cb6-23"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="ex">0x00000005</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-27"><a href="#cb6-27"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="ex">0x00000006</span></span>
+<span id="cb6-29"><a href="#cb6-29"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-31"><a href="#cb6-31"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-32"><a href="#cb6-32"></a><span class="ex">0x00000007</span></span>
+<span id="cb6-33"><a href="#cb6-33"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb6-34"><a href="#cb6-34"></a><span class="ex">hit</span> breakpoint at: 0x55c93e80088d</span>
+<span id="cb6-35"><a href="#cb6-35"></a>[<span class="ex">0x55c93e80088d</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb6-36"><a href="#cb6-36"></a><span class="ex">0x00000000</span></span></code></pre></div>
 <p>Now we decrypt the unshuffle result to get the input.</p>
-<pre><code>def decrypt(block):
-    local_48 = [1,3,3,7, 0xde, 0xad, 0xbe, 0xef]
-    buf = [0] * len(block)
-    ind = 0
-
-    for i in range(len(block)):
-        buf[i] = block[i] ^ local_48[ind]
-        ind = (ind+1)%len(local_48)
-    return buf</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">def</span> decrypt(block):</span>
+<span id="cb7-2"><a href="#cb7-2"></a>    local_48 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">7</span>, <span class="bn">0xde</span>, <span class="bn">0xad</span>, <span class="bn">0xbe</span>, <span class="bn">0xef</span>]</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    buf <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(block)</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    ind <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a></span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(block)):</span>
+<span id="cb7-7"><a href="#cb7-7"></a>        buf[i] <span class="op">=</span> block[i] <span class="op">^</span> local_48[ind]</span>
+<span id="cb7-8"><a href="#cb7-8"></a>        ind <span class="op">=</span> (ind<span class="op">+</span><span class="dv">1</span>)<span class="op">%</span><span class="bu">len</span>(local_48)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="cf">return</span> buf</span></code></pre></div>
 <p>Combine them all together to find out the flag.</p>
-<pre><code>def backward():
-    buf = unshuffle(expected)
-    buf = decrypt(buf)
-    print(&#39;&#39;.join(map(chr, buf)))
-
-backward()</code></pre>
-<pre><code>$ py3 exploit.py | ./reverseme
-Enter flag [CTFlearn{ ... }]: Correct!</code></pre>
-<pre><code>$ py3 exploit.py 
-CTFLearn{reversing_is_fun}</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">def</span> backward():</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    buf <span class="op">=</span> unshuffle(expected)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    buf <span class="op">=</span> decrypt(buf)</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="bu">print</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">map</span>(<span class="bu">chr</span>, buf)))</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>backward()</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a>$ <span class="ex">py3</span> exploit.py <span class="kw">|</span> <span class="ex">./reverseme</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="ex">Enter</span> flag [CTFlearn{ ... }]: <span class="ex">Correct</span>!</span>
+<span id="cb9-3"><a href="#cb9-3"></a>$ <span class="ex">py3</span> exploit.py </span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="ex">CTFLearn</span><span class="dt">{reversing_is_fun}</span></span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,115 +95,114 @@
 <h1 class="title">Child Rev</h1>
 </header>
 <p>Run <code>strings</code> on <code>childrev</code>, it shows an interesting message.</p>
-<pre><code>...
-$Info: This file is packed with the UPX executable packer http://upx.sf.net $
-...</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="ex">...</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="va">$Info</span>: <span class="ex">This</span> file is packed with the UPX executable packer http://upx.sf.net $</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ex">...</span></span></code></pre></div>
 <p>UPX is an open source executable packer, unpack it with <code>upx</code>, now we can get on the real job.</p>
 <p>Decompile the program in <code>ghidra</code>, it takes user input and the four characters as parameters of <code>XOR</code> function, if XOR return non-zero result, the input is correct.</p>
-<pre><code>undefined8 main(void)
-{
-  undefined local_38 [40];
-  int local_10;
-  char local_c;
-  char local_b;
-  char local_a;
-  char local_9;
-  
-  printf(&quot;ENTER THE FLAG : &quot;);
-  __isoc99_scanf(&amp;DAT_0049e182,local_38);
-  local_9 = &#39;G&#39;;
-  local_a = &#39;L&#39;;
-  local_b = &#39;U&#39;;
-  local_c = &#39;G&#39;;
-  local_10 = XOR(local_38,0x47,0x4c,0x55,0x47);
-  if (local_10 == 0) {
-    puts(&quot;USE GHIDRA CUTTER OR IDA , THEN IT WILL BE EASY\n&quot;);
-  }
-  else {
-    printf(&quot;YAY U MADE IT \n%c%c%c%c{%s}\n&quot;,(ulong)(uint)(int)local_9,(ulong)(uint)(int)local_a,
-           (ulong)(uint)(int)local_b,(ulong)(uint)(int)local_c,local_38);
-  }
-  return 0;
-}</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a>undefined8 main(<span class="dt">void</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>{</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  undefined local_38 [<span class="dv">40</span>];</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">int</span> local_10;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">char</span> local_c;</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="dt">char</span> local_b;</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">char</span> local_a;</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="dt">char</span> local_9;</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  </span>
+<span id="cb2-10"><a href="#cb2-10"></a>  printf(<span class="st">&quot;ENTER THE FLAG : &quot;</span>);</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  __isoc99_scanf(&amp;DAT_0049e182,local_38);</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  local_9 = <span class="ch">&#39;G&#39;</span>;</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  local_a = <span class="ch">&#39;L&#39;</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  local_b = <span class="ch">&#39;U&#39;</span>;</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  local_c = <span class="ch">&#39;G&#39;</span>;</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  local_10 = XOR(local_38,<span class="bn">0x47</span>,<span class="bn">0x4c</span>,<span class="bn">0x55</span>,<span class="bn">0x47</span>);</span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="cf">if</span> (local_10 == <span class="dv">0</span>) {</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    puts(<span class="st">&quot;USE GHIDRA CUTTER OR IDA , THEN IT WILL BE EASY</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb2-19"><a href="#cb2-19"></a>  }</span>
+<span id="cb2-20"><a href="#cb2-20"></a>  <span class="cf">else</span> {</span>
+<span id="cb2-21"><a href="#cb2-21"></a>    printf(<span class="st">&quot;YAY U MADE IT </span><span class="sc">\n</span><span class="st">%c%c%c%c{%s}</span><span class="sc">\n</span><span class="st">&quot;</span>,(ulong)(uint)(<span class="dt">int</span>)local_9,(ulong)(uint)(<span class="dt">int</span>)local_a,</span>
+<span id="cb2-22"><a href="#cb2-22"></a>           (ulong)(uint)(<span class="dt">int</span>)local_b,(ulong)(uint)(<span class="dt">int</span>)local_c,local_38);</span>
+<span id="cb2-23"><a href="#cb2-23"></a>  }</span>
+<span id="cb2-24"><a href="#cb2-24"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb2-25"><a href="#cb2-25"></a>}</span></code></pre></div>
 <p>Take a look into <code>XOR</code> function, it calls <code>gen_key</code>to generate a key from the last four parameters, then <code>xor</code> the key with the first parameter byte by byte, finally it check whether the result match array <code>DAT_0049e060</code>.</p>
-<pre><code>ulong XOR(long param_1,char param_2,char param_3,char param_4,char param_5)
-{
-  ulong key;
-  long j;
-  ulong *puVar1;
-  ulong *puVar2;
-  byte bVar3;
-  ulong local_248 [34];
-  ulong auStack312 [36];
-  int k;
-  uint ret;
-  int i;
-  
-  bVar3 = 0;
-  key = gen_key((ulong)(uint)(int)param_2,(ulong)(uint)(int)param_3,(ulong)(uint)(int)param_4,
-                (ulong)(uint)(int)param_5);
-  i = 0;
-  while (i &lt; 0x22) {
-    auStack312[i] = (long)*(char *)(param_1 + i) ^ key;
-    i = i + 1;
-  }
-  j = 0x22;
-  puVar1 = &amp;DAT_0049e060;
-  puVar2 = local_248;
-  while (j != 0) {
-    j = j + -1;
-    *puVar2 = *puVar1;
-    puVar1 = puVar1 + (ulong)bVar3 * 0x1ffffffffffffffe + 1;
-    puVar2 = puVar2 + (ulong)bVar3 * 0x1ffffffffffffffe + 1;
-  }
-  ret = 0;
-  k = 0;
-  do {
-    if (0x21 &lt; k) {
-LAB_00401e3c:
-      return (ulong)ret;
-    }
-    if (auStack312[k] != local_248[k]) {
-      ret = 0;
-      goto LAB_00401e3c;
-    }
-    ret = 1;
-    k = k + 1;
-  } while( true );
-}
-</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1"></a>ulong XOR(<span class="dt">long</span> param_1,<span class="dt">char</span> param_2,<span class="dt">char</span> param_3,<span class="dt">char</span> param_4,<span class="dt">char</span> param_5)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>{</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  ulong key;</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="dt">long</span> j;</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  ulong *puVar1;</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  ulong *puVar2;</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  byte bVar3;</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  ulong local_248 [<span class="dv">34</span>];</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  ulong auStack312 [<span class="dv">36</span>];</span>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="dt">int</span> k;</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  uint ret;</span>
+<span id="cb3-12"><a href="#cb3-12"></a>  <span class="dt">int</span> i;</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  </span>
+<span id="cb3-14"><a href="#cb3-14"></a>  bVar3 = <span class="dv">0</span>;</span>
+<span id="cb3-15"><a href="#cb3-15"></a>  key = gen_key((ulong)(uint)(<span class="dt">int</span>)param_2,(ulong)(uint)(<span class="dt">int</span>)param_3,(ulong)(uint)(<span class="dt">int</span>)param_4,</span>
+<span id="cb3-16"><a href="#cb3-16"></a>                (ulong)(uint)(<span class="dt">int</span>)param_5);</span>
+<span id="cb3-17"><a href="#cb3-17"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb3-18"><a href="#cb3-18"></a>  <span class="cf">while</span> (i &lt; <span class="bn">0x22</span>) {</span>
+<span id="cb3-19"><a href="#cb3-19"></a>    auStack312[i] = (<span class="dt">long</span>)*(<span class="dt">char</span> *)(param_1 + i) ^ key;</span>
+<span id="cb3-20"><a href="#cb3-20"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb3-21"><a href="#cb3-21"></a>  }</span>
+<span id="cb3-22"><a href="#cb3-22"></a>  j = <span class="bn">0x22</span>;</span>
+<span id="cb3-23"><a href="#cb3-23"></a>  puVar1 = &amp;DAT_0049e060;</span>
+<span id="cb3-24"><a href="#cb3-24"></a>  puVar2 = local_248;</span>
+<span id="cb3-25"><a href="#cb3-25"></a>  <span class="cf">while</span> (j != <span class="dv">0</span>) {</span>
+<span id="cb3-26"><a href="#cb3-26"></a>    j = j + -<span class="dv">1</span>;</span>
+<span id="cb3-27"><a href="#cb3-27"></a>    *puVar2 = *puVar1;</span>
+<span id="cb3-28"><a href="#cb3-28"></a>    puVar1 = puVar1 + (ulong)bVar3 * <span class="bn">0x1ffffffffffffffe</span> + <span class="dv">1</span>;</span>
+<span id="cb3-29"><a href="#cb3-29"></a>    puVar2 = puVar2 + (ulong)bVar3 * <span class="bn">0x1ffffffffffffffe</span> + <span class="dv">1</span>;</span>
+<span id="cb3-30"><a href="#cb3-30"></a>  }</span>
+<span id="cb3-31"><a href="#cb3-31"></a>  ret = <span class="dv">0</span>;</span>
+<span id="cb3-32"><a href="#cb3-32"></a>  k = <span class="dv">0</span>;</span>
+<span id="cb3-33"><a href="#cb3-33"></a>  <span class="cf">do</span> {</span>
+<span id="cb3-34"><a href="#cb3-34"></a>    <span class="cf">if</span> (<span class="bn">0x21</span> &lt; k) {</span>
+<span id="cb3-35"><a href="#cb3-35"></a>LAB_00401e3c:</span>
+<span id="cb3-36"><a href="#cb3-36"></a>      <span class="cf">return</span> (ulong)ret;</span>
+<span id="cb3-37"><a href="#cb3-37"></a>    }</span>
+<span id="cb3-38"><a href="#cb3-38"></a>    <span class="cf">if</span> (auStack312[k] != local_248[k]) {</span>
+<span id="cb3-39"><a href="#cb3-39"></a>      ret = <span class="dv">0</span>;</span>
+<span id="cb3-40"><a href="#cb3-40"></a>      <span class="cf">goto</span> LAB_00401e3c;</span>
+<span id="cb3-41"><a href="#cb3-41"></a>    }</span>
+<span id="cb3-42"><a href="#cb3-42"></a>    ret = <span class="dv">1</span>;</span>
+<span id="cb3-43"><a href="#cb3-43"></a>    k = k + <span class="dv">1</span>;</span>
+<span id="cb3-44"><a href="#cb3-44"></a>  } <span class="cf">while</span>( true );</span>
+<span id="cb3-45"><a href="#cb3-45"></a>}</span></code></pre></div>
 <p>The key is generated from “G”, “L”, “U”, “G”, so it’s constant, by debugging it with <code>r2</code> we can find out the key is <code>0x00012f00</code>.</p>
-<pre><code>...
-0x00401d70      0fbe8da8fdff.  movsx ecx, byte [rbp - 0x258]
-0x00401d77      0fbe95acfdff.  movsx edx, byte [rbp - 0x254]
-0x00401d7e      0fbeb5b0fdff.  movsx esi, byte [rbp - 0x250]
-0x00401d85      0fbe85b4fdff.  movsx eax, byte [rbp - 0x24c]
-0x00401d8c      89c7           mov edi, eax
-0x00401d8e      e81affffff     call sym.gen_key
-0x00401d93      488945e8       mov qword [rbp - 0x18], rax
-...</code></pre>
-<pre><code>[0x00401cad]&gt; dc
-hit breakpoint at: 0x401d97
-[0x00401d97]&gt; dr rax
-0x00012f00</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb4-1"><a href="#cb4-1"></a>...</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="bn">0x00401d70      </span>0fbe8da8fdff.  <span class="bu">movsx</span> <span class="kw">ecx</span>, <span class="dt">byte</span> [<span class="kw">rbp</span> - <span class="bn">0x258</span>]</span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="bn">0x00401d77      </span>0fbe95acfdff.  <span class="bu">movsx</span> <span class="kw">edx</span>, <span class="dt">byte</span> [<span class="kw">rbp</span> - <span class="bn">0x254</span>]</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="bn">0x00401d7e      </span>0fbeb5b0fdff.  <span class="bu">movsx</span> <span class="kw">esi</span>, <span class="dt">byte</span> [<span class="kw">rbp</span> - <span class="bn">0x250</span>]</span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="bn">0x00401d85      </span>0fbe85b4fdff.  <span class="bu">movsx</span> <span class="kw">eax</span>, <span class="dt">byte</span> [<span class="kw">rbp</span> - <span class="bn">0x24c</span>]</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="bn">0x00401d8c      </span>89c7           <span class="bu">mov</span> <span class="kw">edi</span>, <span class="kw">eax</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="bn">0x00401d8e      </span>e81affffff     <span class="bu">call</span> sym.gen_key</span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="bn">0x00401d93      </span><span class="fl">488945e8</span>       <span class="bu">mov</span> <span class="dt">qword</span> [<span class="kw">rbp</span> - <span class="bn">0x18</span>], <span class="kw">rax</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>...</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>[<span class="ex">0x00401cad</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">hit</span> breakpoint at: 0x401d97</span>
+<span id="cb5-3"><a href="#cb5-3"></a>[<span class="ex">0x00401d97</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="ex">0x00012f00</span></span></code></pre></div>
 <p>Dump <code>DAT_0049e060</code> block into <code>dat</code>, convert it to int array.</p>
-<pre><code>dat = dat.split()
-arr = []
-
-for i in range(0, len(dat), 8):
-  arr.append(int(&#39;&#39;.join(reversed(dat[i:i+8])), 16))</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>dat <span class="op">=</span> dat.split()</span>
+<span id="cb6-2"><a href="#cb6-2"></a>arr <span class="op">=</span> []</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(dat), <span class="dv">8</span>):</span>
+<span id="cb6-5"><a href="#cb6-5"></a>  arr.append(<span class="bu">int</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">reversed</span>(dat[i:i<span class="op">+</span><span class="dv">8</span>])), <span class="dv">16</span>))</span></code></pre></div>
 <p>So we can <code>xor</code> the <code>arr</code> and <code>key</code> to find out correct input.</p>
-<pre><code>key = 0x00012f00
-flag = [0]*0x22
-
-for i in range(len(flag)):
-    flag[i] = arr[i] ^ key
-
-print(&#39;&#39;.join(map(chr, flag)))</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>key <span class="op">=</span> <span class="bn">0x00012f00</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>flag <span class="op">=</span> [<span class="dv">0</span>]<span class="op">*</span><span class="bn">0x22</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(flag)):</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    flag[i] <span class="op">=</span> arr[i] <span class="op">^</span> key</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="bu">print</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">map</span>(<span class="bu">chr</span>, flag)))</span></code></pre></div>
 <p>Enter the correct flag string, we get the actual flag in the output.</p>
-<pre><code>$ python3 find_flag.py | ./childrev
-ENTER THE FLAG : YAY U MADE IT
-{flag}</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1"></a>$ <span class="ex">python3</span> find_flag.py <span class="kw">|</span> <span class="ex">./childrev</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="ex">ENTER</span> THE FLAG : YAY U MADE IT</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="dt">{flag}</span></span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>

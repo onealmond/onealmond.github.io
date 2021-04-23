@@ -11,9 +11,80 @@
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -24,50 +95,50 @@
 <h1 class="title">Easter Egg</h1>
 </header>
 <p>Play the game, it allows user to go four directions, look around, take and use items, add items to inventory. The case is considered solved when stamp on the the swissblonkel scenario case, so it needs these two items in inventory and use solved stamp, then case solved and quite automatically.</p>
-<pre><code>a&gt; inventory
-You have a room-temperature coffee. Ew.
-You have a month-old chinese food. Ew.
-You have a the swissblonkel scenario. Hey, this is the case I&#39;m supposed to solve!
-You have a solved stamp. This might come in handy...
-a&gt; use solved stamp
-Case solved!</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="ex">a</span><span class="op">&gt;</span> inventory</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ex">You</span> have a room-temperature coffee. Ew.</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ex">You</span> have a month-old chinese food. Ew.</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="ex">You</span> have a the swissblonkel scenario. Hey, this is the case I<span class="st">&#39;m supposed to solve!</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="st">You have a solved stamp. This might come in handy...</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="st">a&gt; use solved stamp</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="st">Case solved!</span></span></code></pre></div>
 <p>Disassamble the program with <code>ghidra</code>, this snipe of code looks interesting.</p>
-<pre><code>    ... 
-                  res = strcmp(action,&quot;jhiezetfmvirlnjfbobk&quot;);
-                  if (res == 0) {
-                    JHIEZETFMVIRLNJFBOBK = 1;
-                  }
-    ...
-    if (JHIEZETFMVIRLNJFBOBK != 0) {
-      i = 0;
-      while (i &lt; 0x23) {
-        putchar((int)(char)(LHEIBZNXEKQSAPHHUWTQ[i] ^ COJASZQHPZXKLAPHRHOK[i]));
-        i = i + 1;
-      }
-      putchar(10);
-    }</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a>    ... </span>
+<span id="cb2-2"><a href="#cb2-2"></a>                  res = strcmp(action,<span class="st">&quot;jhiezetfmvirlnjfbobk&quot;</span>);</span>
+<span id="cb2-3"><a href="#cb2-3"></a>                  <span class="cf">if</span> (res == <span class="dv">0</span>) {</span>
+<span id="cb2-4"><a href="#cb2-4"></a>                    JHIEZETFMVIRLNJFBOBK = <span class="dv">1</span>;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>                  }</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    ...</span>
+<span id="cb2-7"><a href="#cb2-7"></a>    <span class="cf">if</span> (JHIEZETFMVIRLNJFBOBK != <span class="dv">0</span>) {</span>
+<span id="cb2-8"><a href="#cb2-8"></a>      i = <span class="dv">0</span>;</span>
+<span id="cb2-9"><a href="#cb2-9"></a>      <span class="cf">while</span> (i &lt; <span class="bn">0x23</span>) {</span>
+<span id="cb2-10"><a href="#cb2-10"></a>        putchar((<span class="dt">int</span>)(<span class="dt">char</span>)(LHEIBZNXEKQSAPHHUWTQ[i] ^ COJASZQHPZXKLAPHRHOK[i]));</span>
+<span id="cb2-11"><a href="#cb2-11"></a>        i = i + <span class="dv">1</span>;</span>
+<span id="cb2-12"><a href="#cb2-12"></a>      }</span>
+<span id="cb2-13"><a href="#cb2-13"></a>      putchar(<span class="dv">10</span>);</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    }</span></code></pre></div>
 <p>So if action matchs <code>jhiezetfmvirlnjfbobk</code>, it’ll print <code>xor</code> result of <code>LHEIBZNXEKQSAPHHUWTQ</code> and <code>COJASZQHPZXKLAPHRHOK</code>, likely to be the flag.</p>
 <p>Play again, make sure we got both stamp and the case we need to solve, before we use the stamp, perform action <code>jhiezetfmvirlnjfbobk</code> to toggle the flag, then use <code>solved stamp</code>, the game exits with flag printed.</p>
-<pre><code>a&gt; take the swissblonkel scenario
-Got the the swissblonkel scenario!
-a&gt; go west
-You are in Agency Lobby. It&#39;s late, the receptionist is out. 
-To the north is Chief&#39;s Office.
-To the east is Dangeresque&#39;s Office.
-To the west is Alleyway.
-
-a&gt; go north
-You are in Chief&#39;s Office. Geez, maybe I should leave. He looks pissed. 
-To the south is Agency Lobby.
-There are a few things here:
-- solved stamp
-
-a&gt; take solved stamp       
-Got the solved stamp!
-a&gt; jhiezetfmvirlnjfbobk                                                                                                                                                 
-a&gt; use solved stamp         
-Case solved!
-{Flag} !!</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">a</span><span class="op">&gt;</span> take the swissblonkel scenario</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">Got</span> the the swissblonkel scenario!</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">a</span><span class="op">&gt;</span> go west</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ex">You</span> are in Agency Lobby. It<span class="st">&#39;s late, the receptionist is out. </span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="st">To the north is Chief&#39;</span>s Office.</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">To</span> the east is Dangeresque<span class="st">&#39;s Office.</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="st">To the west is Alleyway.</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="st">a&gt; go north</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="st">You are in Chief&#39;</span>s Office. Geez, maybe I should leave. He looks pissed. </span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="ex">To</span> the south is Agency Lobby.</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="ex">There</span> are a few things here:</span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="ex">-</span> solved stamp</span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="ex">a</span><span class="op">&gt;</span> take solved stamp       </span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="ex">Got</span> the solved stamp!</span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="ex">a</span><span class="op">&gt;</span> jhiezetfmvirlnjfbobk                                                                                                                                                 </span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="ex">a</span><span class="op">&gt;</span> use solved stamp         </span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="ex">Case</span> solved!</span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="dt">{Flag}</span> !!</span></code></pre></div>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>
