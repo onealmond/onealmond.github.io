@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Rangoon</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Rangoon</h1>
+</header>
+<p>The program takes input from command line, which is supposed to be the flag we are looking for.</p>
+<p>From the check bellow we know the first 9 bytes are <em>CTFlearn{</em>, no surprise.</p>
+<pre><code>    __s = *(byte **)(argv + 8);
+    i = 9;
+    pbVar8 = __s;
+    pbVar10 = (byte *)&quot;CTFlearn{&quot;;
+    do {
+      if (i == 0) break;
+      i = i + -1;
+      bVar12 = *pbVar8 &lt; *pbVar10;
+      bVar13 = *pbVar8 == *pbVar10;
+      pbVar8 = pbVar8 + (ulong)bVar14 * -2 + 1;
+      pbVar10 = pbVar10 + (ulong)bVar14 * -2 + 1;
+    } while (bVar13);</code></pre>
+<p>Notice that before the final <code>strcmp</code>, there is a test for value in register <em>r13</em>, it needs to be <em>0x1c</em>, looks like this is the length of the string should be, we need to pass that too.</p>
+<pre><code>    12e7:       49 01 c5                add    %rax,%r13
+    12ea:       49 83 fd 1c             cmp    $0x1c,%r13
+    12ee:       75 7f                   jne    136f &lt;main+0x22f&gt;
+    12f0:       48 89 ee                mov    %rbp,%rsi
+    12f3:       4c 89 f7                mov    %r14,%rdi
+    12f6:       e8 15 fe ff ff          callq  1110 &lt;strcmp@plt&gt;</code></pre>
+<p>Run it in <code>gdb</code> with test string <code>CTFlearn{aaaaaaaaaaaaaaaaaa}</code>, set a breakpoint at the test before <code>strcmp</code>.</p>
+<pre><code>$rax   : 0x00005555555580fd  →  0x000000000000007d (&quot;}&quot;?)
+$rbx   : 0xe3
+$rcx   : 0x7d
+$rdx   : 0x2
+$rsp   : 0x00007fffffffda90  →  0x00007fff00000079 (&quot;y&quot;?)
+$rbp   : 0x00005555555580e0  →  &quot;CTFlearn{Prince_Princess_Devi}&quot;
+$rsi   : 0x7d
+$rdi   : 0x00005555555580fd  →  0x000000000000007d (&quot;}&quot;?)
+$rip   : 0x00005555555552e7  →  &lt;main+423&gt; add r13, rax
+$r8    : 0x2000
+$r9    : 0x00005555555581df  →  0x0055555556aeb000
+$r10   : 0x6e
+$r11   : 0x246
+$r12   : 0x000055555556aeb0  →  0x00005555555560c1  →  0x6c6c4100676e694b (&quot;King&quot;?)
+$r13   : 0xffffaaaaaaaa7f21
+$r14   : 0x00007fffffffdfa1  →  &quot;CTFlearn{aaaaaaaaaaaaaaaaaa}&quot;
+$r15   : 0xc</code></pre>
+<p>The value in register <em>r13</em> is <em>0x1e</em>, no pass. But we have a string shown up at register <em>rbp</em>, <em>CTFlearn{Prince_Princess_Devi}</em>.</p>
+<pre><code>gef➤  registers $r13
+$r13   : 0x1e </code></pre>
+<p>If we use <code>CTFlearn{Prince_Princess_Devi}</code>, we are not going to pass the length check, the value in register <em>r13</em> becomes <em>0x21</em>. We need to try some different strings. Take a look into the following block of code, <code>bVar2</code> and <code>bVar3</code> are values at position <em>0x11</em> and <em>0x16</em>, the later checks indidate they should both be <em>0x5f</em>, underscore.</p>
+<pre><code>...
+bVar2 = __s[0x11];
+bVar3 = __s[0x16];
+...
+lVar6 = __stpcpy_chk(j + 0x1040e8,
+                     *(undefined8 *)(i + (ulong)((uint)(bVar2 == 0x5f) + 2) * 8),
+                     (undefined8 *)((long)puVar9 - (j + 0x1040e8)));
+lVar6 = __memcpy_chk(lVar6,&amp;DAT_0010200e,2,(undefined8 *)((long)puVar9 - lVar6));
+lVar6 = __stpcpy_chk(lVar6 + 1,*(undefined8 *)(i + ((ulong)(bVar3 == 0x5f) * 5 + 3) * 8),
+                     0x1041df - lVar6);
+...</code></pre>
+<p>With placeholders the input looks likc “CTFlearn{++++++++<em>++++</em>++++}”.</p>
+<pre><code>People&#39;sSquareandPark.KandawgyiNaturePark.Devi.ShwedagonPagoda.BagoRiver.Thaketa.Maha.AlexanderFraser.Burma.Myanmar.Yangon.Princess.Prince.Queen.Kin</code></pre>
+<p>As the word are picked from program, we rearrange the words and add <code>King</code> and <code>Bago</code> to make it up. Input <code>CTFlearn{Princess_King_Bago}</code> brings us through the length check, another string shown up at address in register <em>rbp</em>.</p>
+<pre><code>$rax   : 0x00005555555580fb  →  0x000000000000007d (&quot;}&quot;?)
+$rbx   : 0xe5
+$rcx   : 0x7d
+$rdx   : 0x2
+$rsp   : 0x00007fffffffda90  →  0x00007fff00000079 (&quot;y&quot;?)
+$rbp   : 0x00005555555580e0  →  &quot;CTFlearn{Princess_Maha_Devi}&quot;
+$rsi   : 0x7d
+$rdi   : 0x00005555555580fb  →  0x000000000000007d (&quot;}&quot;?)
+$rip   : 0x00005555555552e7  →  &lt;main+423&gt; add r13, rax
+$r8    : 0x2000
+$r9    : 0x00005555555581df  →  0x0055555556aeb000
+$r10   : 0x6e
+$r11   : 0x246
+$r12   : 0x000055555556aeb0  →  0x00005555555560c1  →  0x6c6c4100676e694b (&quot;King&quot;?)
+$r13   : 0xffffaaaaaaaa7f21
+$r14   : 0x00007fffffffdfa1  →  &quot;CTFlearn{Princess_King_Bago}&quot;
+$r15   : 0xc</code></pre>
+<p>Continue to <code>strcmp</code>, this string looks like what we are looking for and we picked the wrong words before.</p>
+<pre><code>strcmp@plt (
+   $rdi = 0x00007fffffffdfa1 → &quot;CTFlearn{Princess_King_Bago}&quot;,
+   $rsi = 0x00005555555580e0 → &quot;CTFlearn{Princess_Maha_Devi}&quot;,
+   $rdx = 0x0000000000000002,
+   $rcx = 0x000000000000007d
+)</code></pre>
+<p>Run again with it, yeah, this is our flag.</p>
+<pre><code>CONGRATULATIONS, you found the flag:  CTFlearn{Princess_Maha_Devi}</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Every Bits Counts</title>
+  <title>Every Bit Counts</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -21,7 +21,7 @@
     <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
     <div id="content" class="content" style="width:70%;height:auto">
 <header id="title-block-header">
-<h1 class="title">Every Bits Counts</h1>
+<h1 class="title">Every Bit Counts</h1>
 </header>
 <p>Decompile the program with <code>ghidra</code> we got a super long <code>if-else</code> block in <em>main</em> function. It takes <em>0x34</em> bytes of input, if every position of input meet the requirements, we found the flag.</p>
 <p>A simple way to figure out the correct input is to mimic the check process. We only look into those <code>!= 0</code> part of check, translate it to <code>|=</code> for corresponding positions. There are 233 of non-zero check by <code>greap</code>.</p>
@@ -46,6 +46,43 @@
 <p>But the missing part is easy to guess, change the first 3 chars to <em>“CTF”</em>, here comes the flag.</p>
 <pre><code>./every_bit_counts CTFlearn{w0w_you_f0und_My_fl@g_y0u_Ar3_so_much_n1c3}
 Wow you found my flag!</code></pre>
+<p>Here is an interesting solution from CTFLearn community.</p>
+<pre><code>#/usr/bin/env python3
+
+import sys
+import time
+
+pwd = bytearray(&#39;.&#39; * 52, &#39;utf8&#39;)
+
+with open(&#39;every_bit_counts&#39;, &#39;rb&#39;) as f:
+    f.seek(0x486)
+    while True:
+        code = f.read(11)
+        if code != b&#39;\x48\x8b\x45\xf0\x48\x83\xc0\x08\x48\x8b\x08&#39;:  # MOV+ADD+MOV
+            break
+
+        code = f.read(3)  # ADD (optional) + MOVSX
+        if code == b&#39;\x48\x83\xc1&#39;:
+            offset = int.from_bytes(f.read(1), &#39;big&#39;)
+            code = f.read(3)
+        else:
+            offset = 0
+
+        code = f.read(3)  # AND (3 or 6 bytes)
+        mask = code[2]
+        if mask == 0x80:
+            f.read(3)
+
+        code = f.read(9)  # CMP + JN/JNZ
+        if code[4] == 0x85:  # JNZ
+            pwd[offset] &amp;= ~mask
+        else:
+            pwd[offset] |= mask
+
+        print(pwd.decode(&#39;utf8&#39;), end=&#39;\r&#39;)
+        time.sleep(0.02)
+        sys.stdout.flush()
+print()</code></pre>
     </div>
     <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
 </body>
