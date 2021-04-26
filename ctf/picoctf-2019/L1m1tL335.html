@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>L1im1tL335</title>
+  <title>L1m1tL335</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -14,6 +14,10 @@
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
       <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
       <script type="text/javascript" src="../../js/common.js"></script>
 </head>
@@ -21,7 +25,7 @@
     <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
     <div id="content" class="content" style="width:70%;height:auto">
 <header id="title-block-header">
-<h1 class="title">L1im1tL335</h1>
+<h1 class="title">L1m1tL335</h1>
 </header>
 <p>The program allows user to input integer value into specific position addressed by index. We can overwrite the function return address with address of<code>win</code>. To find out the address we needs try out some possible numbers.</p>
 <p>So we input address of <code>win</code> for the first integer value, try out index in range <code>[-512, 0]</code>. Finally <code>-5</code> brought the flag.</p>
