@@ -17,7 +17,7 @@ function generate_writeup_html {
     puzzles="$puzzles $(basename $dst):$title"
 
     title=$(sed "s|-| |g" <<< $title)
-    title=`python3 -c "print(input().title())" <<< $title`
+    title=`python3 -c "from string import capwords;print(capwords(input()))" <<< $title`
 
     echo "Generating '$title': $dst"
     mkdir -p `dirname $dst`
@@ -46,7 +46,7 @@ EOF
 for f in $puzzles; do
   title=$(awk -F: '{print $2}' <<< "$f")
   title=$(sed "s|-| |g" <<< $title)
-  title=`python3 -c "print(input().title())" <<< $title`
+  title=`python3 -c "from string import capwords;print(capwords(input()))" <<< $title`
   file=$(awk -F: '{print $1}' <<< "$f")
   echo "Indexing '$title': $file"
   cat >> "$dst" << EOF
