@@ -86,3 +86,7 @@ li.event-item .toc-item {
   left: 90%;
   visibility: hidden;
 }
+
+img {
+  width:100%
+}
