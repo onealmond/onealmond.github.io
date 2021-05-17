@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Abondoned Street Challenge2</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Abondoned Street Challenge2</h1>
+</header>
+<p>Examined the jpg file with <em>exiftool</em>, it shown the image width is 2016, height is 900.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="ex">Image</span> Width                     : 2016</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ex">Image</span> Height                    : 900</span></code></pre></div>
+<p>Checked out file size, 1008578 bytes.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a>$ <span class="fu">wc</span> -c abondoned_street_challenge2.jpg </span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ex">1008578</span> abondoned_street_challenge2.jpg</span></code></pre></div>
+<p>Roughly calculated height and width.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dv">1008578</span><span class="op">/</span><span class="dv">900</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fl">1120.6422222222222</span></span></code></pre></div>
+<p>Considered changing the width to <em>1120</em>. To alter the width need to locate start of frame marker, <em>ffc0</em>.</p>
+<blockquote>
+<p>Start of frame marker (FFC0)</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>the first two bytes, the length, after the marker indicate the number of bytes, including the two length bytes, that this header contains</li>
+<li>P – one byte: sample precision in bits (usually 8, for baseline JPEG)</li>
+<li>Y – two bytes</li>
+<li>X – two bytes</li>
+<li>Nf – one byte: the number of components in the image
+<ul>
+<li>3 for color baseline JPEG images</li>
+<li>1 for grayscale baseline JPEG images</li>
+</ul></li>
+<li>Nf times:
+<ul>
+<li>Component ID – one byte</li>
+<li>H and V sampling factors – one byte: H is first four bits and V is second four bits</li>
+<li>Quantization table number– one byte</li>
+</ul></li>
+</ul>
+</blockquote>
+<p>Source <a href="http://www.geocities.ws/crestwoodsdd/JPEG.htm">post</a></p>
+<p>When the marker is located at <em>i</em>, then positions needed to change are <em>i+5</em> and <em>i+6</em>, 1120 is <em>0x460</em> in hex.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>data <span class="op">=</span> <span class="bu">open</span>(<span class="st">&#39;abondoned_street_challenge2.jpg&#39;</span>, <span class="st">&#39;rb&#39;</span>).read()</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>xi <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>yi <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="cf">while</span> i <span class="op">&lt;</span> <span class="bu">len</span>(data):</span>
+<span id="cb4-7"><a href="#cb4-7"></a>    i <span class="op">=</span> data.find(b<span class="st">&#39;</span><span class="ch">\xff\xc0</span><span class="st">&#39;</span>, i)</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">-1</span>: <span class="cf">break</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>    yi <span class="op">=</span> i<span class="op">+</span><span class="dv">5</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>    xi <span class="op">=</span> i<span class="op">+</span><span class="dv">7</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="cf">break</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="bu">print</span>(<span class="st">&#39;x&#39;</span>, xi, data[xi:xi<span class="op">+</span><span class="dv">2</span>], <span class="st">&#39;y&#39;</span>, yi, data[yi:yi<span class="op">+</span><span class="dv">2</span>])</span>
+<span id="cb4-14"><a href="#cb4-14"></a>data <span class="op">=</span> data[:yi] <span class="op">+</span> b<span class="st">&#39;</span><span class="ch">\x04\x60</span><span class="st">&#39;</span> <span class="op">+</span> data[yi<span class="op">+</span><span class="dv">2</span>:]</span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&#39;fix.jpg&#39;</span>, <span class="st">&#39;wb&#39;</span>) <span class="im">as</span> fd:</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    fd.write(data)</span></code></pre></div>
+<p>Fixed image shown string <em>“urban_exploration”</em>, so flag was <em>CTFlearn{urban_exploration}</em>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Just In Time</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Just In Time</h1>
+</header>
+<p>There were some miss leading information here, if follow the decompiled code from <em>ghidra</em> can easily go on the wrong way, renamed some of the symbols accordingly. <em>file_data</em> was the key, it was used in the last two <em>copy_xor</em> call.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a>undefined8 main(undefined8 param_1,undefined8 *param_2)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>{</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">char</span> *__src;</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  undefined8 local_58;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  undefined8 local_50;</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  undefined8 local_48;</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  undefined8 local_40;</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  undefined4 local_38;</span>
+<span id="cb1-9"><a href="#cb1-9"></a>  undefined2 local_34;</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  undefined local_32;</span>
+<span id="cb1-11"><a href="#cb1-11"></a>  <span class="dt">char</span> *local_30;</span>
+<span id="cb1-12"><a href="#cb1-12"></a>  <span class="dt">char</span> *local_28;</span>
+<span id="cb1-13"><a href="#cb1-13"></a>  <span class="dt">char</span> *file_data;</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  </span>
+<span id="cb1-15"><a href="#cb1-15"></a>  file_data = (<span class="dt">char</span> *)malloc(<span class="dv">8</span>);</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  __src = (<span class="dt">char</span> *)read_file(*param_2);</span>
+<span id="cb1-17"><a href="#cb1-17"></a>  strncpy(file_data,__src,<span class="dv">8</span>);</span>
+<span id="cb1-18"><a href="#cb1-18"></a>  local_58 = <span class="bn">0x486765792038261b</span>;</span>
+<span id="cb1-19"><a href="#cb1-19"></a>  local_50 = <span class="bn">0x754b623167242872</span>;</span>
+<span id="cb1-20"><a href="#cb1-20"></a>  local_48 = <span class="bn">0x747d4e603566227b</span>;</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  local_40 = <span class="bn">0x252f764e31333323</span>;</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  local_38 = <span class="bn">0x46313160</span>;</span>
+<span id="cb1-23"><a href="#cb1-23"></a>  local_34 = <span class="bn">0x3123</span>;</span>
+<span id="cb1-24"><a href="#cb1-24"></a>  local_32 = <span class="dv">0</span>;</span>
+<span id="cb1-25"><a href="#cb1-25"></a>  local_28 = (<span class="dt">char</span> *)malloc(<span class="bn">0x27</span>);</span>
+<span id="cb1-26"><a href="#cb1-26"></a>  strncpy(local_28,(<span class="dt">char</span> *)&amp;local_58,<span class="bn">0x27</span>);</span>
+<span id="cb1-27"><a href="#cb1-27"></a>  decrypt(local_28);</span>
+<span id="cb1-28"><a href="#cb1-28"></a>  puts(<span class="st">&quot;Decryption finished.&quot;</span>);</span>
+<span id="cb1-29"><a href="#cb1-29"></a>  local_30 = (<span class="dt">char</span> *)malloc(<span class="bn">0x27</span>);</span>
+<span id="cb1-30"><a href="#cb1-30"></a>  __src = (<span class="dt">char</span> *)copy_xor(&amp;local_58,file_data,file_data);</span>
+<span id="cb1-31"><a href="#cb1-31"></a>  strncpy(local_30,__src,<span class="bn">0x27</span>);</span>
+<span id="cb1-32"><a href="#cb1-32"></a>  local_30 = (<span class="dt">char</span> *)copy_xor(local_30,file_data,file_data);</span>
+<span id="cb1-33"><a href="#cb1-33"></a>  decrypt2(local_30);</span>
+<span id="cb1-34"><a href="#cb1-34"></a>  free(local_28);</span>
+<span id="cb1-35"><a href="#cb1-35"></a>  free(local_30);</span>
+<span id="cb1-36"><a href="#cb1-36"></a>  free(file_data);</span>
+<span id="cb1-37"><a href="#cb1-37"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb1-38"><a href="#cb1-38"></a>}</span></code></pre></div>
+<p>Tried to set breakpoints after the two functions, in <code>radare2</code> disassembled code the function was located at <code>0x55d6817f91c5</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode asm"><code class="sourceCode fasm"><span id="cb2-1"><a href="#cb2-1"></a><span class="bn">0x55d6817f95b3      </span>488b55e8       <span class="bu">mov</span> <span class="kw">rdx</span>, <span class="dt">qword</span> [<span class="kw">rbp</span> - <span class="bn">0x18</span>]</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="bn">0x55d6817f95b7      </span>488d45b0       <span class="bu">lea</span> <span class="kw">rax</span>, [<span class="kw">rbp</span> - <span class="bn">0x50</span>]</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="bn">0x55d6817f95bb      </span>4889d6         <span class="bu">mov</span> <span class="kw">rsi</span>, <span class="kw">rdx</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="bn">0x55d6817f95be      </span>4889c7         <span class="bu">mov</span> <span class="kw">rdi</span>, <span class="kw">rax</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="bn">0x55d6817f95c1      </span>e8fffbffff     <span class="bu">call</span><span class="bn"> 0x55d6817f91c5</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="bn">0x55d6817f95c6      </span>4889c1         <span class="bu">mov</span> <span class="kw">rcx</span>, <span class="kw">rax</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="bn">0x55d6817f95c9      </span>488b45d8       <span class="bu">mov</span> <span class="kw">rax</span>, <span class="dt">qword</span> [<span class="kw">rbp</span> - <span class="bn">0x28</span>]</span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="bn">0x55d6817f95cd      </span>4889da         <span class="bu">mov</span> <span class="kw">rdx</span>, <span class="kw">rbx</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="bn">0x55d6817f95d0      </span>4889ce         <span class="bu">mov</span> <span class="kw">rsi</span>, <span class="kw">rcx</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="bn">0x55d6817f95d3      </span>4889c7         <span class="bu">mov</span> <span class="kw">rdi</span>, <span class="kw">rax</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="bn">0x55d6817f95d6      </span>e875faffff     <span class="bu">call</span> sym.imp.strncpy</span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="bn">0x55d6817f95db      </span>488b55e8       <span class="bu">mov</span> <span class="kw">rdx</span>, <span class="dt">qword</span> [<span class="kw">rbp</span> - <span class="bn">0x18</span>]</span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="bn">0x55d6817f95df      </span>488b45d8       <span class="bu">mov</span> <span class="kw">rax</span>, <span class="dt">qword</span> [<span class="kw">rbp</span> - <span class="bn">0x28</span>]</span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="bn">0x55d6817f95e3      </span>4889d6         <span class="bu">mov</span> <span class="kw">rsi</span>, <span class="kw">rdx</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="bn">0x55d6817f95e6      </span>4889c7         <span class="bu">mov</span> <span class="kw">rdi</span>, <span class="kw">rax</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="bn">0x55d6817f95e9      </span>e8d7fbffff     <span class="bu">call</span><span class="bn"> 0x55d6817f91c5</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="bn">0x55d6817f95ee      </span>488945d8       <span class="bu">mov</span> <span class="dt">qword</span> [<span class="kw">rbp</span> - <span class="bn">0x28</span>], <span class="kw">rax</span></span></code></pre></div>
+<p>By checking out the result found out the flag was <em>dctf{df77dbe0c407dd4a188e12013ccb009f}</em>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a>[<span class="ex">0x7f68e5645110</span>]<span class="op">&gt;</span> db 0x55d6817f95ee</span>
+<span id="cb3-2"><a href="#cb3-2"></a>[<span class="ex">0x7f68e5645110</span>]<span class="op">&gt;</span> dc</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">Decryption</span> finished.</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ex">hit</span> breakpoint at: 0x55d6817f95c6</span>
+<span id="cb3-5"><a href="#cb3-5"></a>[<span class="ex">0x55d6817f95c6</span>]<span class="op">&gt;</span> dr rax</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">0x55d682c59930</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>[<span class="ex">0x55d6817f95c6</span>]<span class="op">&gt;</span> x @rax</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="ex">-</span> offset -       0 1  2 3  4 5  6 7  8 9  A B  C D  E F  0123456789ABCDEF</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="ex">0x55d682c59930</span>  6463 7466 7b64 6637 3764 6265 3063 3430  dctf{df77dbe0c40</span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="ex">0x55d682c59940</span>  3764 6434 6131 3838 6531 3230 3133 6363  7dd4a188e12013cc</span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="ex">0x55d682c59950</span>  6230 3039 667d 0000 b106 0200 0000 0000  b009f}<span class="ex">..........</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="ex">0x55d682c59960</span>  0000 0000 0000 0000 0000 0000 0000 0000  ................</span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="ex">0x55d682c59970</span>  0066 6f70 656e 0073 7472 6e63 7079 0070  .fopen.strncpy.p</span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="ex">0x55d682c59980</span>  7574 7300 7075 7463 6861 7200 7072 696e  uts.putchar.prin</span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="ex">0x55d682c59990</span>  7466 0073 7472 6c65 6e00 6663 6c6f 7365  tf.strlen.fclose</span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="ex">0x55d682c599a0</span>  006d 616c 6c6f 6300 6672 6561 6400 5f5f  .malloc.fread.__</span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="ex">0x55d682c599b0</span>  6378 615f 6669 6e61 6c69 7a65 005f 5f6c  cxa_finalize.__l</span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="ex">0x55d682c599c0</span>  6962 635f 7374 6172 745f 6d61 696e 0066  ibc_start_main.f</span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="ex">0x55d682c599d0</span>  7265 6500 6c69 6263 2e73 6f2e 3600 474c  ree.libc.so.6.GL</span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="ex">0x55d682c599e0</span>  4942 435f 322e 322e 3500 5f49 544d 5f64  IBC_2.2.5._ITM_d</span>
+<span id="cb3-21"><a href="#cb3-21"></a><span class="ex">0x55d682c599f0</span>  6572 6567 6973 7465 7254 4d43 6c6f 6e65  eregisterTMClone</span>
+<span id="cb3-22"><a href="#cb3-22"></a><span class="ex">0x55d682c59a00</span>  5461 626c 6500 5f5f 676d 6f6e 5f73 7461  Table.__gmon_sta</span>
+<span id="cb3-23"><a href="#cb3-23"></a><span class="ex">0x55d682c59a10</span>  7274 5f5f 005f 4954 4d5f 7265 6769 7374  rt__._ITM_regist</span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="ex">0x55d682c59a20</span>  6572 544d 436c 6f6e 6554 6162 6c65 0000  erTMCloneTable..</span></code></pre></div>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

