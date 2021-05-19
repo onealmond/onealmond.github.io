@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>A Simple Sp Box</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">A Simple Sp Box</h1>
+</header>
+<p>The service encrypted plain text by multiple rounds, which is determined by length of plain text, if length of plain text was odd, it appended a *’_’* to the end, then go for <code>int(2 * ceil(log(len(message), 2)))</code> rounds of encryption. For each round, it substituted message according to a shuffled alphabet, rearrange the message by moving all the odd positions to the head and move all the even positions to the tail.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a>random <span class="op">=</span> SystemRandom()</span>
+<span id="cb1-2"><a href="#cb1-2"></a>ALPHABET <span class="op">=</span> ascii_letters <span class="op">+</span> digits <span class="op">+</span> <span class="st">&quot;_!@#$%.&#39;</span><span class="ch">\&quot;</span><span class="st">+:;&lt;=}{&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>shuffled <span class="op">=</span> <span class="bu">list</span>(ALPHABET)</span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a>random.shuffle(shuffled) </span>
+<span id="cb1-6"><a href="#cb1-6"></a>S_box <span class="op">=</span> {k : v <span class="cf">for</span> k, v <span class="kw">in</span> <span class="bu">zip</span>(ALPHABET, shuffled)} </span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">def</span> encrypt(message):</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="cf">if</span> <span class="bu">len</span>(message) <span class="op">%</span> <span class="dv">2</span>:</span>
+<span id="cb1-10"><a href="#cb1-10"></a>        message <span class="op">+=</span> <span class="st">&quot;_&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a>    message <span class="op">=</span> <span class="bu">list</span>(message)</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    rounds <span class="op">=</span> <span class="bu">int</span>(<span class="dv">2</span> <span class="op">*</span> ceil(log(<span class="bu">len</span>(message), <span class="dv">2</span>))) </span>
+<span id="cb1-14"><a href="#cb1-14"></a></span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="cf">for</span> <span class="bu">round</span> <span class="kw">in</span> <span class="bu">range</span>(rounds):</span>
+<span id="cb1-16"><a href="#cb1-16"></a>        message <span class="op">=</span> [S_box[c] <span class="cf">for</span> c <span class="kw">in</span> message]</span>
+<span id="cb1-17"><a href="#cb1-17"></a>        <span class="cf">if</span> <span class="bu">round</span> <span class="op">&lt;</span> (rounds<span class="dv">-1</span>):</span>
+<span id="cb1-18"><a href="#cb1-18"></a>            message <span class="op">=</span>  [message[i] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(message)) <span class="cf">if</span> i<span class="op">%</span><span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span>] <span class="op">+</span> [message[i] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(message)) <span class="cf">if</span> i<span class="op">%</span><span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb1-19"><a href="#cb1-19"></a>    <span class="cf">return</span> <span class="st">&#39;&#39;</span>.join(message)</span></code></pre></div>
+<p>What were known here - length(cipher) = length(plain) or length(plain)+1 - relative positions of each characters in message in round n and message in round n+1</p>
+<p>What were unknown here - alphabet mapping - exact length of plain text</p>
+<p>As the substitution went on in each round, like <em>a-&gt;b,b-&gt;c,c-&gt;d…x-&gt;y</em>, eventually, there was a mapping from <em>a</em> to <em>y</em>. If we could find out what mapped to what, we were able to decrypt it. The service allowed to guess 10000 times, for each time, it printed a cipher text of input if incorrect, went throught all characters in alphabet, we shall get the shuffled alphabet used by server.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">150</span>):</span>
+<span id="cb2-2"><a href="#cb2-2"></a>    guess <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;&gt; &quot;</span>).strip()</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="cf">assert</span> <span class="dv">0</span> <span class="op">&lt;</span> <span class="bu">len</span>(guess) <span class="op">&lt;=</span> <span class="dv">10000</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="cf">if</span> guess <span class="op">==</span> flag:</span>
+<span id="cb2-6"><a href="#cb2-6"></a>        <span class="bu">print</span>(<span class="st">&quot;Well done. The flag is:&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>        <span class="bu">print</span>(flag)</span>
+<span id="cb2-8"><a href="#cb2-8"></a>        <span class="cf">break</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-11"><a href="#cb2-11"></a>        <span class="bu">print</span>(<span class="st">&quot;That doesn&#39;t look right, it encrypts to this:&quot;</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>        <span class="bu">print</span>(encrypt(guess))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a>$ <span class="ex">nc</span> dctf1-chall-sp-box.westeurope.azurecontainer.io 8888</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">Here</span><span class="st">&#39;s the flag, please decrypt it for me:</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="st">+B22aXqqO2nxMY2x2LMy2+XXpM&lt;xy2YLbBd0MO+j2b</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="st">&gt; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="st">That doesn&#39;</span>t look right, it encrypts to this:</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">111111111111111111111111111111111111111111</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="op">&gt;</span> </span></code></pre></div>
+<p>If input <em>‘aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa’</em>, it would be encrypted to <em>‘111111111111111111111111111111111111111111’</em>, so for each character in alphabet take one character from cipher text to made up shuffled alphabet.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> find_shuffled():</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    ALPHABET <span class="op">=</span> string.ascii_letters <span class="op">+</span> string.digits <span class="op">+</span> <span class="st">&quot;_!@#$%.&#39;</span><span class="ch">\&quot;</span><span class="st">+:;&lt;=}{&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    shuffled <span class="op">=</span> []</span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    pr <span class="op">=</span> pwn.<span class="ex">connect</span>(host, port)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    ret <span class="op">=</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="cf">try</span>:</span>
+<span id="cb4-8"><a href="#cb4-8"></a>        pr.readline()</span>
+<span id="cb4-9"><a href="#cb4-9"></a>        line <span class="op">=</span> pr.readline().strip().decode()</span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a>        <span class="cf">for</span> a <span class="kw">in</span> ALPHABET:</span>
+<span id="cb4-12"><a href="#cb4-12"></a>            pr.sendlineafter(<span class="st">&#39;&gt;&#39;</span>, a<span class="op">*</span><span class="bu">len</span>(line))</span>
+<span id="cb4-13"><a href="#cb4-13"></a>            pr.readline()</span>
+<span id="cb4-14"><a href="#cb4-14"></a>            enc <span class="op">=</span> pr.readline().strip().decode()</span>
+<span id="cb4-15"><a href="#cb4-15"></a>            <span class="bu">print</span>(a, enc)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>            shuffled.append(enc[<span class="dv">0</span>])</span>
+<span id="cb4-17"><a href="#cb4-17"></a></span>
+<span id="cb4-18"><a href="#cb4-18"></a>        <span class="cf">for</span> a <span class="kw">in</span> line:</span>
+<span id="cb4-19"><a href="#cb4-19"></a>           i <span class="op">=</span> shuffled.index(a)</span>
+<span id="cb4-20"><a href="#cb4-20"></a>           ret <span class="op">+=</span> ALPHABET[i]</span>
+<span id="cb4-21"><a href="#cb4-21"></a>    <span class="cf">finally</span>:</span>
+<span id="cb4-22"><a href="#cb4-22"></a>        pr.close()</span>
+<span id="cb4-23"><a href="#cb4-23"></a>    <span class="cf">return</span> ret</span></code></pre></div>
+<p>By replacing alphabet, got a string *3u__Stdds_bc0h_c_f0y_3tti0xcy_hfnu}l0s3{_n*, looked like a disordered flag. The second step reorder it by moving the odds and evens back to where ther were.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">def</span> decode(message):</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    message <span class="op">=</span> <span class="bu">list</span>(message)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    rounds <span class="op">=</span> <span class="bu">int</span>(<span class="dv">2</span> <span class="op">*</span> ceil(log(<span class="bu">len</span>(message), <span class="dv">2</span>))) </span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="cf">for</span> <span class="bu">round</span> <span class="kw">in</span> <span class="bu">range</span>(rounds):</span>
+<span id="cb5-6"><a href="#cb5-6"></a>        <span class="cf">if</span> <span class="bu">round</span> <span class="op">&lt;</span> (rounds<span class="dv">-1</span>):</span>
+<span id="cb5-7"><a href="#cb5-7"></a>            odd <span class="op">=</span> message[:<span class="bu">len</span>(message)<span class="op">//</span><span class="dv">2</span>]</span>
+<span id="cb5-8"><a href="#cb5-8"></a>            even <span class="op">=</span> message[<span class="bu">len</span>(message)<span class="op">//</span><span class="dv">2</span>:]</span>
+<span id="cb5-9"><a href="#cb5-9"></a>            i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>            j <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>            k <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>            <span class="cf">while</span> i <span class="op">&lt;</span> <span class="bu">len</span>(odd) <span class="kw">and</span> j <span class="op">&lt;</span> <span class="bu">len</span>(even):</span>
+<span id="cb5-13"><a href="#cb5-13"></a>                <span class="cf">if</span> k <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb5-14"><a href="#cb5-14"></a>                    message[k] <span class="op">=</span> odd[i]</span>
+<span id="cb5-15"><a href="#cb5-15"></a>                    i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>                <span class="cf">else</span>:</span>
+<span id="cb5-17"><a href="#cb5-17"></a>                    message[k] <span class="op">=</span> even[j]</span>
+<span id="cb5-18"><a href="#cb5-18"></a>                    j <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a>                k <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a></span>
+<span id="cb5-21"><a href="#cb5-21"></a>            <span class="cf">if</span> i <span class="op">&lt;</span> <span class="bu">len</span>(odd):</span>
+<span id="cb5-22"><a href="#cb5-22"></a>                message[k] <span class="op">=</span> odd[i]</span>
+<span id="cb5-23"><a href="#cb5-23"></a>            <span class="cf">if</span> j <span class="op">&lt;</span> <span class="bu">len</span>(even):</span>
+<span id="cb5-24"><a href="#cb5-24"></a>                message[k] <span class="op">=</span> even[j]</span>
+<span id="cb5-25"><a href="#cb5-25"></a></span>
+<span id="cb5-26"><a href="#cb5-26"></a>    <span class="cf">return</span> <span class="st">&#39;&#39;</span>.join(message)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a>[<span class="ex">x</span>] Opening connection to dctf1-chall-sp-box.westeurope.azurecontainer.io on port 8888</span>
+<span id="cb6-2"><a href="#cb6-2"></a>[<span class="ex">x</span>] Opening connection to dctf1-chall-sp-box.westeurope.azurecontainer.io on port 8888: Trying 20.76.178.163</span>
+<span id="cb6-3"><a href="#cb6-3"></a>[<span class="ex">+</span>] Opening connection to dctf1-chall-sp-box.westeurope.azurecontainer.io on port 8888: Done</span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="ex">a</span> 888888888888888888888888888888888888888888</span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="ex">b</span> ::::::::::::::::::::::::::::::::::::::::::</span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="ex">c</span> MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="ex">d</span> bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb</span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="ex">e</span> BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="ex">f</span> ffffffffffffffffffffffffffffffffffffffffff</span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="ex">g</span> cccccccccccccccccccccccccccccccccccccccccc</span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="ex">h</span> qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq</span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="ex">i</span> EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE</span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="ex">j</span> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="ex">k</span> ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ</span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="ex">l</span> <span class="kw">;;</span>;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="ex">m</span> yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy</span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="ex">n</span> oooooooooooooooooooooooooooooooooooooooooo</span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="ex">o</span> <span class="co">##########################################</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="ex">p</span> FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="ex">q</span> uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu</span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="ex">r</span> @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="ex">s</span> 777777777777777777777777777777777777777777</span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="ex">t</span> <span class="va">$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="ex">u</span> llllllllllllllllllllllllllllllllllllllllll</span>
+<span id="cb6-25"><a href="#cb6-25"></a><span class="ex">v</span> }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}</span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="fu">w</span> zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="ex">x</span> 555555555555555555555555555555555555555555</span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="ex">y</span> LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL</span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="ex">z</span> hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh</span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="ex">A</span> 222222222222222222222222222222222222222222</span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="ex">B</span> ..........................................</span>
+<span id="cb6-32"><a href="#cb6-32"></a><span class="ex">C</span> 111111111111111111111111111111111111111111</span>
+<span id="cb6-33"><a href="#cb6-33"></a><span class="ex">D</span> ++++++++++++++++++++++++++++++++++++++++++</span>
+<span id="cb6-34"><a href="#cb6-34"></a><span class="ex">E</span> GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG</span>
+<span id="cb6-35"><a href="#cb6-35"></a><span class="ex">F</span> IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII</span>
+<span id="cb6-36"><a href="#cb6-36"></a><span class="ex">G</span> XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
+<span id="cb6-37"><a href="#cb6-37"></a><span class="ex">H</span> HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH</span>
+<span id="cb6-38"><a href="#cb6-38"></a><span class="ex">I</span> KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK</span>
+<span id="cb6-39"><a href="#cb6-39"></a><span class="ex">J</span> WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</span>
+<span id="cb6-40"><a href="#cb6-40"></a><span class="ex">K</span> nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn</span>
+<span id="cb6-41"><a href="#cb6-41"></a><span class="ex">L</span> dddddddddddddddddddddddddddddddddddddddddd</span>
+<span id="cb6-42"><a href="#cb6-42"></a><span class="ex">M</span> 444444444444444444444444444444444444444444</span>
+<span id="cb6-43"><a href="#cb6-43"></a><span class="ex">N</span> gggggggggggggggggggggggggggggggggggggggggg</span>
+<span id="cb6-44"><a href="#cb6-44"></a><span class="ex">O</span> 666666666666666666666666666666666666666666</span>
+<span id="cb6-45"><a href="#cb6-45"></a><span class="ex">P</span> TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</span>
+<span id="cb6-46"><a href="#cb6-46"></a><span class="ex">Q</span> YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY</span>
+<span id="cb6-47"><a href="#cb6-47"></a><span class="ex">R</span> __________________________________________</span>
+<span id="cb6-48"><a href="#cb6-48"></a><span class="ex">S</span> NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN</span>
+<span id="cb6-49"><a href="#cb6-49"></a><span class="ex">T</span> xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+<span id="cb6-50"><a href="#cb6-50"></a><span class="ex">U</span> iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii</span>
+<span id="cb6-51"><a href="#cb6-51"></a><span class="ex">V</span> eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee</span>
+<span id="cb6-52"><a href="#cb6-52"></a><span class="ex">W</span> RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR</span>
+<span id="cb6-53"><a href="#cb6-53"></a><span class="ex">X</span> CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC</span>
+<span id="cb6-54"><a href="#cb6-54"></a><span class="ex">Y</span> <span class="st">&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;&#39;</span></span>
+<span id="cb6-55"><a href="#cb6-55"></a><span class="ex">Z</span> wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww</span>
+<span id="cb6-56"><a href="#cb6-56"></a><span class="ex">0</span> JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ</span>
+<span id="cb6-57"><a href="#cb6-57"></a><span class="ex">1</span> SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS</span>
+<span id="cb6-58"><a href="#cb6-58"></a><span class="ex">2</span> DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD</span>
+<span id="cb6-59"><a href="#cb6-59"></a><span class="ex">3</span> pppppppppppppppppppppppppppppppppppppppppp</span>
+<span id="cb6-60"><a href="#cb6-60"></a><span class="ex">4</span> %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span id="cb6-61"><a href="#cb6-61"></a><span class="ex">5</span> OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO</span>
+<span id="cb6-62"><a href="#cb6-62"></a><span class="ex">6</span> tttttttttttttttttttttttttttttttttttttttttt</span>
+<span id="cb6-63"><a href="#cb6-63"></a><span class="ex">7</span> PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP</span>
+<span id="cb6-64"><a href="#cb6-64"></a><span class="ex">8</span> mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm</span>
+<span id="cb6-65"><a href="#cb6-65"></a><span class="ex">9</span> UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU</span>
+<span id="cb6-66"><a href="#cb6-66"></a><span class="ex">_</span> 333333333333333333333333333333333333333333</span>
+<span id="cb6-67"><a href="#cb6-67"></a>! <span class="ex">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span></span>
+<span id="cb6-68"><a href="#cb6-68"></a><span class="ex">@</span> ==========================================</span>
+<span id="cb6-69"><a href="#cb6-69"></a><span class="co"># rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr</span></span>
+<span id="cb6-70"><a href="#cb6-70"></a>$ <span class="ex">kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk</span></span>
+<span id="cb6-71"><a href="#cb6-71"></a><span class="ex">%</span> VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV</span>
+<span id="cb6-72"><a href="#cb6-72"></a><span class="bu">.</span> <span class="ex">999999999999999999999999999999999999999999</span></span>
+<span id="cb6-73"><a href="#cb6-73"></a><span class="st">&#39; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span></span>
+<span id="cb6-74"><a href="#cb6-74"></a><span class="st">&quot; 000000000000000000000000000000000000000000</span></span>
+<span id="cb6-75"><a href="#cb6-75"></a><span class="st">+ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ</span></span>
+<span id="cb6-76"><a href="#cb6-76"></a><span class="st">: jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj</span></span>
+<span id="cb6-77"><a href="#cb6-77"></a><span class="st">; ssssssssssssssssssssssssssssssssssssssssss</span></span>
+<span id="cb6-78"><a href="#cb6-78"></a><span class="st">&lt; &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span></span>
+<span id="cb6-79"><a href="#cb6-79"></a><span class="st">= vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv</span></span>
+<span id="cb6-80"><a href="#cb6-80"></a><span class="st">} &quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;</span></span>
+<span id="cb6-81"><a href="#cb6-81"></a><span class="st">{ {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{</span></span>
+<span id="cb6-82"><a href="#cb6-82"></a><span class="st">[*] Closed connection to dctf1-chall-sp-box.westeurope.azurecontainer.io port 8888</span></span>
+<span id="cb6-83"><a href="#cb6-83"></a><span class="st">dctf{S0_y0u_f0und_th3_cycl3s_in_th3_s_b0x}</span></span></code></pre></div>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
