@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Stream Consciousness</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Stream Consciousness</h1>
+</header>
+<p>For every request, the server output cipher text of randomly picked plain text, one of them could be the flag if request enough times.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a>KEY <span class="op">=</span> ?</span>
+<span id="cb1-2"><a href="#cb1-2"></a>TEXT <span class="op">=</span> [<span class="st">&#39;???&#39;</span>, <span class="st">&#39;???&#39;</span>, ..., FLAG]</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="at">@chal.route</span>(<span class="st">&#39;/stream_consciousness/encrypt/&#39;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="kw">def</span> encrypt():</span>
+<span id="cb1-7"><a href="#cb1-7"></a>    random_line <span class="op">=</span> random.choice(TEXT)</span>
+<span id="cb1-8"><a href="#cb1-8"></a></span>
+<span id="cb1-9"><a href="#cb1-9"></a>    cipher <span class="op">=</span> AES.new(KEY, AES.MODE_CTR, counter<span class="op">=</span>Counter.new(<span class="dv">128</span>))</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    encrypted <span class="op">=</span> cipher.encrypt(random_line.encode())</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="cf">return</span> {<span class="st">&quot;ciphertext&quot;</span>: encrypted.<span class="bu">hex</span>()}</span></code></pre></div>
+<p>After 20 requests, I was able to get 16 distinct cipher texts.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>ciphers <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb2-2"><a href="#cb2-2"></a>count <span class="op">=</span> <span class="bu">len</span>(ciphers)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    c <span class="op">=</span> encrypt()</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    ciphers.add(c)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="cf">if</span> <span class="bu">len</span>(ciphers) <span class="op">&gt;</span> count:</span>
+<span id="cb2-7"><a href="#cb2-7"></a>        count <span class="op">=</span> <span class="bu">len</span>(ciphers)</span>
+<span id="cb2-8"><a href="#cb2-8"></a>        <span class="bu">print</span>(c)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="fl">9e7816</span>c6d53dba5ecfb97df03e14e1e7b7e9b3c60fb96dcb5cbf13f2fa29f653349195855fa0c3c379e847c9b02d2ba332199618a2dde125ed5ef1544e54aabdba2de0ee5ddacd2f97aaa390f65fe2d1b2475610daadbf766b9f7a634b768f50f9efc047</span>
+<span id="cb3-2"><a href="#cb3-2"></a>9b645ac3ca3d8417cbb439a43713f6ace0f4a8cf5bed4bcc53fa5ffef57feb55369186cc4badd48d37c547c2a4306eb67d</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="fl">98620e8</span>ae53dba5ecfb97df73e12f8acfff4b689</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="fl">8e7</span>f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3</span>
+<span id="cb3-5"><a href="#cb3-5"></a>b96503dad872b65c90ac68b3244ebbe1c8efe8d24eaa7bdd04c019a3ac6bf340</span>
+<span id="cb3-6"><a href="#cb3-6"></a>956208958c4aa54e83ba28f669</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="fl">8e7</span>f1f8ad878bf45cab731e17609e7e5f9fafbce08b9508450eb5fe3f33abf4d32c280854fa4ce8b63ac05c4e52a26b0325dd90cb899a328a556f1071a4ea0a0ab38a1</span>
+<span id="cb3-8"><a href="#cb3-8"></a>8d7f1bde8c7ced5bcca17deb305dfbe4fef3bcd45bed4c8d45bf0bfffe31bf4e36d499c048e5d4c337e10281b63169af3d0fc01ca0d5ae24f61fe41a5e1cbaa1be3ffbfd5194e56d96bafcc4be4de1c6f7494a53d7a5fa3f6cd17d6249389144ffe2c607fa24f4ea6475ec4ee6c7ae5a458a95e1adbe9430b33685e1fcc73054afc51216bfebfcaa67513ae99ace52e82b7b525a271932c17e0418a73658ec</span>
+<span id="cb3-9"><a href="#cb3-9"></a>8a7208c2cd6dbe17cbb07dec370eafe1feeea8c21fb9508454bf0be5fa36f11d32df908545b680ce76ef0c81a72769ac330a98599bd8af25a552ea065f1ca7bab222e3f5598eed6094fe</span>
+<span id="cb3-10"><a href="#cb3-10"></a>9330178ad973a556d3a524a87634afe8f2eebed50dfc048545b35fe3f33abf5b32c498d10bb680c17ee2028de53c3cb67c349114ecccaf39e44ff50d1a5da3a3ff3fe7f91889e5629ff3f08cb340e783ba4e01</span>
+<span id="cb3-11"><a href="#cb3-11"></a>933709c2cd71a11b839c7ae83a5de3e3e4f8fbc20dfc569545f716f9fc7ff65b73d9918548aac5df79ab1381a63124a77c1fd71aa797</span>
+<span id="cb3-12"><a href="#cb3-12"></a>96780ccf803dbd45ccb73ce63a04b0acc3f5bede5bfd4b8216eb5ffcf530e81d3bde838548b7c5cd65f547c8b17e20b1705dde16bb99a924e856e91d5b48a6a1b865a1b2188eec6ada9ea681b859f283b6454b10dba0f67361cd6b6500</span>
+<span id="cb3-13"><a href="#cb3-13"></a>8d7f1bde8c7ced59c2a629fd760ee2e9fbf1fbd313f057cc41fe16f9ef7ff75c379f</span>
+<span id="cb3-14"><a href="#cb3-14"></a>92780d8adc6fa242c7f53cea325de7ede7eda28713fc03805dbf1df2bb28f7583d919cc00ca2c5d864ac0ad8e53026b6395c</span>
+<span id="cb3-15"><a href="#cb3-15"></a>933709c2cd71a117cfba2ee17618f9e9e5e4afcf12f743cc50f11bb7f530eb1d34d4808544accd8c75ed04caeb</span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="fl">9e651</span>fd9df30a056c8bc33e3761ce1e8b7d0b2cb17f04a8943e6</span></code></pre></div>
+<p>Since the all the plain texts share one key, the key shall work on all of cipher texts. The prefix of the flag is <em>“crypto{”</em>, with that, the key could be partially recovered.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> xor_all(ciphers, test_key):</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="cf">for</span> cipher <span class="kw">in</span> ciphers:</span>
+<span id="cb4-3"><a href="#cb4-3"></a>        cipher <span class="op">=</span> <span class="bu">bytes</span>.fromhex(cipher)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(test_key)):</span>
+<span id="cb4-5"><a href="#cb4-5"></a>            <span class="cf">if</span> i <span class="op">&gt;=</span> <span class="bu">len</span>(cipher): <span class="cf">break</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>            a <span class="op">=</span> test_key[i] <span class="op">^</span> cipher[i]</span>
+<span id="cb4-7"><a href="#cb4-7"></a>            <span class="cf">if</span> <span class="kw">not</span> (a <span class="op">&gt;</span> <span class="dv">31</span> <span class="kw">and</span> a <span class="op">&lt;</span> <span class="dv">127</span>):</span>
+<span id="cb4-8"><a href="#cb4-8"></a>                <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>            <span class="bu">print</span>(<span class="bu">chr</span>(a), end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb4-10"><a href="#cb4-10"></a>        <span class="bu">print</span>()</span>
+<span id="cb4-11"><a href="#cb4-11"></a>        <span class="bu">print</span>(<span class="st">&#39;cipher&#39;</span>, <span class="bu">bytes</span>.<span class="bu">hex</span>(cipher))</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a></span>
+<span id="cb4-14"><a href="#cb4-14"></a>prefix <span class="op">=</span> b<span class="st">&#39;crypto{&#39;</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>key <span class="op">=</span> []</span>
+<span id="cb4-16"><a href="#cb4-16"></a>encrypted_flag <span class="op">=</span> b<span class="st">&#39;&#39;</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="cf">for</span> c <span class="kw">in</span> ciphers:</span>
+<span id="cb4-18"><a href="#cb4-18"></a>    c <span class="op">=</span> <span class="bu">bytes</span>.fromhex(c)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>    k <span class="op">=</span> []</span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(prefix)):</span>
+<span id="cb4-21"><a href="#cb4-21"></a>        k.append(prefix[i] <span class="op">^</span> c[i]) </span>
+<span id="cb4-22"><a href="#cb4-22"></a>    <span class="cf">if</span> xor_all(ciphers, k):</span>
+<span id="cb4-23"><a href="#cb4-23"></a>        <span class="bu">print</span>(<span class="st">&#39;found&#39;</span>, k, <span class="bu">len</span>(k))</span>
+<span id="cb4-24"><a href="#cb4-24"></a>        key[:] <span class="op">=</span> k[:]</span>
+<span id="cb4-25"><a href="#cb4-25"></a>        encrypted_flag <span class="op">=</span> c</span>
+<span id="cb4-26"><a href="#cb4-26"></a>        <span class="cf">break</span></span>
+<span id="cb4-27"><a href="#cb4-27"></a></span>
+<span id="cb4-28"><a href="#cb4-28"></a>    <span class="cf">if</span> key: <span class="cf">break</span></span></code></pre></div>
+<p>With the script part of the key is recovered to be <code>[218, 23, 122, 170, 172, 29, 205]</code> and found out the encrypted flag. What’s more, from the debug information from <em>xor_all</em> function, some readable texts were shown.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a><span class="ex">What</span> a   </span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="ex">cipher</span> 8d7f1bde8c7ced59c2a629fd760ee2e9fbf1fbd313f057cc41fe16f9ef7ff75c379f</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="ex">Three</span> b   </span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="ex">cipher</span> 8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="ex">I</span> shall    </span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="ex">cipher</span> 933709c2cd71a117cfba2ee17618f9e9e5e4afcf12f743cc50f11bb7f530eb1d34d4808544accd8c75ed04caeb</span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="ex">Dolly</span> w      </span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="ex">cipher</span> 9e7816c6d53dba5ecfb97df03e14e1e7b7e9b3c60fb96dcb5cbf13f2fa29f653349195855fa0c3c379e847c9b02d2ba332199618a2dde125ed5ef1544e54aabdba2de0ee5ddacd2f97aaa390f65fe2d1b</span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="ex">2475610daadbf766b9f7a634b768f50f9efc047</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="ex">How</span> pro         </span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="ex">cipher</span> 92780d8adc6fa242c7f53cea325de7ede7eda28713fc03805dbf1df2bb28f7583d919cc00ca2c5d864ac0ad8e53026b6395c</span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="ex">But</span> I w           </span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="ex">cipher</span> 98620e8ae53dba5ecfb97df73e12f8acfff4b689</span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="ex">As</span> if I             </span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="ex">cipher</span> 9b645ac3ca3d8417cbb439a43713f6ace0f4a8cf5bed4bcc53fa5ffef57feb55369186cc4badd48d37c547c2a4306eb67d</span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="ex">Love</span>, p               </span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="ex">cipher</span> 96780ccf803dbd45ccb73ce63a04b0acc3f5bede5bfd4b8216eb5ffcf530e81d3bde838548b7c5cd65f547c8b17e20b1705dde16bb99a924e856e91d5b48a6a1b865a1b2188eec6ada9ea681b859f283b</span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="ex">6454b10dba0f67361cd6b6500</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="ex">Perhaps</span>                  </span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="ex">cipher</span> 8a7208c2cd6dbe17cbb07dec370eafe1feeea8c21fb9508454bf0be5fa36f11d32df908545b680ce76ef0c81a72769ac330a98599bd8af25a552ea065f1ca7bab222e3f5598eed6094fe</span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="ex">I</span><span class="st">&#39;m unh                    </span></span>
+<span id="cb5-22"><a href="#cb5-22"></a><span class="st">cipher 9330178ad973a556d3a524a87634afe8f2eebed50dfc048545b35fe3f33abf5b32c498d10bb680c17ee2028de53c3cb67c349114ecccaf39e44ff50d1a5da3a3ff3fe7f91889e5629ff3f08cb340e783b</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="st">a4e01                        </span></span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="st">Our? Wh                       </span></span>
+<span id="cb5-25"><a href="#cb5-25"></a><span class="st">cipher 956208958c4aa54e83ba28f669</span></span>
+<span id="cb5-26"><a href="#cb5-26"></a><span class="st">crypto{                         </span></span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="st">cipher b96503dad872b65c90ac68b3244ebbe1c8efe8d24eaa7bdd04c019a3ac6bf340                                                                                             What a                             </span></span>
+<span id="cb5-28"><a href="#cb5-28"></a><span class="st">cipher 8d7f1bde8c7ced5bcca17deb305dfbe4fef3bcd45bed4c8d45bf0bfffe31bf4e36d499c048e5d4c337e10281b63169af3d0fc01ca0d5ae24f61fe41a5e1cbaa1be3ffbfd5194e56d96bafcc4be4de1c6f</span></span>
+<span id="cb5-29"><a href="#cb5-29"></a><span class="st">7494a53d7a5fa3f6cd17d6249389144ffe2c607fa24f4ea6475ec4ee6c7ae5a458a95e1adbe9430b33685e1fcc73054afc51216bfebfcaa67513ae99ace52e82b7b525a271932c17e0418a73658ec</span></span></code></pre></div>
+<p>What left to do was some manual work, the two functions below were quite handy.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">def</span> guess_next(cipher, key, guess):</span>
+<span id="cb6-2"><a href="#cb6-2"></a>    cipher <span class="op">=</span> <span class="bu">bytes</span>.fromhex(cipher)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(key)):</span>
+<span id="cb6-4"><a href="#cb6-4"></a>        <span class="cf">if</span> i <span class="op">&gt;=</span> <span class="bu">len</span>(cipher): <span class="cf">break</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>        a <span class="op">=</span> key[i] <span class="op">^</span> cipher[i]</span>
+<span id="cb6-6"><a href="#cb6-6"></a>        <span class="bu">print</span>(<span class="bu">chr</span>(a), end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="bu">print</span>()</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="cf">if</span> i <span class="op">+</span> <span class="dv">1</span> <span class="op">&lt;</span> <span class="bu">len</span>(cipher) <span class="kw">and</span> guess:</span>
+<span id="cb6-9"><a href="#cb6-9"></a>        key.append(<span class="bu">ord</span>(guess) <span class="op">^</span> cipher[i<span class="op">+</span><span class="dv">1</span>])</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="kw">def</span> test_key(cipher, key):</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(key)):</span>
+<span id="cb6-13"><a href="#cb6-13"></a>        <span class="cf">if</span> i <span class="op">&gt;=</span> <span class="bu">len</span>(cipher): <span class="cf">break</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a>        b <span class="op">=</span> key[i] <span class="op">^</span> cipher[i]</span>
+<span id="cb6-15"><a href="#cb6-15"></a>        <span class="bu">print</span>(<span class="bu">chr</span>(b), end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb6-16"><a href="#cb6-16"></a>    <span class="bu">print</span>()</span></code></pre></div>
+<p>After quite a while guess and test, the flag was recovered, <em>crypto{k3y57r34m_r3u53_15_f474l}</em>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>guess_next(<span class="st">&quot;9b645ac3ca3d8417cbb439a43713f6ace0f4a8cf5bed4bcc53fa5ffef57feb55369186cc4badd48d37c547c2a4306eb67d&quot;</span>, key, <span class="st">&#39; &#39;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>test_key(encrypted_flag, key)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>guess_next(<span class="st">&quot;8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3&quot;</span>, key, <span class="st">&#39;y&#39;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a>test_key(encrypted_flag, key)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>guess_next(<span class="st">&quot;8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3&quot;</span>, key, <span class="st">&#39;s&#39;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6"></a>test_key(encrypted_flag, key)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>guess_next(<span class="st">&quot;8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3&quot;</span>, key, <span class="st">&#39; &#39;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>test_key(encrypted_flag, key)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>guess_next(<span class="st">&quot;9b645ac3ca3d8417cbb439a43713f6ace0f4a8cf5bed4bcc53fa5ffef57feb55369186cc4badd48d37c547c2a4306eb67d&quot;</span>, key, <span class="st">&#39; &#39;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;r&#39;</span>)</span>
+<span id="cb7-11"><a href="#cb7-11"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;3&#39;</span>)</span>
+<span id="cb7-12"><a href="#cb7-12"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;4&#39;</span>)</span>
+<span id="cb7-13"><a href="#cb7-13"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;m&#39;</span>)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;_&#39;</span>)</span>
+<span id="cb7-15"><a href="#cb7-15"></a>guess_next(<span class="st">&quot;8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3&quot;</span>, key, <span class="st">&#39;g&#39;</span>)</span>
+<span id="cb7-16"><a href="#cb7-16"></a>guess_next(<span class="st">&quot;92780d8adc6fa242c7f53cea325de7ede7eda28713fc03805dbf1df2bb28f7583d919cc00ca2c5d864ac0ad8e53026b6395c&quot;</span>, key, <span class="st">&#39;y&#39;</span>)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>guess_next(<span class="st">&quot;9b645ac3ca3d8417cbb439a43713f6ace0f4a8cf5bed4bcc53fa5ffef57feb55369186cc4badd48d37c547c2a4306eb67d&quot;</span>, key, <span class="st">&#39;h&#39;</span>)</span>
+<span id="cb7-18"><a href="#cb7-18"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;5&#39;</span>)</span>
+<span id="cb7-19"><a href="#cb7-19"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;3&#39;</span>)</span>
+<span id="cb7-20"><a href="#cb7-20"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;_&#39;</span>)</span>
+<span id="cb7-21"><a href="#cb7-21"></a>guess_next(<span class="st">&quot;8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3&quot;</span>, key, <span class="st">&#39;y&#39;</span>)</span>
+<span id="cb7-22"><a href="#cb7-22"></a>guess_next(<span class="st">&quot;8d7f1bde8c7ced5bcca17deb305dfbe4fef3bcd45bed4c8d45bf0bfffe31bf4e36d499c048e5d4c337e10281b63169af3d0fc01ca0d5ae24f61fe41a5e1cbaa1be3ffbfd5194e56d96bafcc4be4de1c6f7494a53d7a5fa3f6cd17d6249389144ffe2c607fa24f4ea6475ec4ee6c7ae5a458a95e1adbe9430b33685e1fcc73054afc51216bfebfcaa67513ae99ace52e82b7b525a271932c17e0418a73658ec&quot;</span>, key, <span class="st">&#39;t&#39;</span>)</span>
+<span id="cb7-23"><a href="#cb7-23"></a>guess_next(encrypted_flag.<span class="bu">hex</span>(), key, <span class="st">&#39;_&#39;</span>)</span>
+<span id="cb7-24"><a href="#cb7-24"></a>guess_next(<span class="st">&quot;92780d8adc6fa242c7f53cea325de7ede7eda28713fc03805dbf1df2bb28f7583d919cc00ca2c5d864ac0ad8e53026b6395c&quot;</span>, key, <span class="st">&#39;b&#39;</span>)</span>
+<span id="cb7-25"><a href="#cb7-25"></a>guess_next(<span class="st">&quot;92780d8adc6fa242c7f53cea325de7ede7eda28713fc03805dbf1df2bb28f7583d919cc00ca2c5d864ac0ad8e53026b6395c&quot;</span>, key, <span class="st">&#39;e&#39;</span>)</span>
+<span id="cb7-26"><a href="#cb7-26"></a>guess_next(<span class="st">&quot;8d7f1bde8c7ced59c2a629fd760ee2e9fbf1fbd313f057cc41fe16f9ef7ff75c379f&quot;</span>, key, <span class="st">&#39;t&#39;</span>)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>guess_next(<span class="st">&quot;8d7f1bde8c7ced59c2a629fd760ee2e9fbf1fbd313f057cc41fe16f9ef7ff75c379f&quot;</span>, key, <span class="st">&#39; &#39;</span>)</span>
+<span id="cb7-28"><a href="#cb7-28"></a>guess_next(<span class="st">&quot;8e7f08cfc93daf58daa67df62313e1e5f9faf7870bf5459558f118b7fa2bbf553cc387c05fe980ff72fe1ecebf3628e3&quot;</span>, key, <span class="st">&#39; &#39;</span>)</span>
+<span id="cb7-29"><a href="#cb7-29"></a>guess_next(<span class="st">&quot;933709c2cd71a117cfba2ee17618f9e9e5e4afcf12f743cc50f11bb7f530eb1d34d4808544accd8c75ed04caeb&quot;</span>, key, <span class="st">&#39; &#39;</span>)</span>
+<span id="cb7-30"><a href="#cb7-30"></a>test_key(encrypted_flag, key)</span></code></pre></div>
+<p>Full source code can be found <a href="https://github.com/onealmond/hacking-lab/blob/master/cryptohack/stream-consciousness/stream-consciousness.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

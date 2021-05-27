@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Bean Counter</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Bean Counter</h1>
+</header>
+<p>The flag was in an encrypted PNG file with AES-ECB, as <em>StepUpCounter</em> was initialized with <em>step_up=False</em>, IV wasn’t updated during encryption. Considering the plain text is a PNG file, the header is known, the key size is 16, so use the first 16 bytes of cipher text to xor the first 16 bytes of PNG header to leak the key. Once got the key, xor it with each block of the cipher text to recover the PNG file.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">class</span> StepUpCounter(<span class="bu">object</span>):</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value<span class="op">=</span>os.urandom(<span class="dv">16</span>), step_up<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb1-3"><a href="#cb1-3"></a>        <span class="va">self</span>.value <span class="op">=</span> value.<span class="bu">hex</span>()</span>
+<span id="cb1-4"><a href="#cb1-4"></a>        <span class="va">self</span>.step <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>        <span class="va">self</span>.stup <span class="op">=</span> step_up</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    <span class="kw">def</span> increment(<span class="va">self</span>):</span>
+<span id="cb1-8"><a href="#cb1-8"></a>        <span class="cf">if</span> <span class="va">self</span>.stup:</span>
+<span id="cb1-9"><a href="#cb1-9"></a>            <span class="va">self</span>.newIV <span class="op">=</span> <span class="bu">hex</span>(<span class="bu">int</span>(<span class="va">self</span>.value, <span class="dv">16</span>) <span class="op">+</span> <span class="va">self</span>.step)</span>
+<span id="cb1-10"><a href="#cb1-10"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-11"><a href="#cb1-11"></a>            <span class="va">self</span>.newIV <span class="op">=</span> <span class="bu">hex</span>(<span class="bu">int</span>(<span class="va">self</span>.value, <span class="dv">16</span>) <span class="op">-</span> <span class="va">self</span>.stup)</span>
+<span id="cb1-12"><a href="#cb1-12"></a>        <span class="va">self</span>.value <span class="op">=</span> <span class="va">self</span>.newIV[<span class="dv">2</span>:<span class="bu">len</span>(<span class="va">self</span>.newIV)]</span>
+<span id="cb1-13"><a href="#cb1-13"></a>        <span class="cf">return</span> <span class="bu">bytes</span>.fromhex(<span class="va">self</span>.value.zfill(<span class="dv">32</span>))</span>
+<span id="cb1-14"><a href="#cb1-14"></a></span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
+<span id="cb1-16"><a href="#cb1-16"></a>        <span class="va">self</span>.increment()</span>
+<span id="cb1-17"><a href="#cb1-17"></a>        <span class="cf">return</span> <span class="va">self</span>.value</span>
+<span id="cb1-18"><a href="#cb1-18"></a></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="kw">def</span> encrypt():</span>
+<span id="cb1-20"><a href="#cb1-20"></a>    cipher <span class="op">=</span> AES.new(KEY, AES.MODE_ECB)</span>
+<span id="cb1-21"><a href="#cb1-21"></a>    ctr <span class="op">=</span> StepUpCounter()</span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a>    out <span class="op">=</span> []</span>
+<span id="cb1-24"><a href="#cb1-24"></a>    <span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;challenge_files/bean_flag.png&quot;</span>, <span class="st">&#39;rb&#39;</span>) <span class="im">as</span> f:</span>
+<span id="cb1-25"><a href="#cb1-25"></a>        block <span class="op">=</span> f.read(<span class="dv">16</span>)</span>
+<span id="cb1-26"><a href="#cb1-26"></a>        <span class="cf">while</span> block:</span>
+<span id="cb1-27"><a href="#cb1-27"></a>            keystream <span class="op">=</span> cipher.encrypt(ctr.increment())</span>
+<span id="cb1-28"><a href="#cb1-28"></a>            xored <span class="op">=</span> [a<span class="op">^</span>b <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(block, keystream)]</span>
+<span id="cb1-29"><a href="#cb1-29"></a>            out.append(<span class="bu">bytes</span>(xored).<span class="bu">hex</span>())</span>
+<span id="cb1-30"><a href="#cb1-30"></a>            block <span class="op">=</span> f.read(<span class="dv">16</span>)</span>
+<span id="cb1-31"><a href="#cb1-31"></a></span>
+<span id="cb1-32"><a href="#cb1-32"></a>    <span class="cf">return</span> {<span class="st">&quot;encrypted&quot;</span>: <span class="st">&#39;&#39;</span>.join(out)}</span></code></pre></div>
+<p>The following script implemented the solution, in recovered PNG file, the flag was <em>“crypto{hex_bytes_beans}”</em>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> encrypt():</span>
+<span id="cb2-2"><a href="#cb2-2"></a>    url <span class="op">=</span> <span class="st">&quot;http://aes.cryptohack.org/bean_counter/encrypt/&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>    rsp <span class="op">=</span> requests.get(url)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="cf">return</span> rsp.json()[<span class="st">&#39;encrypted&#39;</span>]</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>png_hdr <span class="op">=</span> <span class="bu">bytes</span>([<span class="bn">0x89</span>, <span class="bn">0x50</span>, <span class="bn">0x4e</span>, <span class="bn">0x47</span>, <span class="bn">0x0d</span>, <span class="bn">0x0a</span>, <span class="bn">0x1a</span>, <span class="bn">0x0a</span>, <span class="bn">0x00</span>, <span class="bn">0x00</span>, <span class="bn">0x00</span>, <span class="bn">0x0d</span>, <span class="bn">0x49</span>, <span class="bn">0x48</span>, <span class="bn">0x44</span>, <span class="bn">0x52</span>])</span>
+<span id="cb2-7"><a href="#cb2-7"></a>encrypted <span class="op">=</span> <span class="bu">bytes</span>.fromhex(encrypt())</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a>keystream <span class="op">=</span> []</span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(png_hdr)):</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    keystream.append(png_hdr[i] <span class="op">^</span> encrypted[i])</span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="bu">print</span>(keystream)</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a>png <span class="op">=</span> [<span class="dv">0</span>]<span class="op">*</span><span class="bu">len</span>(encrypted)</span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(encrypted)):</span>
+<span id="cb2-17"><a href="#cb2-17"></a>    png[i] <span class="op">=</span> encrypted[i] <span class="op">^</span> keystream[i<span class="op">%</span><span class="bu">len</span>(keystream)]</span>
+<span id="cb2-18"><a href="#cb2-18"></a></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&#39;bean_counter.png&#39;</span>, <span class="st">&#39;wb&#39;</span>) <span class="im">as</span> fd:</span>
+<span id="cb2-20"><a href="#cb2-20"></a>    fd.write(<span class="bu">bytes</span>(png))</span></code></pre></div>
+<p>The full code is <a href="https://github.com/onealmond/hacking-lab/blob/master/cryptohack/bean-counter/bean-counter.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

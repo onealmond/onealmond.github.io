@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Ecb Oracle</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Ecb Oracle</h1>
+</header>
+<p>The service takes user input as plain text, appends the flag to it to make a padded string for ``AES_ECB``` to encrypt.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">def</span> encrypt(plaintext):</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    plaintext <span class="op">=</span> <span class="bu">bytes</span>.fromhex(plaintext)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    padded <span class="op">=</span> pad(plaintext <span class="op">+</span> FLAG.encode(), <span class="dv">16</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    cipher <span class="op">=</span> AES.new(KEY, AES.MODE_ECB)</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    <span class="cf">try</span>:</span>
+<span id="cb1-8"><a href="#cb1-8"></a>        encrypted <span class="op">=</span> cipher.encrypt(padded)</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
+<span id="cb1-10"><a href="#cb1-10"></a>        <span class="cf">return</span> {<span class="st">&quot;error&quot;</span>: <span class="bu">str</span>(e)}</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="cf">return</span> {<span class="st">&quot;ciphertext&quot;</span>: encrypted.<span class="bu">hex</span>()}</span></code></pre></div>
+<p>According to the way ECB mode works, if the input is <em>“111111111111111”</em>, as the flag startswith <em>“crypto{”</em> <em>plain text + FLAG</em> becomes <em>“111111111111111crypto{…}”</em>. The first 16 bytes of cipher text of <em>“111111111111111ccrypto{…}”</em> and the first 16 bytes of cipher text of <em>“111111111111111crypto{…}”</em> should be the same.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="bu">print</span>(<span class="st">&#39;  &#39;</span>, end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>print_blk(encrypt(<span class="bu">bytes</span>.<span class="bu">hex</span>(b<span class="st">&#39;1&#39;</span><span class="op">*</span><span class="dv">15</span>)), <span class="dv">32</span>)</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">ord</span>(<span class="st">&#39;a&#39;</span>),<span class="bu">ord</span>(<span class="st">&#39;z&#39;</span>)):</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="bu">print</span>(<span class="bu">chr</span>(i), <span class="st">&#39;&#39;</span>, end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    print_blk(encrypt(<span class="bu">bytes</span>.<span class="bu">hex</span>(b<span class="st">&#39;1&#39;</span><span class="op">*</span><span class="dv">15</span><span class="op">+</span><span class="bu">int</span>.to_bytes(i, <span class="dv">1</span>, <span class="st">&#39;little&#39;</span>))), <span class="dv">32</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a>  <span class="ex">220a332f2bf0be3f1c3973707be93dba</span>  5245173a0a15bd37034d6761ed2a7fba  6397a55a1e310cbc60120becb2d9453f  <span class="op">&lt;</span>= cipher text of <span class="st">&quot;111111111111111crypto{...}&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ex">a</span> 33a2d339a8fab0ae628424d69a015106  d0312d0b8a979846ca0bb572e29eff03  dd362b0c5b430f4c2aaec01ee288ce24  </span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ex">b</span> dd498d35ca964fd218ce3e7bc3cca1cc  d0312d0b8a979846ca0bb572e29eff03  dd362b0c5b430f4c2aaec01ee288ce24  </span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ex">c</span> 220a332f2bf0be3f1c3973707be93dba  d0312d0b8a979846ca0bb572e29eff03  dd362b0c5b430f4c2aaec01ee288ce24  <span class="op">&lt;</span>= cipher text of <span class="st">&quot;111111111111111ccrypto{...}&quot;</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="ex">d</span> 91a7b888c4f4f3be960ab9a7f3460776  d0312d0b8a979846ca0bb572e29eff03  dd362b0c5b430f4c2aaec01ee288ce24</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="ex">...</span></span></code></pre></div>
+<p>By adding verified characters one by one shall be able to get the flag. As the length of flag is unknown, compare the second block, <code>cipher[32:64]</code> by guessing. Also needed to add time to sleep to avoid request rate exceeded error from server.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> bruteforce():</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    flag <span class="op">=</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    total <span class="op">=</span> <span class="dv">32</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    alphabet <span class="op">=</span> <span class="st">&#39;_&#39;</span><span class="op">+</span><span class="st">&#39;@&#39;</span><span class="op">+</span><span class="st">&#39;}&#39;</span><span class="op">+</span>string.digits<span class="op">+</span>string.ascii_lowercase<span class="op">+</span>string.ascii_uppercase</span>
+<span id="cb4-5"><a href="#cb4-5"></a></span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb4-7"><a href="#cb4-7"></a>        payload <span class="op">=</span> <span class="st">&#39;1&#39;</span> <span class="op">*</span> (total<span class="op">-</span><span class="bu">len</span>(flag))</span>
+<span id="cb4-8"><a href="#cb4-8"></a>        expected <span class="op">=</span> encrypt(payload.encode().<span class="bu">hex</span>())</span>
+<span id="cb4-9"><a href="#cb4-9"></a>        <span class="bu">print</span>(<span class="st">&#39;E&#39;</span>, <span class="st">&#39;&#39;</span>, end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb4-10"><a href="#cb4-10"></a>        print_blk(expected, <span class="dv">32</span>)</span>
+<span id="cb4-11"><a href="#cb4-11"></a>        </span>
+<span id="cb4-12"><a href="#cb4-12"></a>        <span class="cf">for</span> c <span class="kw">in</span> alphabet: </span>
+<span id="cb4-13"><a href="#cb4-13"></a>            res <span class="op">=</span> encrypt(<span class="bu">bytes</span>.<span class="bu">hex</span>((payload <span class="op">+</span> flag <span class="op">+</span> c).encode()))</span>
+<span id="cb4-14"><a href="#cb4-14"></a>            <span class="bu">print</span>(c, <span class="st">&#39;&#39;</span>, end<span class="op">=</span><span class="st">&#39;&#39;</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>            print_blk(res, <span class="dv">32</span>)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>            <span class="cf">if</span> res[<span class="dv">32</span>:<span class="dv">64</span>] <span class="op">==</span> expected[<span class="dv">32</span>:<span class="dv">64</span>]:</span>
+<span id="cb4-17"><a href="#cb4-17"></a>                flag <span class="op">+=</span> c</span>
+<span id="cb4-18"><a href="#cb4-18"></a>                <span class="bu">print</span>(flag)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>                <span class="cf">break</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>            time.sleep(<span class="dv">1</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a></span>
+<span id="cb4-22"><a href="#cb4-22"></a>        <span class="cf">if</span> flag.endswith(<span class="st">&#39;}&#39;</span>): <span class="cf">break</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a></span>
+<span id="cb4-24"><a href="#cb4-24"></a>    <span class="bu">print</span>(flag)</span></code></pre></div>
+<p>Waited for a while the flag came out to be <code>crypto{p3n6u1n5_h473_3cb}</code>.</p>
+<p>The full code is <a href="https://github.com/onealmond/hacking-lab/blob/master/cryptohack/ecb-oracle/ecb-oracle.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

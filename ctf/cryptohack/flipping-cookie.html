@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Flipping Cookie</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Flipping Cookie</h1>
+</header>
+<p><em>get_cookie</em> returns a cipher text of plain text containing <em>“admin=False”</em>, notice that the IV is returned along with the cipher text, the first 16 bytes of the cipher text are IV used for encryption. In <em>check_admin</em> the input cipher text is decrypted with giving IV, it returns the flag if the decrypted text include string <em>“admin=True”</em>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">def</span> check_admin(cookie, iv):</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    cookie <span class="op">=</span> <span class="bu">bytes</span>.fromhex(cookie)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    iv <span class="op">=</span> <span class="bu">bytes</span>.fromhex(iv)</span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="cf">try</span>:</span>
+<span id="cb1-6"><a href="#cb1-6"></a>        cipher <span class="op">=</span> AES.new(KEY, AES.MODE_CBC, iv)</span>
+<span id="cb1-7"><a href="#cb1-7"></a>        decrypted <span class="op">=</span> cipher.decrypt(cookie)</span>
+<span id="cb1-8"><a href="#cb1-8"></a>        unpadded <span class="op">=</span> unpad(decrypted, <span class="dv">16</span>)</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
+<span id="cb1-10"><a href="#cb1-10"></a>        <span class="cf">return</span> {<span class="st">&quot;error&quot;</span>: <span class="bu">str</span>(e)}</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="cf">if</span> b<span class="st">&quot;admin=True&quot;</span> <span class="kw">in</span> unpadded.split(b<span class="st">&quot;;&quot;</span>):</span>
+<span id="cb1-13"><a href="#cb1-13"></a>        <span class="cf">return</span> {<span class="st">&quot;flag&quot;</span>: FLAG}</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-15"><a href="#cb1-15"></a>        <span class="cf">return</span> {<span class="st">&quot;error&quot;</span>: <span class="st">&quot;Only admin can read the flag&quot;</span>}</span>
+<span id="cb1-16"><a href="#cb1-16"></a></span>
+<span id="cb1-17"><a href="#cb1-17"></a></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="kw">def</span> get_cookie():</span>
+<span id="cb1-19"><a href="#cb1-19"></a>    expires_at <span class="op">=</span> (datetime.today() <span class="op">+</span> timedelta(days<span class="op">=</span><span class="dv">1</span>)).strftime(<span class="st">&quot;</span><span class="sc">%s</span><span class="st">&quot;</span>)</span>
+<span id="cb1-20"><a href="#cb1-20"></a>    cookie <span class="op">=</span> <span class="ss">f&quot;admin=False;expiry=</span><span class="sc">{</span>expires_at<span class="sc">}</span><span class="ss">&quot;</span>.encode()</span>
+<span id="cb1-21"><a href="#cb1-21"></a></span>
+<span id="cb1-22"><a href="#cb1-22"></a>    iv <span class="op">=</span> os.urandom(<span class="dv">16</span>)</span>
+<span id="cb1-23"><a href="#cb1-23"></a>    padded <span class="op">=</span> pad(cookie, <span class="dv">16</span>)</span>
+<span id="cb1-24"><a href="#cb1-24"></a>    cipher <span class="op">=</span> AES.new(KEY, AES.MODE_CBC, iv)</span>
+<span id="cb1-25"><a href="#cb1-25"></a>    encrypted <span class="op">=</span> cipher.encrypt(padded)</span>
+<span id="cb1-26"><a href="#cb1-26"></a>    ciphertext <span class="op">=</span> iv.<span class="bu">hex</span>() <span class="op">+</span> encrypted.<span class="bu">hex</span>()</span>
+<span id="cb1-27"><a href="#cb1-27"></a></span>
+<span id="cb1-28"><a href="#cb1-28"></a>    <span class="cf">return</span> {<span class="st">&quot;cookie&quot;</span>: ciphertext}</span></code></pre></div>
+<p>The encryption and decryption were both based on AES-CBC, decryption process is as follow, <code>pn</code> is the nth block of plain text, <code>cn</code> is the nth block of cipher text, <code>d()</code> is the decryption function.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>p1  <span class="op">=</span> c0 <span class="op">^</span> d(c1)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="op">=&gt;</span> d(c1) <span class="op">=</span> p1 <span class="op">^</span> c0</span></code></pre></div>
+<p>To make the server believe admin is requesting, needed to flip cipher text and IV so that the decrypted text contains <em>“admin=True”</em>. In the equation shown below, <code>pn'</code> is the plain text server should read, replaced <code>d()</code> according to equation above, .</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>p1<span class="st">&#39; = c0&#39;</span> <span class="op">^</span> d(c1)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="op">=</span> c0<span class="st">&#39; ^ p1 ^ c0</span></span></code></pre></div>
+<p>For fake IV, follow the equations below, <code>iv'</code> is the fake IV, <code>iv</code> is the original IV, <code>fake</code> is the message server should read, <code>plain</code> is original message, <code>cipher</code> is the cipher text returned from server.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>cipher <span class="op">^</span> iv <span class="op">=</span> plain</span>
+<span id="cb4-2"><a href="#cb4-2"></a>cipher <span class="op">=</span> plain <span class="op">^</span> iv</span>
+<span id="cb4-3"><a href="#cb4-3"></a>fake <span class="op">=</span> cipher <span class="op">^</span> iv<span class="st">&#39;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="st">=&gt; iv&#39;</span> <span class="op">=</span> fake <span class="op">^</span> cipher <span class="op">=</span> fake <span class="op">^</span> plain <span class="op">^</span> iv</span></code></pre></div>
+<p>After successfully decrypted, the server check splitted message if containing item <em>“admin=True”</em>, so the fake message should be <em>“;admin=True;”</em>, the part to be changed was <em>“admin=False”</em>, located in the first block. Here is the flipping process.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">def</span> flip(cookie, plain):</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    start <span class="op">=</span> plain.find(b<span class="st">&#39;admin=False&#39;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    cookie <span class="op">=</span> <span class="bu">bytes</span>.fromhex(cookie)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    iv <span class="op">=</span> [<span class="bn">0xff</span>]<span class="op">*</span><span class="dv">16</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    cipher_fake <span class="op">=</span> <span class="bu">list</span>(cookie)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    fake <span class="op">=</span> b<span class="st">&#39;;admin=True;&#39;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(fake)):</span>
+<span id="cb5-8"><a href="#cb5-8"></a>       cipher_fake[<span class="dv">16</span><span class="op">+</span>i] <span class="op">=</span> plain[<span class="dv">16</span><span class="op">+</span>i] <span class="op">^</span> cookie[<span class="dv">16</span><span class="op">+</span>i] <span class="op">^</span> fake[i]</span>
+<span id="cb5-9"><a href="#cb5-9"></a>       iv[start<span class="op">+</span>i] <span class="op">=</span> plain[start<span class="op">+</span>i] <span class="op">^</span> cookie[start<span class="op">+</span>i] <span class="op">^</span> fake[i]</span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a>    cipher_fake <span class="op">=</span> <span class="bu">bytes</span>(cipher_fake).<span class="bu">hex</span>()</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    iv <span class="op">=</span> <span class="bu">bytes</span>(iv).<span class="bu">hex</span>()</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    <span class="cf">return</span> cipher_fake, iv</span></code></pre></div>
+<p>There was one thing unknown here, the second block of original plain text containing an expiry, it could be different in every cookie genereated, that would impact the flipping result, so needed to made up a plain text that has expiry close enough to the one geneated by server, otherwise, there might be an padding issue.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>expires_at <span class="op">=</span> (datetime.today() <span class="op">+</span> timedelta(days<span class="op">=</span><span class="dv">1</span>)).strftime(<span class="st">&quot;</span><span class="sc">%s</span><span class="st">&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>plain <span class="op">=</span> <span class="ss">f&quot;admin=False;expiry=</span><span class="sc">{</span>expires_at<span class="sc">}</span><span class="ss">&quot;</span>.encode()</span>
+<span id="cb6-3"><a href="#cb6-3"></a>cookie <span class="op">=</span> request_cookie()</span>
+<span id="cb6-4"><a href="#cb6-4"></a>cookie, iv <span class="op">=</span> flip(cookie, plain)</span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="bu">print</span>(request_check_admin(cookie, iv))</span></code></pre></div>
+<p>On success, the server responses the flag.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a>{<span class="st">&#39;flag&#39;</span>: <span class="st">&#39;crypto{4u7h3n71c4710n_15_3553n714l}&#39;</span>}</span></code></pre></div>
+<p>The full code is <a href="https://github.com/onealmond/hacking-lab/blob/master/cryptohack/flipping-cookie/flipping-cookie.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>

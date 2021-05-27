@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Ctrime</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #232629;
+    color: #7a7c7d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #7a7c7d;  padding-left: 4px; }
+div.sourceCode
+  { color: #cfcfc2; background-color: #232629; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span. { color: #cfcfc2; } /* Normal */
+code span.al { color: #95da4c; background-color: #4d1f24; font-weight: bold; } /* Alert */
+code span.an { color: #3f8058; } /* Annotation */
+code span.at { color: #2980b9; } /* Attribute */
+code span.bn { color: #f67400; } /* BaseN */
+code span.bu { color: #7f8c8d; } /* BuiltIn */
+code span.cf { color: #fdbc4b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #3daee9; } /* Char */
+code span.cn { color: #27aeae; font-weight: bold; } /* Constant */
+code span.co { color: #7a7c7d; } /* Comment */
+code span.cv { color: #7f8c8d; } /* CommentVar */
+code span.do { color: #a43340; } /* Documentation */
+code span.dt { color: #2980b9; } /* DataType */
+code span.dv { color: #f67400; } /* DecVal */
+code span.er { color: #da4453; text-decoration: underline; } /* Error */
+code span.ex { color: #0099ff; font-weight: bold; } /* Extension */
+code span.fl { color: #f67400; } /* Float */
+code span.fu { color: #8e44ad; } /* Function */
+code span.im { color: #27ae60; } /* Import */
+code span.in { color: #c45b00; } /* Information */
+code span.kw { color: #cfcfc2; font-weight: bold; } /* Keyword */
+code span.op { color: #cfcfc2; } /* Operator */
+code span.ot { color: #27ae60; } /* Other */
+code span.pp { color: #27ae60; } /* Preprocessor */
+code span.re { color: #2980b9; background-color: #153042; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #da4453; } /* SpecialString */
+code span.st { color: #f44f4f; } /* String */
+code span.va { color: #27aeae; } /* Variable */
+code span.vs { color: #da4453; } /* VerbatimString */
+code span.wa { color: #da4453; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+      <meta charset="UTF-8">
+      <meta name=”robots” content="index, follow">
+      <meta name="description" content="CTF Writeups, hacking techniques, reverse engineering & binary exploit, etc.">
+      <title>Onealmond</title>
+      <link rel="stylesheet" type="text/css" href="../../css/global.css"></link>
+      <script type="text/javascript" src="../../js/common.js"></script>
+</head>
+<body>
+    <div id="header"><a class="header" href="../../index.html">[]|\|[-/-\|_/\/\[]|\||)</a></div>
+    <div id="content" class="content" style="width:70%;height:auto">
+<header id="title-block-header">
+<h1 class="title">Ctrime</h1>
+</header>
+<p>The function <em>encrypt</em> append the flag to user input, uses <em>zlib</em> to compress the concatenated string. Since <em>zlib</em> eleminates duplicate string, it leaks the actual length of plain text. If adding one character to plain text doesn’t increase the length of encrypted cipher text, it’s likely to be a correct guess. Check throught alphabet for each position to find out the flag.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">def</span> encrypt(plaintext):</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    plaintext <span class="op">=</span> <span class="bu">bytes</span>.fromhex(plaintext)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    iv <span class="op">=</span> <span class="bu">int</span>.from_bytes(os.urandom(<span class="dv">16</span>), <span class="st">&#39;big&#39;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    cipher <span class="op">=</span> AES.new(KEY, AES.MODE_CTR, counter<span class="op">=</span>Counter.new(<span class="dv">128</span>, initial_value<span class="op">=</span>iv))</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    encrypted <span class="op">=</span> cipher.encrypt(zlib.compress(plaintext <span class="op">+</span> FLAG.encode()))</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="cf">return</span> {<span class="st">&quot;ciphertext&quot;</span>: encrypted.<span class="bu">hex</span>()}</span></code></pre></div>
+<p>The flag starts with <em>“crypto{”</em>, encrypted it the server output a cipher text of length 68, by adding a character is unlikely to exists in the flag the cipher text length became 70.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="op">&gt;&gt;&gt;</span> b<span class="st">&#39;crypto{&#39;</span>.<span class="bu">hex</span>()</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co">&#39;63727970746f7b&#39;</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">len</span>(<span class="st">&#39;cdb32bf7901f3e434d6f53a7049b9171a85a11a5dd5272a7d723c508d8219fc9d1ec&#39;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="dv">68</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="op">&gt;&gt;&gt;</span> b<span class="st">&#39;crypto{&gt;&#39;</span>.<span class="bu">hex</span>()</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">&#39;63727970746f7b3e&#39;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">len</span>(<span class="st">&#39;921b4d1e22174bc99878f251e5c6a8a3c83d373abf8ad91dc9c48d53e2913ddab3729b&#39;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="dv">70</span></span></code></pre></div>
+<p>With the following script I can get <em>“crypto{CRIM”</em>, but it didn’t figure out the next character, well, it’s not hard to make a guess, by adding <em>E</em> behind <em>M</em> the script kept going until the end and output the flag <em>crypto{CRIME_571ll_p4y5}</em>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>alphabet <span class="op">=</span> <span class="st">&#39;}&#39;</span><span class="op">+</span><span class="st">&#39;!&#39;</span><span class="op">+</span><span class="st">&#39;_&#39;</span><span class="op">+</span><span class="st">&#39;@&#39;</span><span class="op">+</span><span class="st">&#39;?&#39;</span><span class="op">+</span>string.ascii_uppercase<span class="op">+</span>string.digits<span class="op">+</span>string.ascii_lowercase</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">def</span> bruteforce():</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    </span>
+<span id="cb3-5"><a href="#cb3-5"></a>    flag <span class="op">=</span> b<span class="st">&#39;crypto{&#39;</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>    cipher <span class="op">=</span> encrypt(flag.<span class="bu">hex</span>())</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    mi <span class="op">=</span> <span class="bu">len</span>(cipher)</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb3-10"><a href="#cb3-10"></a>        <span class="cf">for</span> c <span class="kw">in</span> alphabet:</span>
+<span id="cb3-11"><a href="#cb3-11"></a>            cipher <span class="op">=</span> encrypt((flag<span class="op">+</span>c.encode()).<span class="bu">hex</span>())</span>
+<span id="cb3-12"><a href="#cb3-12"></a>            <span class="bu">print</span>(c, <span class="bu">len</span>(cipher))</span>
+<span id="cb3-13"><a href="#cb3-13"></a>            <span class="cf">if</span> mi <span class="op">==</span> <span class="bu">len</span>(cipher):</span>
+<span id="cb3-14"><a href="#cb3-14"></a>                flag <span class="op">+=</span> c.encode()</span>
+<span id="cb3-15"><a href="#cb3-15"></a>                mi <span class="op">=</span> <span class="bu">len</span>(cipher)</span>
+<span id="cb3-16"><a href="#cb3-16"></a>                <span class="bu">print</span>(mi, flag)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>                <span class="cf">break</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a>            <span class="cf">if</span> c <span class="op">==</span> alphabet[<span class="op">-</span><span class="dv">1</span>]:</span>
+<span id="cb3-19"><a href="#cb3-19"></a>                mi <span class="op">+=</span> <span class="dv">2</span></span>
+<span id="cb3-20"><a href="#cb3-20"></a>                <span class="cf">break</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a>            time.sleep(<span class="dv">1</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a>        <span class="cf">if</span> flag.endswith(b<span class="st">&#39;}&#39;</span>): </span>
+<span id="cb3-24"><a href="#cb3-24"></a>            <span class="bu">print</span>(flag)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>            <span class="cf">break</span></span></code></pre></div>
+<p>The full code is <a href="https://github.com/onealmond/hacking-lab/blob/master/cryptohack/ctrime/ctrime.py">here</a>.</p>
+    </div>
+    <a id="back-to-top" class="back-to-top" href="#header">TOP</a>
+</body>
+</html>
